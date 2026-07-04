@@ -27,7 +27,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - MONGODB_URL=mongodb://mongo:27017/pricing_platform
+      - MONGODB_URL=mongodb+srv://Karthik:Karthik123@cluster0.1bjbbcr.mongodb.net/pricing_platform?appName=Cluster0
     volumes:
       - ./backend:/app
     depends_on:
@@ -46,7 +46,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - MONGODB_URL=mongodb://mongo:27017/pricing_platform
+      - MONGODB_URL=mongodb+srv://Karthik:Karthik123@cluster0.1bjbbcr.mongodb.net/pricing_platform?appName=Cluster0
     volumes:
       - ./backend:/app
     depends_on:
