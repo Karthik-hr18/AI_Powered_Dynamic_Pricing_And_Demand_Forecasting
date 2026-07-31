@@ -47,3 +47,7 @@ lerna-debug.log*
 # Logs
 *.log
 logs/
+
+# ML Artifacts
+backend/artifacts/**/*.pkl
+backend/artifacts/**/*.joblib

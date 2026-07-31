@@ -1,11 +1,11 @@
 # AI-Powered Dynamic Pricing & Demand Forecasting Platform
 
 **Current Phase**: Phase 3 — Implementation  
-**Current Milestone**: M1 — Completed  
+**Current Milestone**: M2 — Completed  
 
 ---
 
-Welcome to the AI-Powered Dynamic Pricing & Demand Forecasting Platform. This platform leverages modern machine learning forecasting (Prophet, XGBoost) and heuristics-based optimization to adjust prices dynamically based on demand patterns, inventory limits, and anomaly triggers.
+Welcome to the AI-Powered Dynamic Pricing & Demand Forecasting Platform. This platform leverages modern machine learning forecasting (Prophet, XGBoost) and heuristics-based optimization to adjust prices dynamically based on demand patterns, inventory limits, and anomaly triggers. **Note: Machine learning models are trained offline in Google Colab. The website loads pre-trained model artifacts and performs inference only.**
 
 ---
 
@@ -22,9 +22,9 @@ Welcome to the AI-Powered Dynamic Pricing & Demand Forecasting Platform. This pl
 ## Repository Structure
 
 ```
-├── backend/                  # FastAPI & Python Worker Environment
+├── backend/                  # FastAPI Web Server, Worker, & Pre-Trained Artifacts
 ├── frontend/                 # React & Vite Development Environment
-├── ml/                       # Machine Learning Training & Inference Scripts
+├── ml/                       # Machine Learning Inference-only Logic (Offline Colab Training)
 └── docs/                     # Platform Documentation & Specifications
 ```
 
@@ -131,11 +131,11 @@ All contributions must follow our contribution guide in `CONTRIBUTING.md`. Never
 
 ## Road Map (High-level Milestones)
 * **M1**: Project Scaffolding (Completed)
-* **M2**: Database Foundation
+* **M2**: Database Foundation (Completed)
 * **M3**: Authentication
 * **M4**: CSV Upload & Ingestion
-* **M5**: Preprocessing Pipeline
-* **M6**: ML Pipelines
+* **M5**: Preprocessing Pipeline (Prepare for inference)
+* **M6**: ML Inference Pipelines (Artifact loader, model caching, inference engines)
 * **M7**: Inventory Risk
 * **M8**: Dashboard APIs
 * **M9**: Frontend Auth
@@ -143,7 +143,7 @@ All contributions must follow our contribution guide in `CONTRIBUTING.md`. Never
 * **M11**: Dashboard UI
 * **M12**: Product Detail
 * **M13**: Admin
-* **M14**: Testing
+* **M14**: Testing & Inference Validation (Prediction schemas, datatype verification, NaN checks)
 * **M15**: Deployment
 
 ---

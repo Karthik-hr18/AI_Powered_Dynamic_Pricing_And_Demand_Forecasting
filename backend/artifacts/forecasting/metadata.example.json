@@ -1,0 +1,28 @@
+{
+  "model_name": "forecasting",
+  "model_version": "1.0.0",
+  "algorithm": "Prophet + XGBoost Residual Correction",
+  "trained_on": "2026-08-01",
+  "dataset": "Retail Ingestion Dataset v2.4",
+  "framework_versions": {
+    "python": "3.13.7",
+    "scikit-learn": "1.6.0",
+    "xgboost": "2.0.3",
+    "prophet": "1.1.5"
+  },
+  "required_features": [
+    "day_of_week",
+    "is_weekend",
+    "rolling_avg_7d",
+    "lag_1d_quantity",
+    "price_change_flag",
+    "promotion_flag",
+    "holiday_flag"
+  ],
+  "target": "quantity_sold",
+  "metrics": {
+    "mae": 1.24,
+    "rmse": 1.98,
+    "mape": 0.145
+  }
+}

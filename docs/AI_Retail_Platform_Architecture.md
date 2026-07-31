@@ -51,10 +51,12 @@ A web-based, AI-driven retail analytics platform giving SME retailers demand for
 | Business-Oriented, Not Model-Oriented UX | Dashboard answers 'what should the retailer do today,' not 'here is what the model predicted' |
 
 ### ML Architecture (Locked)
-- **Forecasting:** Three-tier adaptive (Prophet+XGBoost for ≥30 days, moving average fallback, explicit exclusion below minimum floor)
-- **Pricing:** Two-pipeline separation — demand forecasting and price-elasticity regression composed by an optimization layer; bounded ±15%; revenue maximization only for MVP
-- **Anomaly Detection:** Two-stage Isolation Forest — pre-forecast flagging + post-upload alerting; no auto-exclusion
-- **Inventory Risk:** True risk (days of cover) when inventory_level present; soft advisory otherwise
+- **Training:** Performed offline in Google Colab notebooks; versioned model artifacts (.pkl/.joblib) are exported.
+- **FastAPI Backend:** Performs inference-only operations using loaded pre-trained model artifacts from memory cache.
+- **Forecasting:** Three-tier adaptive inference (Prophet+XGBoost for ≥30 days, moving average fallback, explicit exclusion below minimum floor) using loaded Colab artifacts.
+- **Pricing:** Price-elasticity regression candidate optimization grid inference composed by an optimization layer; bounded ±15%.
+- **Anomaly Detection:** Two-stage Isolation Forest inference — pre-forecast flagging + post-upload alerting.
+- **Inventory Risk:** True risk (days of cover) when inventory_level present; soft advisory otherwise.
 
 ---
 
@@ -508,6 +510,10 @@ Same shape as `pricing_current` plus `superseded_at` and `triggered_by` (same pa
 
 ```
 backend/
+├── artifacts/                         # Pre-trained ML artifacts (.gitkeep + metadata templates)
+│   ├── forecasting/
+│   ├── pricing/
+│   └── anomaly/
 ├── app/
 │   ├── core/
 │   │   ├── config.py                  # Pydantic Settings, env vars
@@ -517,7 +523,11 @@ backend/
 │   │   │   ├── role_middleware.py     # RBAC (RETAILER/ADMIN)
 │   │   │   └── error_handler.py      # Unified error shape
 │   │   ├── db/
-│   │   │   └── connection.py
+│   │   │   ├── connection.py
+│   │   │   └── init_indexes.py
+│   │   ├── ml/
+│   │   │   ├── __init__.py
+│   │   │   └── artifact_loader.py     # Shared Artifact Manager (discovers, loads, caches models)
 │   │   ├── logger.py                  # JSON structured logger
 │   │   └── utils/
 │   │
@@ -684,41 +694,24 @@ frontend/
 ```
 ml/
 ├── forecasting/
-│   ├── training/
-│   │   ├── eligibility_checker.py    # Three-tier: FULL / FALLBACK / INSUFFICIENT_DATA
-│   │   ├── prophet_trainer.py
-│   │   ├── xgboost_trainer.py        # Trains on Prophet residuals
-│   │   └── fallback_trainer.py       # Weighted moving average (stateless)
 │   ├── inference/
-│   │   ├── prophet_predictor.py
-│   │   ├── xgboost_predictor.py
+│   │   ├── prophet_predictor.py      # Run Prophet inference on loaded model
+│   │   ├── xgboost_predictor.py      # Run XGBoost inference on loaded model
 │   │   ├── fallback_predictor.py
-│   │   └── forecast_composer.py      # Composes final output matching forecast_current schema
-│   ├── evaluation/
-│   │   ├── metrics.py                # MAE, RMSE, MAPE
-│   │   └── cross_validator.py        # Walk-forward only — NOT random k-fold
+│   │   └── forecast_composer.py      # Composes final prediction schema
 │   └── schemas.py
 │
 ├── pricing/
-│   ├── training/
-│   │   ├── eligibility_checker.py    # History + price variation gates (independent from forecasting)
-│   │   └── elasticity_trainer.py     # Regression: Linear/RF/GBR
 │   ├── inference/
 │   │   ├── candidate_generator.py    # ±15% AND historical range → linspace
-│   │   ├── elasticity_predictor.py   # Demand at each candidate price
-│   │   └── optimizer.py              # Revenue argmax (pluggable objective: REVENUE for MVP)
-│   ├── evaluation/
-│   │   └── metrics.py                # R², MAE on held-out price-quantity data
+│   │   ├── elasticity_predictor.py   # Demand inference at candidate prices
+│   │   └── optimizer.py              # Revenue argmax optimizer
 │   └── schemas.py
 │
 ├── anomaly/
-│   ├── training/
-│   │   └── isolation_forest_trainer.py
 │   ├── inference/
-│   │   ├── historical_detector.py    # Stage 1: PRE_FORECAST_HISTORICAL (never modifies processed_sales)
-│   │   └── realtime_detector.py      # Stage 2: POST_UPLOAD_ALERT (reuses Stage 1 model)
-│   ├── evaluation/
-│   │   └── metrics.py                # Precision/recall vs manual review
+│   │   ├── historical_detector.py    # Run Isolation Forest outlier inference
+│   │   └── realtime_detector.py      # Run Stage 2 alert inference
 │   └── schemas.py
 │
 ├── shared/
@@ -767,10 +760,10 @@ ml/
 └──────┬──────────┘            └──────────┬────────────┘
        │                                  │
 ┌──────▼──────────────────────────────────▼────────────┐
-│  ML LAYER — ml/ (Prophet · XGBoost · scikit-learn)  │
-│  ml/forecasting · ml/pricing · ml/anomaly · ml/shared│
-│  One-directional: domains/ → ml/ (never reverse)    │
-└──────────────────────────────┬────────────────────────┘
+│  ML LAYER — ml/ (Inference only — Colab trained)       │
+│  ml/forecasting · ml/pricing · ml/anomaly · ml/shared  │
+│  One-directional: domains/ → ml/ (never reverse)       │
+└──────────────────────────────┬─────────────────────────┘
                                │ reads + writes
 ┌──────────────────────────────▼────────────────────────┐
 │  DATA LAYER — MongoDB (retailer_id isolation)         │
@@ -1037,13 +1030,13 @@ Pipeline sequence:
 [current_stage: "forecasting"]
   ml/forecasting per product:
     eligibility_checker → FULL / FALLBACK / INSUFFICIENT_DATA
-    fit + infer (or mark insufficient)
+    load pre-trained models + run inference
   → forecast_current.update_one(upsert) + forecast_history.insert_one
 
 [current_stage: "pricing"]
   ml/pricing per product:
     eligibility_checker → ELIGIBLE / INSUFFICIENT_*
-    fit elasticity → generate candidates → optimize
+    load pre-trained model + candidate optimization grid inference
   → pricing_current.update_one(upsert) + pricing_history.insert_one
 
 [current_stage: "inventory"]
@@ -1096,17 +1089,11 @@ history_days >= 7 (floor) → FALLBACK (moving average)
 history_days < floor      → INSUFFICIENT_DATA (no model, explicit reason, exit)
 ```
 
-#### Full Pipeline — Prophet + XGBoost
+#### Full Pipeline — Prophet + XGBoost (Inference Only)
 ```
-Prophet:
-  Input: ds=date, y=quantity_sold + regressors (promotion_flag, holiday_flag)
-  Output: fitted Prophet model
-
-XGBoost (on residuals):
-  residuals = actual - Prophet in-sample predictions
-  Features: [day_of_week, is_weekend, rolling_avg_7d, lag_1d_quantity,
-             price_change_flag, promotion_flag, holiday_flag]
-  Output: fitted XGBoost model
+Model Loader:
+  Get models from app.core.ml.artifact_loader.get_model("forecasting")
+  (discovers and loads pre-trained Prophet + XGBoost model artifacts)
 
 forecast_composer:
   future_dates 7d + 30d
@@ -1122,12 +1109,11 @@ horizon_30d = null (scientifically indefensible from <30 days)
 confidence: "low"
 ```
 
-#### Evaluation (Section 10.5)
+#### Inference Output Validation
 ```
-Walk-forward time-series cross-validation ONLY (NOT random k-fold)
-Minimum 3 splits
-Metrics per split: MAE, RMSE, MAPE
-Assert: no validation date earlier than any training date
+Validate prediction data structures match forecast_current schema.
+Check for any nulls (NaN) in forecast predictions.
+Verify predicted values are non-negative floats.
 ```
 
 ### Pipeline 2: Dynamic Pricing
@@ -1139,11 +1125,10 @@ CHECK 2: price_cv >= 0.05 threshold   → else INSUFFICIENT_PRICE_VARIATION
 Both must pass → ELIGIBLE
 ```
 
-#### Elasticity Training
+#### Elasticity Inference
 ```
-Feature matrix: [selling_price, promotion_flag, holiday_flag, day_of_week, rolling_avg_7d]
-Target: quantity_sold
-Model: Linear Regression (baseline, defensible default; RF/GBR noted as alternatives)
+Model Loader:
+  Get pre-trained elasticity model from app.core.ml.artifact_loader.get_model("pricing")
 ```
 
 #### Candidate Generation + Optimization
@@ -1165,20 +1150,18 @@ SANITY CHECK: recommended_price MUST be within bound_range
   (if not: pipeline bug, not acceptable edge case)
 ```
 
-#### Evaluation
+#### Inference Validation
 ```
-80/20 chronological split
-R² and MAE on held-out quantity predictions
-Verify recommended_price within bound_range
+Validate recommended_price is within bound_range.
+Check for NaN values in pricing recommendations.
 ```
 
 ### Pipeline 3: Anomaly Detection
 
 #### Stage 1 — Historical
 ```
-IsolationForest(contamination="auto") fit on:
-  Features: [quantity_sold, selling_price, rolling_avg_7d, day_of_week]
-
+Model Loader:
+  Get pre-trained Isolation Forest model from app.core.ml.artifact_loader.get_model("anomaly")
 For each anomaly (predict == -1):
   IF quantity_sold > rolling_avg_7d × 2.0  → SPIKE
   ELIF quantity_sold < rolling_avg_7d × 0.3 → DROP
@@ -1321,7 +1304,8 @@ test_token_not_stored_in_plaintext()
 test_insufficient_data_includes_reason_string()
 test_negative_predictions_clipped_to_zero()
 test_fallback_horizon_30d_is_null()
-test_cross_validation_is_walk_forward_not_random_kfold()
+test_artifact_loading_succeeds()
+test_prediction_schema_validation()
 
 # Pricing
 test_constant_price_returns_INSUFFICIENT_PRICE_VARIATION()
@@ -1329,11 +1313,13 @@ test_candidates_within_bound_pct()
 test_candidates_within_historical_range()
 test_recommended_price_is_revenue_argmax()
 test_recommended_price_within_bound_range()
+test_elasticity_artifact_loading()
 
 # Anomaly
 test_stage_1_flags_do_not_modify_processed_sales()
 test_all_flags_include_explanation_string()
 test_stage_2_appends_to_stage_1_results()
+test_nan_detection_in_raw_features()
 ```
 
 #### Upload Validation
@@ -1436,9 +1422,9 @@ False positive anomalies: notebooks/anomaly_threshold_tuning.ipynb → retune co
 | Model refit cost | Refit every upload | Large product catalogs | Serialize models (joblib) to object storage; reuse if training data unchanged (model_registry.py already designed as cache-key mechanism) |
 
 ### ML Models
-- **Prophet** is the dominant cost: 5–30 seconds per product per fit
-- **Step 1:** Parallel product fitting (most immediate win)
-- **Step 2:** Serialize fitted models → incremental retraining on new data only
+- **Prophet** is the dominant cost: ~0.5–2 seconds per product per inference run
+- **Step 1:** Parallel product inference (most immediate win)
+- **Step 2:** Load cached models -> run inference
 - **Step 3:** Category-level models (Section 11 deferred item — `category` field already on `products` collection, no migration needed)
 - **Step 4:** GPU-accelerated compute for XGBoost (ML code extraction to remote service is clean due to one-directional dependency boundary)
 

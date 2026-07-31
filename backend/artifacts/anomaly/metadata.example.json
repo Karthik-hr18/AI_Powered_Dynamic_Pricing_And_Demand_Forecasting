@@ -1,0 +1,21 @@
+{
+  "model_name": "anomaly",
+  "model_version": "1.0.0",
+  "algorithm": "Isolation Forest",
+  "trained_on": "2026-08-01",
+  "dataset": "Retail Ingestion Dataset v2.4",
+  "framework_versions": {
+    "python": "3.13.7",
+    "scikit-learn": "1.6.0"
+  },
+  "required_features": [
+    "quantity_sold",
+    "selling_price",
+    "rolling_avg_7d",
+    "day_of_week"
+  ],
+  "target": "outlier_label",
+  "metrics": {
+    "contamination": 0.05
+  }
+}

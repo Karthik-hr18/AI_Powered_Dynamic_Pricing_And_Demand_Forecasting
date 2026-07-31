@@ -33,7 +33,10 @@ The platform uses the following stack:
 │   ├── app/                  # Application source
 │   │   ├── core/             # Base configurations (middleware, db, logging)
 │   │   │   ├── db/
-│   │   │   └── middleware/
+│   │   │   ├── middleware/
+│   │   │   └── ml/           # Shared ML Artifact Loader
+│   │   │       ├── __init__.py
+│   │   │       └── artifact_loader.py
 │   │   ├── domains/          # Domain-driven feature directories
 │   │   │   ├── admin/
 │   │   │   ├── anomaly/
@@ -47,6 +50,7 @@ The platform uses the following stack:
 │   │   │   └── uploads/
 │   │   ├── worker/           # Background job queue processing entrypoint
 │   │   └── main.py           # FastAPI Web Application entrypoint
+│   ├── artifacts/            # Model artifact templates (forecasting, pricing, anomaly)
 │   ├── tests/                # Automated pytest suites
 │   ├── Dockerfile            # Python environment Docker setup
 │   ├── pyproject.toml        # Poetry/pip metadata configuration
@@ -63,10 +67,10 @@ The platform uses the following stack:
 │   ├── Dockerfile            # Node environment Docker setup
 │   └── package.json          # Node package definition
 │
-├── ml/                       # Machine Learning Codebase (Independent module)
-│   ├── forecasting/          # Forecasting training, inference, and evaluation
-│   ├── pricing/              # Pricing simulation and candidates optimization
-│   ├── anomaly/              # Spike and drop anomaly engine
+├── ml/                       # Machine Learning Codebase (Inference-only logic)
+│   ├── forecasting/          # Forecasting inference and composition
+│   ├── pricing/              # Pricing optimizer and candidates evaluation
+│   ├── anomaly/              # Spike and drop alert anomaly engine
 │   └── shared/               # Shared ML utilities
 │
 ├── docs/                     # Static documentation resources
@@ -123,8 +127,8 @@ The platform is orchestrated locally using a series of isolated containers:
 | **M2** | Database Models & Migrations | Planned |
 | **M3** | Authentication & Authorization API | Planned |
 | **M4** | Products & Inventory Management API | Planned |
-| **M5** | CSV Data Upload Pipeline | Planned |
-| **M6** | Baseline Forecasting Pipeline | Planned |
+| **M5** | CSV Preprocessing (Prepare for inference) | Planned |
+| **M6** | ML Inference Pipelines (Artifact loader, model caching, inference engines, result persistence) | Planned |
 | **M7** | Pricing Logic & Candidates Evaluator | Planned |
 | **M8** | Anomaly Detection Engine | Planned |
 | **M9** | Background Job Queue (Worker) | Planned |
@@ -132,5 +136,5 @@ The platform is orchestrated locally using a series of isolated containers:
 | **M11** | Shared Layout & Navigation Frontend | Planned |
 | **M12** | Auth & Product Feature UI | Planned |
 | **M13** | Forecasting & Anomaly Dashboard UI | Planned |
-| **M14** | Pricing Simulation UI | Planned |
+| **M14** | Testing & Inference Validation (Prediction schemas, datatype verification, NaN checks) | Planned |
 | **M15** | Integration, E2E Testing & Deployment | Planned |

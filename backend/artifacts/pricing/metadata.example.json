@@ -1,0 +1,23 @@
+{
+  "model_name": "pricing",
+  "model_version": "1.0.0",
+  "algorithm": "Elasticity Linear Regression",
+  "trained_on": "2026-08-01",
+  "dataset": "Retail Ingestion Dataset v2.4",
+  "framework_versions": {
+    "python": "3.13.7",
+    "scikit-learn": "1.6.0"
+  },
+  "required_features": [
+    "selling_price",
+    "promotion_flag",
+    "holiday_flag",
+    "day_of_week",
+    "rolling_avg_7d"
+  ],
+  "target": "quantity_sold",
+  "metrics": {
+    "r2": 0.81,
+    "mae": 1.12
+  }
+}
