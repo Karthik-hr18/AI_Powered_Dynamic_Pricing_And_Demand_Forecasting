@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     PRICING_N_CANDIDATES: int = 5
     ANOMALY_SPIKE_THRESHOLD: float = 2.0
     ANOMALY_DROP_THRESHOLD: float = 0.5
+    UPLOAD_STORAGE_DIR: str = "storage/uploads"
 
     class Config:
         env_file = ".env"

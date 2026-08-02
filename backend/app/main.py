@@ -19,6 +19,7 @@ from app.domains.inventory.models import InventoryCurrentDocument
 from app.domains.anomaly.models import AnomalyCurrentDocument
 
 from app.domains.auth.router import router as auth_router
+from app.domains.uploads.router import router as uploads_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -58,6 +59,7 @@ app = FastAPI(
 
 # Register routers
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(uploads_router, prefix="/api/v1/uploads", tags=["uploads"])
 
 @app.get("/")
 def read_root():
