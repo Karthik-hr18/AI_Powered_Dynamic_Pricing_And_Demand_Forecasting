@@ -4,12 +4,25 @@ import logging
 import os
 import sys
 from datetime import datetime
+
+# Add parent directory containing 'ml' to sys.path
+curr = os.path.abspath(__file__)
+parent_dir = None
+for _ in range(10):
+    curr = os.path.dirname(curr)
+    if os.path.isdir(os.path.join(curr, "ml")):
+        parent_dir = curr
+        break
+
+if parent_dir and parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
 from typing import Any, Dict, Optional, Tuple
 
-from beanie import init_beanie
+from beanie import init_beanie, PydanticObjectId
 
 from app.core.config import settings
-from app.core.constants import UploadStatus, UserRole
+from app.core.constants import UploadStatus, UserRole, ForecastTriggeredBy
 from app.core.db.connection import connect_to_mongo, close_mongo_connection, get_database
 from app.core.db.init_indexes import create_all_indexes
 from app.domains.auth.models import UserDocument
@@ -58,10 +71,173 @@ def _parse_float(value: Optional[str]) -> Optional[float]:
         raise ValueError(f"Value '{value}' is not a valid float.")
 
 
+async def run_downstream_pipeline(upload: UploadDocument) -> None:
+    """
+    Executes feature engineering and predictive inference pipelines for all products
+    modified in this upload.
+    """
+    # 1. Fetch raw rows uploaded in this job
+    raw_sales = await RawSaleDocument.find(RawSaleDocument.upload_id == upload.id).to_list()
+    if not raw_sales:
+        logger.warning(f"No raw sales records found for upload {upload.upload_id}")
+        return
+
+    # 2. Daily sales aggregation
+    from ml.shared.feature_engineering import aggregate_raw_sales_daily, compute_rolling_features
+    from ml.forecasting.inference.predict import predict_demand
+    from ml.pricing.inference.predict import recommend_price
+    from ml.anomaly.inference.predict import detect_anomalies
+
+    df_agg = aggregate_raw_sales_daily(raw_sales)
+    if df_agg.empty:
+        logger.warning(f"Daily aggregation resulted in empty dataframe for upload {upload.upload_id}")
+        return
+
+    product_ids = {PydanticObjectId(pid) for pid in df_agg["product_id"]}
+    run_time = datetime.utcnow()
+    run_id = PydanticObjectId()
+
+    logger.info(f"Triggering downstream pipelines for {len(product_ids)} products. Run ID: {run_id}")
+
+    for pid in product_ids:
+        # A. Preprocessing: query prior context to compute rolling windows correctly
+        history_processed = await ProcessedSaleDocument.find(
+            ProcessedSaleDocument.retailer_id == upload.retailer_id,
+            ProcessedSaleDocument.product_id == pid
+        ).sort(ProcessedSaleDocument.date).to_list()
+
+        df_prod = df_agg[df_agg["product_id"] == str(pid)]
+        feature_records = compute_rolling_features(df_prod, history_processed)
+
+        # Upsert preprocessed records
+        for feat in feature_records:
+            feat_date = feat["date"]
+            processed_sale = ProcessedSaleDocument(
+                retailer_id=upload.retailer_id,
+                product_id=pid,
+                date=feat_date,
+                quantity_sold=feat["quantity_sold"],
+                selling_price=feat["selling_price"],
+                unit_cost=feat["unit_cost"],
+                discount=feat["discount"],
+                store_id=feat["store_id"],
+                inventory_level=feat["inventory_level"],
+                promotion_flag=feat["promotion_flag"],
+                holiday_flag=feat["holiday_flag"],
+                category=feat["category"],
+                lag_1d_quantity=feat["lag_1d_quantity"],
+                rolling_avg_7d=feat["rolling_avg_7d"],
+                rolling_avg_30d=feat["rolling_avg_30d"],
+                price_change_flag=feat["price_change_flag"],
+                day_of_week=feat["day_of_week"],
+                is_weekend=feat["is_weekend"],
+                feature_engineering_version=feat["feature_engineering_version"]
+            )
+
+            existing = await ProcessedSaleDocument.find_one(
+                ProcessedSaleDocument.retailer_id == upload.retailer_id,
+                ProcessedSaleDocument.product_id == pid,
+                ProcessedSaleDocument.date == feat_date
+            )
+            if existing:
+                processed_sale.id = existing.id
+                await processed_sale.replace()
+            else:
+                await processed_sale.insert()
+
+        # B. Reload fully updated history timeline (for lag/prediction context)
+        full_history = await ProcessedSaleDocument.find(
+            ProcessedSaleDocument.retailer_id == upload.retailer_id,
+            ProcessedSaleDocument.product_id == pid
+        ).sort(ProcessedSaleDocument.date).to_list()
+
+        current_price = full_history[-1].selling_price if full_history else 0.0
+
+        # C. ML Inference: Forecasting
+        forecast_curr, forecast_hist = predict_demand(
+            retailer_id=upload.retailer_id,
+            product_id=pid,
+            history=full_history,
+            upload_id=upload.id,
+            run_id=run_id,
+            trigger_by=ForecastTriggeredBy.UPLOAD
+        )
+        existing_f = await ForecastCurrentDocument.find_one(
+            ForecastCurrentDocument.retailer_id == upload.retailer_id,
+            ForecastCurrentDocument.product_id == pid
+        )
+        if existing_f:
+            forecast_curr.id = existing_f.id
+            await forecast_curr.replace()
+        else:
+            await forecast_curr.insert()
+            
+        await ForecastHistoryDocument.find(
+            ForecastHistoryDocument.retailer_id == upload.retailer_id,
+            ForecastHistoryDocument.product_id == pid,
+            ForecastHistoryDocument.superseded_at == None
+        ).update({"$set": {"superseded_at": run_time}})
+        await forecast_hist.insert()
+
+        # D. ML Inference: Pricing Recommendations
+        pricing_curr, pricing_hist = recommend_price(
+            retailer_id=upload.retailer_id,
+            product_id=pid,
+            history=full_history,
+            current_price=current_price,
+            upload_id=upload.id,
+            run_id=run_id,
+            trigger_by=ForecastTriggeredBy.UPLOAD
+        )
+        existing_p = await PricingCurrentDocument.find_one(
+            PricingCurrentDocument.retailer_id == upload.retailer_id,
+            PricingCurrentDocument.product_id == pid
+        )
+        if existing_p:
+            pricing_curr.id = existing_p.id
+            await pricing_curr.replace()
+        else:
+            await pricing_curr.insert()
+            
+        await PricingHistoryDocument.find(
+            PricingHistoryDocument.retailer_id == upload.retailer_id,
+            PricingHistoryDocument.product_id == pid,
+            PricingHistoryDocument.superseded_at == None
+        ).update({"$set": {"superseded_at": run_time}})
+        await pricing_hist.insert()
+
+        # E. ML Inference: Anomaly Detection
+        anomaly_curr = detect_anomalies(
+            retailer_id=upload.retailer_id,
+            product_id=pid,
+            history=full_history,
+            upload_id=upload.id
+        )
+        existing_a = await AnomalyCurrentDocument.find_one(
+            AnomalyCurrentDocument.retailer_id == upload.retailer_id,
+            AnomalyCurrentDocument.product_id == pid
+        )
+        if existing_a:
+            # Stage 2 results are appended; Stage 1 are preserved (Section 8.4)
+            existing_dates = set(a.date for a in existing_a.flagged_anomalies)
+            new_anoms = [a for a in anomaly_curr.flagged_anomalies if a.date not in existing_dates]
+            if new_anoms:
+                existing_a.flagged_anomalies.extend(new_anoms)
+                existing_a.total_flagged_count = len(existing_a.flagged_anomalies)
+                existing_a.has_unreviewed_alerts = any(not a.acknowledged for a in existing_a.flagged_anomalies)
+                existing_a.upload_id = upload.id
+                existing_a.run_timestamp = run_time
+                await existing_a.save()
+        else:
+            await anomaly_curr.insert()
+
+    logger.info(f"Downstream pipeline executed successfully for upload {upload.upload_id}")
+
+
 async def process_single_upload(upload: UploadDocument) -> None:
     """
     Ingests raw CSV rows from storage, creates/updates products on-the-fly,
-    registers immutable RawSaleDocument entries, and tracks warning thresholds.
+    registers immutable RawSaleDocument entries, and triggers the downstream pipeline.
     """
     logger.info(f"Worker starting ingestion for Upload Job: {upload.upload_id}")
     
@@ -223,12 +399,22 @@ async def process_single_upload(upload: UploadDocument) -> None:
         if rows_ingested == 0:
             upload.status = UploadStatus.FAILED
             upload.error_reason = "All rows in the CSV file failed validation and were rejected."
-        elif rows_rejected > 0:
-            upload.status = UploadStatus.COMPLETED_WITH_WARNINGS
+            await upload.save()
         else:
-            upload.status = UploadStatus.COMPLETED
+            # 3. Trigger downstream pipeline for feature engineering & inference
+            try:
+                await run_downstream_pipeline(upload)
+                if rows_rejected > 0:
+                    upload.status = UploadStatus.COMPLETED_WITH_WARNINGS
+                else:
+                    upload.status = UploadStatus.COMPLETED
+            except Exception as pipe_err:
+                logger.error(f"Downstream pipeline failed for upload {upload.upload_id}: {pipe_err}")
+                upload.status = UploadStatus.FAILED
+                upload.error_reason = f"Downstream pipeline failed: {str(pipe_err)}"
+            
+            await upload.save()
 
-        await upload.save()
         logger.info(
             f"Successfully processed upload job {upload.upload_id}: "
             f"ingested={rows_ingested}, rejected={rows_rejected}, status={upload.status.value}"

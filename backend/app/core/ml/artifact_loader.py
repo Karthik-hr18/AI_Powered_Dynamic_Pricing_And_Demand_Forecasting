@@ -41,11 +41,13 @@ class ArtifactLoader:
         self._model_cache: Dict[str, Any] = {}
         self._metadata_cache: Dict[str, Dict[str, Any]] = {}
         
-        # Check if running under testing environment to allow mock models
+        # Check if running under testing/dev environment to allow mock models
+        from app.core.config import settings
         self.is_test_env = (
             os.environ.get("APP_ENV") == "test" or 
             os.environ.get("TESTING") == "1" or 
-            "pytest" in sys.modules
+            "pytest" in sys.modules or
+            settings.APP_ENV == "development"
         )
 
     def load_all(self) -> None:
