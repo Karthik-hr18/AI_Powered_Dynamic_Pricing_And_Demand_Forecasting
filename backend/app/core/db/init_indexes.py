@@ -60,24 +60,10 @@ COLL_ANOMALY_CURRENT = "anomaly_current"
 # --------------------------------------------------------------------------
 
 _USERS_INDEXES: List[IndexModel] = [
+    IndexModel([("firebase_uid", ASCENDING)], name="idx_firebase_uid_unique", unique=True),
     IndexModel([("email", ASCENDING)], name="idx_email_unique", unique=True),
     IndexModel([("role", ASCENDING)], name="idx_role"),
     IndexModel([("is_active", ASCENDING)], name="idx_is_active"),
-]
-
-_REFRESH_TOKENS_INDEXES: List[IndexModel] = [
-    IndexModel(
-        [("token_hash", ASCENDING)], name="idx_token_hash_unique", unique=True
-    ),
-    IndexModel([("family_id", ASCENDING)], name="idx_family_id"),
-    IndexModel([("user_id", ASCENDING)], name="idx_user_id"),
-    # TTL index: MongoDB auto-deletes documents once expires_at is in the
-    # past. expireAfterSeconds=0 means "expire exactly at the stored date".
-    IndexModel(
-        [("expires_at", ASCENDING)],
-        name="idx_ttl_expires_at",
-        expireAfterSeconds=0,
-    ),
 ]
 
 _PRODUCTS_INDEXES: List[IndexModel] = [
@@ -214,7 +200,6 @@ _ANOMALY_CURRENT_INDEXES: List[IndexModel] = [
 # --------------------------------------------------------------------------
 COLLECTION_INDEXES: Dict[str, List[IndexModel]] = {
     COLL_USERS: _USERS_INDEXES,
-    COLL_REFRESH_TOKENS: _REFRESH_TOKENS_INDEXES,
     COLL_PRODUCTS: _PRODUCTS_INDEXES,
     COLL_UPLOADS: _UPLOADS_INDEXES,
     COLL_RAW_SALES: _RAW_SALES_INDEXES,

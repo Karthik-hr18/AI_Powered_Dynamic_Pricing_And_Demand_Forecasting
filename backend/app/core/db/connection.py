@@ -28,6 +28,15 @@ from pymongo.errors import PyMongoError
 
 from app.core.config import settings
 
+# Monkeypatch Motor Client to support PyMongo 4.9+ append_metadata.
+# Without this, Beanie ODM 2.x fails during init_beanie.
+def _patch_motor_client() -> None:
+    def append_metadata(self: AsyncIOMotorClient, *args, **kwargs) -> None:
+        return self.delegate.append_metadata(*args, **kwargs)
+    AsyncIOMotorClient.append_metadata = append_metadata
+
+_patch_motor_client()
+
 logger = logging.getLogger(__name__)
 
 

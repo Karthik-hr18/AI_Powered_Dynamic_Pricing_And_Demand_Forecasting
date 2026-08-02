@@ -5,11 +5,11 @@ class Settings(BaseSettings):
     # TODO: Add validators and defaults in Milestone 2 / Milestone 3
     APP_ENV: str = "development"
     MONGODB_URL: str = "mongodb://localhost:27017/pricing_platform"
-    JWT_SECRET: str = "dev_secret_key"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
     SENTRY_DSN: Optional[str] = None
+    FIREBASE_PROJECT_ID: Optional[str] = None
+    FIREBASE_CLIENT_EMAIL: Optional[str] = None
+    FIREBASE_PRIVATE_KEY: Optional[str] = None
     WORKER_POLL_INTERVAL_SECONDS: int = 10
     FORECAST_FULL_PIPELINE_MIN_DAYS: int = 14
     FORECAST_FALLBACK_FLOOR_DAYS: int = 7

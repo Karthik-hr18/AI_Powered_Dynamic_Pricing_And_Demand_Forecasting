@@ -1,34 +1,53 @@
-# Placeholder for ProcessedSales database model
 """
-Beanie document model for the `processed_sales` collection (sales_data domain).
+Beanie document models for the `sales_data` domain.
 
-Covers Section 2.3.6 of the frozen System Design — cleaned,
-daily-aggregated, feature-engineered sales records. This is the single
-input source read by every ML pipeline (forecasting, pricing, anomaly
-detection) and by dashboard aggregation.
-
-Unlike raw_sales, this collection IS mutable: reprocessing upserts
-existing (retailer_id, product_id, date) documents rather than
-appending new ones.
-
-IMPORTANT — null vs zero: rolling_avg_7d, rolling_avg_30d, and
-lag_1d_quantity must be left as None until sufficient history exists
-for that product. They must never be zero-filled — a null communicates
-"not enough data yet," while a zero would look like a real computed
-value of zero. This discipline is enforced by the feature-engineering
-code that populates these fields (ml/shared/feature_engineering.py,
-built in M5), not by this model.
+Covers both `raw_sales` and `processed_sales` collections (Section 2.3.5 / 2.3.6
+of the frozen System Design).
 """
 
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from beanie import Document, PydanticObjectId
 from pydantic import Field
 
 from app.core.constants import CollectionNames
+
+
+class RawSaleDocument(Document):
+    """
+    Immutable, per-row record of one uploaded sales transaction.
+
+    Known Section 9.1 schema fields are typed top-level keys, uniform
+    regardless of source dataset format. `source_row_raw` separately
+    preserves the verbatim original CSV row for forensics/debugging —
+    it is never read by any ML pipeline.
+    """
+
+    retailer_id: PydanticObjectId
+    upload_id: PydanticObjectId
+    product_id: PydanticObjectId
+    sku: str
+    date: datetime
+    quantity_sold: int = Field(ge=0)
+    selling_price: Optional[float] = None
+    category: Optional[str] = None
+    unit_cost: Optional[float] = None
+    discount: Optional[float] = None
+    store_id: Optional[str] = None
+    inventory_level: Optional[int] = None
+    promotion_flag: Optional[bool] = None
+    holiday_flag: Optional[bool] = None
+    row_number_in_file: int
+    source_row_raw: Dict[str, Any]
+    ingested_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = CollectionNames.RAW_SALES
+        # Index creation is owned by init_indexes.py, not Beanie.
+        indexes: list = []
 
 
 class ProcessedSaleDocument(Document):
