@@ -25,9 +25,7 @@ def recommend_price(
     run_id: PydanticObjectId,
     trigger_by: ForecastTriggeredBy
 ) -> Tuple[PricingCurrentDocument, PricingHistoryDocument]:
-    """
-    Computes price recommendations via Hugging Face Inference Endpoint or local fallback.
-    """
+    # Computes price recommendations via Hugging Face Inference Endpoint or local fallback.
     run_time = datetime.utcnow()
     bound_pct = settings.PRICING_BOUND_PCT
 

@@ -17,9 +17,7 @@ def detect_anomalies(
     history: List[Any],
     upload_id: PydanticObjectId
 ) -> AnomalyCurrentDocument:
-    """
-    Computes statistical outlier detection via Hugging Face Inference Endpoint or local fallback.
-    """
+    # Computes statistical outlier detection via Hugging Face Inference Endpoint or local fallback.
     run_time = datetime.utcnow()
     flagged_list = []
 

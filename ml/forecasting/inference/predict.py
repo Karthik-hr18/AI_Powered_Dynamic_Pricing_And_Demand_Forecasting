@@ -17,7 +17,7 @@ logger = logging.getLogger("ml.forecasting.inference.predict")
 
 
 def call_hf_api(payload: dict) -> dict:
-    """Helper to perform requests to Hugging Face Inference API."""
+    # Helper to perform requests to Hugging Face Inference API.
     if not settings.HF_API_URL or not settings.HF_API_TOKEN:
         raise ValueError("Hugging Face API URL or Token is not configured.")
     
@@ -50,9 +50,7 @@ def predict_demand(
     run_id: PydanticObjectId,
     trigger_by: ForecastTriggeredBy
 ) -> Tuple[ForecastCurrentDocument, ForecastHistoryDocument]:
-    """
-    Executes demand forecasting via either Hugging Face Inference Endpoint or local fallback.
-    """
+    # Executes demand forecasting via either Hugging Face Inference Endpoint or local fallback.
     history_days = len(history)
     run_time = datetime.utcnow()
     
