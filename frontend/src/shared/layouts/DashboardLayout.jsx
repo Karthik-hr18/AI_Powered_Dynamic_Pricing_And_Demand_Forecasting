@@ -33,7 +33,7 @@ export const DashboardLayout = ({ children }) => {
       label: "Dashboard",
       path: "/dashboard",
       icon: <LayoutDashboard size={20} />,
-      role: ["RETAILER", "ADMIN"],
+      role: ["RETAILER"],
     },
     {
       label: "Upload Data",

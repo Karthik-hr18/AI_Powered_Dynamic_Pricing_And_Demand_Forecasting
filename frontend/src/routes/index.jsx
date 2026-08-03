@@ -37,6 +37,8 @@ const ProtectedRoute = ({ children }) => {
   if (loading) return <LoadingScreen />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
+  if (user?.role === "ADMIN") return <Navigate to="/admin" replace />;
+
   // Retailers must verify their email before accessing the platform
   const needsVerification =
     user?.role === "RETAILER" && !isEmailVerified;
