@@ -1,78 +1,41 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   createUserWithEmailAndPassword,
+  onIdTokenChanged,
   signInWithEmailAndPassword,
-  signInWithPopup,
   signOut,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  onAuthStateChanged,
 } from "firebase/auth";
-import axios from "axios";
 
-import { auth, googleProvider } from "../firebase/config";
+import { auth } from "../firebase/config";
+import { apiClient } from "../apiClient";
 
 const AuthContext = createContext(null);
 
-// Global temporary cache to store custom attributes during registration sync
-let pendingRegistrationData = null;
-
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Firebase User object
-  const [mongoUser, setMongoUser] = useState(null); // MongoDB User Profile DTO
-  const [idToken, setIdToken] = useState(null);
+  const [user, setUser] = useState(null); // Backend user metadata (role, business_name, is_active)
+  const [firebaseUser, setFirebaseUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [authError, setAuthError] = useState(null);
+  const [error, setError] = useState(null);
 
-  // Setup API Client using base URL from environment
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-  const apiClient = axios.create({ baseURL: apiBaseUrl });
-
+  // Sync Firebase status with local backend metadata
   useEffect(() => {
-    // Listen for Firebase auth state changes
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onIdTokenChanged(auth, async (fbUser) => {
       setLoading(true);
-      setAuthError(null);
-
-      if (firebaseUser) {
+      setError(null);
+      
+      if (fbUser) {
+        setFirebaseUser(fbUser);
         try {
-          // 1. Retrieve current Firebase JWT ID Token
-          const token = await firebaseUser.getIdToken(true);
-          
-          // 2. Resolve synchronization payload attributes
-          const syncPayload = pendingRegistrationData || {
-            role: "RETAILER",
-            businessName: null,
-          };
-          pendingRegistrationData = null; // Clear registration cache
-
-          // 3. Post verification sync to backend FastAPI server
-          const response = await apiClient.post(
-            "/api/v1/auth/sync",
-            {
-              role: syncPayload.role,
-              business_name: syncPayload.businessName,
-            },
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-
-          setUser(firebaseUser);
-          setIdToken(token);
-          setMongoUser(response.data);
-        } catch (err) {
-          console.error("Authentication sync failed:", err);
-          setAuthError(err.response?.data?.detail || "Failed to synchronize profile.");
-          // Reset states to fail-closed
+          // Fetch synced metadata from MongoDB backend
+          const res = await apiClient.get("/auth/me");
+          setUser(res.data);
+        } catch (e) {
+          console.warn("Could not retrieve backend user profile, syncing might be pending...", e);
           setUser(null);
-          setIdToken(null);
-          setMongoUser(null);
         }
       } else {
+        setFirebaseUser(null);
         setUser(null);
-        setIdToken(null);
-        setMongoUser(null);
       }
       setLoading(false);
     });
@@ -80,94 +43,93 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  /** Register user using email/password and sync custom profile attributes. */
-  const registerWithEmail = async (email, password, role, businessName) => {
+  // Login handler
+  const login = async (email, password) => {
+    setError(null);
     setLoading(true);
-    setAuthError(null);
     try {
-      // Store registration variables for the onAuthStateChanged sync callback
-      pendingRegistrationData = { role, businessName };
-
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Trigger email verification natively via Firebase Auth
-      await sendEmailVerification(userCredential.user);
-      return userCredential.user;
-    } catch (err) {
-      pendingRegistrationData = null;
-      setAuthError(err.message);
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      // Retrieve backend user profile immediately after sign in
+      const res = await apiClient.get("/auth/me");
+      setUser(res.data);
       setLoading(false);
-      throw err;
+      return credential.user;
+    } catch (e) {
+      setLoading(false);
+      const msg = e.response?.data?.detail || e.message || "Failed to log in";
+      setError(msg);
+      throw new Error(msg);
     }
   };
 
-  /** Login user using email/password. */
-  const loginWithEmail = async (email, password) => {
+  // Register handler (Firebase Auth + Backend Mongo Sync)
+  const register = async (email, password, role, businessName) => {
+    setError(null);
     setLoading(true);
-    setAuthError(null);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      return userCredential.user;
-    } catch (err) {
-      setAuthError(err.message);
+      // 1. Create user in Firebase Auth
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      const fbUser = credential.user;
+
+      // 2. Retrieve the fresh token to make the sync request
+      const token = await fbUser.getIdToken();
+
+      // 3. Post profile sync payload to FastAPI database
+      await apiClient.post(
+        "/auth/sync",
+        {
+          role: role,
+          business_name: role === "RETAILER" ? businessName : undefined,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // 4. Load final profile data
+      const res = await apiClient.get("/auth/me");
+      setUser(res.data);
       setLoading(false);
-      throw err;
+      return fbUser;
+    } catch (e) {
+      setLoading(false);
+      const msg = e.response?.data?.detail || e.message || "Failed to register account";
+      setError(msg);
+      throw new Error(msg);
     }
   };
 
-  /** Google OAuth Popup sign-in. */
-  const loginWithGoogle = async () => {
-    setLoading(true);
-    setAuthError(null);
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      return result.user;
-    } catch (err) {
-      setAuthError(err.message);
-      setLoading(false);
-      throw err;
-    }
-  };
-
-  /** Signs out the active user. */
+  // Logout handler
   const logout = async () => {
+    setError(null);
     setLoading(true);
     try {
       await signOut(auth);
-    } catch (err) {
-      setAuthError(err.message);
-      throw err;
-    } finally {
+      setUser(null);
+      setFirebaseUser(null);
       setLoading(false);
+    } catch (e) {
+      setLoading(false);
+      setError(e.message);
+      throw e;
     }
-  };
-
-  /** Sends a password reset verification link. */
-  const resetPassword = async (email) => {
-    setAuthError(null);
-    try {
-      await sendPasswordResetEmail(auth, email);
-    } catch (err) {
-      setAuthError(err.message);
-      throw err;
-    }
-  };
-
-  const contextValue = {
-    user,
-    mongoUser,
-    idToken,
-    loading,
-    authError,
-    registerWithEmail,
-    loginWithEmail,
-    loginWithGoogle,
-    logout,
-    resetPassword,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider
+      value={{
+        user,
+        firebaseUser,
+        loading,
+        error,
+        login,
+        register,
+        logout,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -176,7 +138,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be consumed inside an AuthProvider.");
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
