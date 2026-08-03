@@ -10,6 +10,8 @@ import { AdminPage } from "../features/admin/pages/AdminPage";
 import { AuthLayout } from "../shared/layouts/AuthLayout";
 import { DashboardLayout } from "../shared/layouts/DashboardLayout";
 
+import { UploadPage } from "../features/uploads/pages/UploadPage";
+
 // Route guard requiring authenticated user session
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -104,12 +106,7 @@ export const AppRoutes = () => {
         path="/uploads"
         element={
           <ProtectedRoute>
-            <div className="card">
-              <h3>Sales Ingestion</h3>
-              <p style={{ color: "var(--gray-text-muted)", fontSize: "14px" }}>
-                Spreadsheet upload UI will be implemented in Milestone 10.
-              </p>
-            </div>
+            <UploadPage />
           </ProtectedRoute>
         }
       />
