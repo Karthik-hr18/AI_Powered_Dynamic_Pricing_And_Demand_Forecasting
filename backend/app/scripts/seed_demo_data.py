@@ -143,7 +143,7 @@ async def seed_demo_data():
     await connect_to_mongo()
     db = get_database()
 
-    await init_beanie(
+    await init_beanie(  # type: ignore[arg-type]
         database=db,
         document_models=[
             UserDocument,

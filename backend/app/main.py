@@ -49,7 +49,7 @@ async def lifespan(app: FastAPI):
         InventoryCurrentDocument,
         AnomalyCurrentDocument
     ]
-    await init_beanie(database=db, document_models=document_models)
+    await init_beanie(database=db, document_models=document_models)  # type: ignore[arg-type]
     # 4. Generate master indexes
     await create_all_indexes()
     # 5. Seed admin account (Firebase + MongoDB)

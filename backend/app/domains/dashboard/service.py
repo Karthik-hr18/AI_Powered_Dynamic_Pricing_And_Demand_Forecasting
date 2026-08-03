@@ -43,7 +43,8 @@ async def get_dashboard_overview_data(
     # --------------------------------------------------------------------------
     # 1. Trailing 30-Day vs Previous 30-Day Financial Metrics (MongoDB Pipeline)
     # --------------------------------------------------------------------------
-    curr_30d_coro = ProcessedSaleDocument.get_pymongo_collection().aggregate([
+    curr_coll = ProcessedSaleDocument.get_pymongo_collection()
+    curr_30d_coro = curr_coll.aggregate([  # type: ignore[union-attr, attr-defined]
         {"$match": {"retailer_id": retailer_id, "date": {"$gte": start_date_30d}}},
         {
             "$group": {
@@ -52,9 +53,9 @@ async def get_dashboard_overview_data(
                 "total_units": {"$sum": "$quantity_sold"},
             }
         },
-    ]).to_list(length=1)
+    ]).to_list(length=1)  # type: ignore[union-attr, attr-defined]
 
-    prev_30d_coro = ProcessedSaleDocument.get_pymongo_collection().aggregate([
+    prev_30d_coro = curr_coll.aggregate([  # type: ignore[union-attr, attr-defined]
         {
             "$match": {
                 "retailer_id": retailer_id,
@@ -67,17 +68,18 @@ async def get_dashboard_overview_data(
                 "total_revenue": {"$sum": {"$multiply": ["$quantity_sold", "$selling_price"]}},
             }
         },
-    ]).to_list(length=1)
+    ]).to_list(length=1)  # type: ignore[union-attr, attr-defined]
 
     kpi_alerts_coro = AnomalyCurrentDocument.find(
         AnomalyCurrentDocument.retailer_id == retailer_id,
         AnomalyCurrentDocument.has_unreviewed_alerts == True,
     ).count()
 
-    kpi_confidence_coro = ForecastCurrentDocument.get_pymongo_collection().aggregate([
+    fc_coll = ForecastCurrentDocument.get_pymongo_collection()
+    kpi_confidence_coro = fc_coll.aggregate([  # type: ignore[union-attr, attr-defined]
         {"$match": {"retailer_id": retailer_id}},
         {"$group": {"_id": "$confidence_label", "count": {"$sum": 1}}},
-    ]).to_list(length=100)
+    ]).to_list(length=100)  # type: ignore[union-attr, attr-defined]
 
     curr_res, prev_res, alerts_count, confidence_res = await asyncio.gather(
         curr_30d_coro, prev_30d_coro, kpi_alerts_coro, kpi_confidence_coro
@@ -264,7 +266,7 @@ async def get_dashboard_overview_data(
         },
         {"$sort": {"revenue": -1}},
     ]
-    cat_res = await ProcessedSaleDocument.get_pymongo_collection().aggregate(category_pipeline).to_list(length=20)
+    cat_res = await curr_coll.aggregate(category_pipeline).to_list(length=20)  # type: ignore[union-attr, attr-defined]
     category_performance = [
         CategoryPerformanceItem(
             category=str(item.get("_id") or "General"),
@@ -289,7 +291,7 @@ async def get_dashboard_overview_data(
         },
         {"$sort": {"units": -1}},
     ]
-    rank_res = await ProcessedSaleDocument.get_pymongo_collection().aggregate(sales_rank_pipeline).to_list(length=100)
+    rank_res = await curr_coll.aggregate(sales_rank_pipeline).to_list(length=100)  # type: ignore[union-attr, attr-defined]
 
     top_sellers: List[ProductRankItem] = []
     low_performers: List[ProductRankItem] = []
@@ -298,8 +300,8 @@ async def get_dashboard_overview_data(
         # Top 4
         for item in rank_res[:4]:
             p_id = item.get("_id")
-            p_doc = product_dict.get(p_id)
-            p_name = p_doc.product_name if p_doc else str(item.get("sku_display", "SKU"))
+            p_doc = product_dict.get(p_id) if p_id else None
+            p_name = (p_doc.product_name if p_doc and p_doc.product_name else str(item.get("sku_display", "SKU")))
             top_sellers.append(
                 ProductRankItem(
                     sku=str(item.get("sku_display", "")),
@@ -312,8 +314,8 @@ async def get_dashboard_overview_data(
         # Low 4 (from end)
         for item in reversed(rank_res[-4:]):
             p_id = item.get("_id")
-            p_doc = product_dict.get(p_id)
-            p_name = p_doc.product_name if p_doc else str(item.get("sku_display", "SKU"))
+            p_doc = product_dict.get(p_id) if p_id else None
+            p_name = (p_doc.product_name if p_doc and p_doc.product_name else str(item.get("sku_display", "SKU")))
             low_performers.append(
                 ProductRankItem(
                     sku=str(item.get("sku_display", "")),
@@ -442,10 +444,13 @@ async def get_dashboard_overview_data(
     # --------------------------------------------------------------------------
     product_table: List[DashboardProductRow] = []
     for p in db_products:
-        fc = forecast_map.get(p.id)
-        pr = pricing_map.get(p.id)
-        inv = inventory_map.get(p.id)
-        anom = anomaly_map.get(p.id)
+        p_id = p.id
+        if not p_id:
+            continue
+        fc = forecast_map.get(p_id)
+        pr = pricing_map.get(p_id)
+        inv = inventory_map.get(p_id)
+        anom = anomaly_map.get(p_id)
 
         forecast_7d = (
             sum(item.predicted_quantity for item in fc.horizon_7d.predictions)
