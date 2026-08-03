@@ -16,11 +16,6 @@ httpx
 # ML dependencies
 numpy
 pandas
-scikit-learn
-xgboost
-prophet
-joblib
-scipy
 
 # Testing dependencies
 pytest

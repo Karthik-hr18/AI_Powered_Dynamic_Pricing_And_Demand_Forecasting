@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     ANOMALY_SPIKE_THRESHOLD: float = 2.0
     ANOMALY_DROP_THRESHOLD: float = 0.5
     UPLOAD_STORAGE_DIR: str = "storage/uploads"
+    HF_API_URL: Optional[str] = None
+    HF_API_TOKEN: Optional[str] = None
 
     class Config:
         env_file = ".env"

@@ -1,3 +1,6 @@
+from fastapi.middleware.cors import CORSMiddleware
+from app.core.config import settings
+
 # pyrefly: ignore [missing-import]
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -58,6 +61,22 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="AI-Powered Dynamic Pricing & Demand Forecasting Platform",
     lifespan=lifespan
+)
+
+# Configure CORS origins
+origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
+extended_origins = []
+for origin in origins:
+    extended_origins.append(origin)
+    if "localhost" in origin:
+        extended_origins.append(origin.replace("localhost", "127.0.0.1"))
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=extended_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Register routers

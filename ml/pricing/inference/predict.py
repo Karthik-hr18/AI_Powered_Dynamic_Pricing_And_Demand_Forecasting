@@ -11,6 +11,7 @@ from app.domains.pricing.models import (
     PricingCurrentDocument,
     PricingHistoryDocument
 )
+from ml.forecasting.inference.predict import call_hf_api
 
 logger = logging.getLogger("ml.pricing.inference.predict")
 
@@ -25,85 +26,128 @@ def recommend_price(
     trigger_by: ForecastTriggeredBy
 ) -> Tuple[PricingCurrentDocument, PricingHistoryDocument]:
     """
-    Computes price recommendations by evaluating 5 candidate prices, calculating
-    elasticity curves, and returning eligible or ineligible Pricing current/history documents.
+    Computes price recommendations via Hugging Face Inference Endpoint or local fallback.
     """
     run_time = datetime.utcnow()
-    model_version = "1.0.0-mock"
     bound_pct = settings.PRICING_BOUND_PCT
 
-    # Extract all distinct positive prices from processed sales history
+    # Sort history by date to ensure proper timeline ordering
+    history_sorted = sorted(history, key=lambda x: x.date)
+
     historical_prices = set(
         round(item.selling_price, 2) 
         for item in history 
         if item.selling_price is not None and item.selling_price > 0
     )
 
-    if len(history) < 7:
-        # Tier 1: Ineligible due to insufficient history (<7 days)
-        eligibility_status = PricingEligibilityStatus.INSUFFICIENT_HISTORY
-        eligibility_reason = f"Insufficient sales history. Only {len(history)} days of processed data available (minimum 7 required)."
-        bound_range = None
-        candidate_grid = None
-        recommended_price = None
-        expected_revenue = None
-        elasticity_model_type = None
+    # Determine environment fallback
+    use_hf = (
+        settings.HF_API_URL and 
+        "placeholder" not in settings.HF_API_URL and
+        settings.HF_API_TOKEN and
+        "placeholder" not in settings.HF_API_TOKEN
+    )
 
-    elif len(historical_prices) <= 1:
-        # Tier 2: Ineligible due to flat pricing (no variation to fit elasticity)
-        eligibility_status = PricingEligibilityStatus.INSUFFICIENT_PRICE_VARIATION
-        eligibility_reason = "No price variation detected in history. Elasticity models cannot estimate consumer responsiveness."
-        bound_range = None
-        candidate_grid = None
-        recommended_price = None
-        expected_revenue = None
-        elasticity_model_type = None
+    if use_hf:
+        logger.info(f"Routing pricing request to Hugging Face API: {settings.HF_API_URL}")
+        payload = {
+            "task": "pricing",
+            "history": [
+                {
+                    "date": item.date.isoformat() if hasattr(item.date, "isoformat") else str(item.date),
+                    "quantity_sold": float(item.quantity_sold),
+                    "selling_price": float(item.selling_price)
+                }
+                for item in history_sorted
+            ],
+            "current_price": float(current_price),
+            "bound_pct": float(bound_pct)
+        }
+        
+        res_data = call_hf_api(payload)
+        
+        eligibility_status = PricingEligibilityStatus(res_data.get("eligibility_status", "ineligible"))
+        eligibility_reason = res_data.get("eligibility_reason")
+        recommended_price = res_data.get("recommended_price")
+        expected_revenue = res_data.get("expected_revenue")
+        elasticity_model_type = res_data.get("elasticity_model_type")
+        model_version = res_data.get("model_version", "1.0.0-huggingface")
+        
+        bound_data = res_data.get("bound_range")
+        bound_range = (
+            BoundRange(min=bound_data["min"], max=bound_data["max"])
+            if bound_data else None
+        )
+        
+        candidates = res_data.get("candidate_grid", [])
+        candidate_grid = [
+            CandidateGridEntry(
+                candidate_price=c["candidate_price"],
+                estimated_demand=c["estimated_demand"],
+                estimated_revenue=c["estimated_revenue"]
+            )
+            for c in candidates
+        ] if candidates else None
 
     else:
-        # Tier 3: Eligible
-        eligibility_status = PricingEligibilityStatus.ELIGIBLE
-        eligibility_reason = None
-        elasticity_model_type = "Linear Elasticity Mock"
+        # Graceful Local Fallback Mock
+        model_version = "1.0.0-mock"
 
-        # Define bounds: intersection of ±bound_pct around current price
-        min_bound = max(0.01, round(current_price * (1 - bound_pct), 2))
-        max_bound = round(current_price * (1 + bound_pct), 2)
-        bound_range = BoundRange(min=min_bound, max=max_bound)
+        if len(history) < 7:
+            eligibility_status = PricingEligibilityStatus.INSUFFICIENT_HISTORY
+            eligibility_reason = f"Insufficient sales history. Only {len(history)} days of processed data available (minimum 7 required)."
+            bound_range = None
+            candidate_grid = None
+            recommended_price = None
+            expected_revenue = None
+            elasticity_model_type = None
 
-        # Generate exactly 5 candidate grid entries (centered on current_price)
-        multipliers = [0.8, 0.9, 1.0, 1.1, 1.2]
-        candidates = sorted(list(set(max(min_bound, min(max_bound, round(current_price * m, 2))) for m in multipliers)))
-        
-        # In case multipliers created fewer than 5 unique prices due to float rounding on tiny prices:
-        while len(candidates) < 5:
-            # Shift slightly
-            candidates.append(round(candidates[-1] + 0.05, 2))
-        candidates = sorted(candidates[:5])
+        elif len(historical_prices) <= 1:
+            eligibility_status = PricingEligibilityStatus.INSUFFICIENT_PRICE_VARIATION
+            eligibility_reason = "No price variation detected in history. Elasticity models cannot estimate consumer responsiveness."
+            bound_range = None
+            candidate_grid = None
+            recommended_price = None
+            expected_revenue = None
+            elasticity_model_type = None
 
-        # Simple linear demand elasticity simulation:
-        # E.g. base demand is the mean of the last 7 days
-        last_7_sales = history[-7:]
-        base_demand = sum(item.quantity_sold for item in last_7_sales) / len(last_7_sales) if last_7_sales else 1.0
-        elasticity = 1.5 # 1.5% demand drop for each 1% price increase
+        else:
+            eligibility_status = PricingEligibilityStatus.ELIGIBLE
+            eligibility_reason = None
+            elasticity_model_type = "Linear Elasticity Mock"
 
-        candidate_grid = []
-        for P in candidates:
-            pct_price_change = (P - current_price) / current_price if current_price > 0 else 0.0
-            est_demand = max(0.0, base_demand * (1 - elasticity * pct_price_change))
-            est_rev = P * est_demand
+            min_bound = max(0.01, round(current_price * (1 - bound_pct), 2))
+            max_bound = round(current_price * (1 + bound_pct), 2)
+            bound_range = BoundRange(min=min_bound, max=max_bound)
+
+            multipliers = [0.8, 0.9, 1.0, 1.1, 1.2]
+            candidates = sorted(list(set(max(min_bound, min(max_bound, round(current_price * m, 2))) for m in multipliers)))
             
-            candidate_grid.append(
-                CandidateGridEntry(
-                    candidate_price=P,
-                    estimated_demand=round(est_demand, 2),
-                    estimated_revenue=round(est_rev, 2)
-                )
-            )
+            while len(candidates) < 5:
+                candidates.append(round(candidates[-1] + 0.05, 2))
+            candidates = sorted(candidates[:5])
 
-        # Select the price candidate maximizing expected revenue
-        winning_candidate = max(candidate_grid, key=lambda x: x.estimated_revenue)
-        recommended_price = winning_candidate.candidate_price
-        expected_revenue = winning_candidate.estimated_revenue
+            last_7_sales = history_sorted[-7:]
+            base_demand = sum(item.quantity_sold for item in last_7_sales) / len(last_7_sales) if last_7_sales else 1.0
+            elasticity = 1.5
+
+            candidate_grid = []
+            for P in candidates:
+                pct_price_change = (P - current_price) / current_price if current_price > 0 else 0.0
+                est_demand = max(0.0, base_demand * (1 - elasticity * pct_price_change))
+                est_rev = P * est_demand
+                
+                candidate_grid.append(
+                    CandidateGridEntry(
+                        candidate_price=P,
+                        estimated_demand=round(est_demand, 2),
+                        estimated_revenue=round(est_rev, 2)
+                    )
+                )
+
+            winning_candidate = max(candidate_grid, key=lambda x: x.estimated_revenue)
+            recommended_price = winning_candidate.candidate_price
+            expected_revenue = winning_candidate.estimated_revenue
 
     # Instantiate Beanie documents
     current_doc = PricingCurrentDocument(
