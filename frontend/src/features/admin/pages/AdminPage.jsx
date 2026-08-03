@@ -21,7 +21,7 @@ export const AdminPage = () => {
   const { data: retailers = [], isLoading, error } = useQuery({
     queryKey: ["adminRetailers"],
     queryFn: async () => {
-      const res = await apiClient.get("/admin/retailers");
+      const res = await apiClient.get("admin/retailers");
       return res.data;
     },
   });
@@ -29,7 +29,7 @@ export const AdminPage = () => {
   // 2. Status patch toggle mutation
   const toggleMutation = useMutation({
     mutationFn: async ({ userId, is_active }) => {
-      const res = await apiClient.patch(`/admin/retailers/${userId}/status`, {
+      const res = await apiClient.patch(`admin/retailers/${userId}/status`, {
         is_active,
       });
       return res.data;

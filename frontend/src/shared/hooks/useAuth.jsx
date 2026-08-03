@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
             const parsed = JSON.parse(storedUser);
             setFirebaseUser(parsed);
             // Fetch synced metadata from MongoDB backend using the local mock token
-            const res = await apiClient.get("/auth/me");
+            const res = await apiClient.get("auth/me");
             setUser(res.data);
           } catch (e) {
             console.warn("Could not retrieve mock backend user profile:", e);
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
         setFirebaseUser(fbUser);
         try {
           // Fetch synced metadata from MongoDB backend
-          const res = await apiClient.get("/auth/me");
+          const res = await apiClient.get("auth/me");
           setUser(res.data);
         } catch (e) {
           console.warn("Could not retrieve backend user profile, syncing might be pending...", e);
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("mock_auth_token", mockToken);
     setFirebaseUser(mockFbUser);
 
-    const res = await apiClient.get("/auth/me");
+    const res = await apiClient.get("auth/me");
     setUser(res.data);
     setLoading(false);
     return mockFbUser;
@@ -114,7 +114,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const credential = await signInWithEmailAndPassword(auth, email, password);
       // Retrieve backend user profile immediately after sign in
-      const res = await apiClient.get("/auth/me");
+      const res = await apiClient.get("auth/me");
       setUser(res.data);
       setLoading(false);
       return credential.user;
@@ -159,7 +159,7 @@ export const AuthProvider = ({ children }) => {
 
     // Post profile sync payload to FastAPI database
     await apiClient.post(
-      "/auth/sync",
+      "auth/sync",
       {
         role: role,
         business_name: role === "RETAILER" ? businessName : undefined,
@@ -172,7 +172,7 @@ export const AuthProvider = ({ children }) => {
     );
 
     // Load final profile data
-    const res = await apiClient.get("/auth/me");
+    const res = await apiClient.get("auth/me");
     setUser(res.data);
     setLoading(false);
     return mockFbUser;
@@ -204,7 +204,7 @@ export const AuthProvider = ({ children }) => {
 
       // 3. Post profile sync payload to FastAPI database
       await apiClient.post(
-        "/auth/sync",
+        "auth/sync",
         {
           role: role,
           business_name: role === "RETAILER" ? businessName : undefined,
@@ -217,7 +217,7 @@ export const AuthProvider = ({ children }) => {
       );
 
       // 4. Load final profile data
-      const res = await apiClient.get("/auth/me");
+      const res = await apiClient.get("auth/me");
       setUser(res.data);
       setLoading(false);
       return fbUser;

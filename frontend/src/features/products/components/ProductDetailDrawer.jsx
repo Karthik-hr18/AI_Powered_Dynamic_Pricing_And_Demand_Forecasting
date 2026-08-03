@@ -22,7 +22,7 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["productSummary", productId],
     queryFn: async () => {
-      const res = await apiClient.get(`/products/${productId}/summary`);
+      const res = await apiClient.get(`products/${productId}/summary`);
       return res.data;
     },
     enabled: !!productId,

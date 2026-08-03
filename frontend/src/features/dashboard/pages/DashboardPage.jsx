@@ -30,7 +30,7 @@ export const DashboardPage = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["dashboardOverview"],
     queryFn: async () => {
-      const res = await apiClient.get("/dashboard/overview");
+      const res = await apiClient.get("dashboard/overview");
       return res.data;
     },
   });

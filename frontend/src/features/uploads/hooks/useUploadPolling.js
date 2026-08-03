@@ -16,7 +16,7 @@ export const useUploadPolling = (onComplete) => {
 
   const pollStatus = async (uploadId) => {
     try {
-      const res = await apiClient.get(`/uploads/${uploadId}`);
+      const res = await apiClient.get(`uploads/${uploadId}`);
       const upload = res.data;
       setActiveUpload(upload);
 

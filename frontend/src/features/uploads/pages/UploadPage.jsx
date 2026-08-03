@@ -26,7 +26,7 @@ export const UploadPage = () => {
   const loadHistory = async () => {
     setLoadingHistory(true);
     try {
-      const res = await apiClient.get("/uploads/");
+      const res = await apiClient.get("uploads/");
       // Sort history by created_at descending
       const sorted = res.data.sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
@@ -100,7 +100,7 @@ export const UploadPage = () => {
     formData.append("schema_mapping_used", schemaMapping);
 
     try {
-      const res = await apiClient.post("/uploads/", formData, {
+      const res = await apiClient.post("uploads/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
