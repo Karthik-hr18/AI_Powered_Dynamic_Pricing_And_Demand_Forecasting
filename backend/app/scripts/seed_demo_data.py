@@ -4,9 +4,7 @@ import random
 from datetime import datetime, timedelta
 
 from beanie import init_beanie
-from motor.motor_asyncio import AsyncIOMotorClient
 
-from app.core.config import settings
 from app.core.constants import (
     AnomalyStage,
     AnomalyType,
@@ -14,7 +12,6 @@ from app.core.constants import (
     ForecastPipelineType,
     ForecastTriggeredBy,
     InventoryClassification,
-    InventoryDemandTrend,
     InventoryMode,
     PricingEligibilityStatus,
     UploadStatus,
@@ -29,7 +26,6 @@ from app.domains.forecasting.models import (
     ForecastPrediction,
 )
 from app.domains.inventory.models import (
-    AdvisoryDetail,
     InventoryCurrentDocument,
     TrueRiskDetail,
 )
