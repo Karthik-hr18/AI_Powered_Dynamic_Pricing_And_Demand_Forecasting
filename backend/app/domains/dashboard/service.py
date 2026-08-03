@@ -36,6 +36,52 @@ async def get_dashboard_overview_data(
     executive-grade decision dashboard for retailers. All values are derived
     directly from active database collections.
     """
+    if not retailer_id:
+        return DashboardOverviewResponse(
+            kpis=KpiMetrics(),
+            business_health=BusinessHealthMetric(),
+            goal_progress=GoalProgressMetric(),
+            data_quality=DataQualityAudit(),
+            system_status=SystemStatusInfo(),
+            inventory_health=InventoryHealthDistribution(),
+            category_performance=[],
+            top_sellers=[],
+            low_performers=[],
+            top_opportunities=[],
+            critical_risks=[],
+            last_upload=None,
+            forecast_vs_actual=[],
+            product_table=[],
+        )
+
+    try:
+        return await _compute_dashboard_overview(retailer_id)
+    except Exception as exc:
+        import logging
+        logging.getLogger("app.domains.dashboard.service").exception(
+            f"Error computing dashboard overview for retailer {retailer_id}", exc_info=exc
+        )
+        return DashboardOverviewResponse(
+            kpis=KpiMetrics(),
+            business_health=BusinessHealthMetric(),
+            goal_progress=GoalProgressMetric(),
+            data_quality=DataQualityAudit(),
+            system_status=SystemStatusInfo(backend_status="Running with Warnings"),
+            inventory_health=InventoryHealthDistribution(),
+            category_performance=[],
+            top_sellers=[],
+            low_performers=[],
+            top_opportunities=[],
+            critical_risks=[],
+            last_upload=None,
+            forecast_vs_actual=[],
+            product_table=[],
+        )
+
+
+async def _compute_dashboard_overview(
+    retailer_id: PydanticObjectId,
+) -> DashboardOverviewResponse:
     now = datetime.now(timezone.utc)
     start_date_30d = now - timedelta(days=30)
     start_date_60d = now - timedelta(days=60)
