@@ -195,7 +195,7 @@ async def _compute_dashboard_overview(
             continue
         
         # Estimate gain from recommended price change
-        price_diff = pr.recommended_price - p_doc.base_selling_price
+        price_diff = pr.recommended_price - pr.current_price
         fc_doc = forecast_map.get(pr.product_id)
         est_units = (
             sum(item.predicted_quantity for item in fc_doc.horizon_7d.predictions)
@@ -206,7 +206,7 @@ async def _compute_dashboard_overview(
         est_gain = max(0.0, price_diff * est_units)
         potential_gain_total += est_gain
 
-        pct_change = round(((pr.recommended_price - p_doc.base_selling_price) / p_doc.base_selling_price) * 100, 1)
+        pct_change = round(((pr.recommended_price - pr.current_price) / pr.current_price) * 100, 1) if pr.current_price > 0 else 0.0
         action_verb = "Increase" if pct_change >= 0 else "Decrease"
         action_str = f"{action_verb} price by {abs(pct_change)}%"
 
@@ -215,7 +215,7 @@ async def _compute_dashboard_overview(
                 sku=p_doc.sku_display,
                 product_name=p_doc.product_name or p_doc.sku_display,
                 action_label=action_str,
-                current_price=p_doc.base_selling_price,
+                current_price=pr.current_price,
                 recommended_price=pr.recommended_price,
                 expected_revenue_gain=round(est_gain, 2),
                 confidence_score=92.0 if (fc_doc and fc_doc.confidence_label == "HIGH") else 78.0,
@@ -379,12 +379,13 @@ async def _compute_dashboard_overview(
         if anom.has_unreviewed_alerts:
             p_doc = product_dict.get(anom.product_id)
             sku_label = p_doc.product_name if p_doc else "Product"
-            for alert in anom.historical_alerts:
-                critical_risks.append({
-                    "title": f"⚠ {sku_label}",
-                    "description": f"{alert.type.value.replace('_', ' ').title()}: {alert.message or 'Statistical deviation detected'}",
-                    "severity": alert.severity.value,
-                })
+            for alert in anom.flagged_anomalies:
+                if not alert.acknowledged:
+                    critical_risks.append({
+                        "title": f"⚠ Anomaly Detected — {sku_label}",
+                        "description": f"{alert.anomaly_type.value.title()} (Severity: {alert.severity_score}): {alert.explanation}",
+                        "severity": str(alert.severity_score),
+                    })
 
     for inv in db_inventories:
         if inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value == "STOCKOUT_RISK":
@@ -392,7 +393,7 @@ async def _compute_dashboard_overview(
             sku_label = p_doc.product_name if p_doc else "Product"
             critical_risks.append({
                 "title": f"⚠ Stockout Alert — {sku_label}",
-                "description": f"Estimated stock depleted in {inv.true_risk.runout_days or 4} days based on demand velocity.",
+                "description": f"Estimated stock depleted in {inv.true_risk.days_of_cover:.0f} days based on demand velocity.",
                 "severity": "CRITICAL",
             })
 
