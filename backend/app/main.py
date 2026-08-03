@@ -3,7 +3,8 @@ from app.core.config import settings
 
 # pyrefly: ignore [missing-import]
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
+from fastapi.responses import JSONResponse
 from beanie import init_beanie
 
 from app.core.firebase import initialize_firebase, seed_admin_user
@@ -68,16 +69,48 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS: allow all origins unconditionally.
-# Security is enforced via Firebase JWT tokens on every protected route,
-# not via CORS origin filtering. This avoids cross-environment misconfiguration.
+# CORS: allow all origins unconditionally with dynamic origin mirroring.
+# Security is enforced via Firebase JWT tokens on every protected route.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False,   # Must be False when allow_origins=["*"]
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def cors_handler_middleware(request, call_next):
+    """
+    Middleware guaranteeing Access-Control-Allow-Origin headers are attached
+    to ALL HTTP responses, including unhandled exceptions and preflight OPTIONS.
+    """
+    origin = request.headers.get("origin")
+    if request.method == "OPTIONS":
+        response = Response(status_code=204)
+    else:
+        try:
+            response = await call_next(request)
+        except Exception as exc:
+            import logging
+            logging.getLogger("app.main").exception("Unhandled server exception", exc_info=exc)
+            response = JSONResponse(
+                status_code=500,
+                content={"detail": "Internal Server Error"}
+            )
+
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+
+    return response
 
 # Register routers
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
