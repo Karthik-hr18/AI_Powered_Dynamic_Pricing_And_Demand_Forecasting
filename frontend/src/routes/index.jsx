@@ -13,6 +13,7 @@ import { DashboardLayout } from "../shared/layouts/DashboardLayout";
 import { EmailVerificationBanner } from "../shared/components/EmailVerificationBanner";
 
 import { UploadPage } from "../features/uploads/pages/UploadPage";
+import { ProductsListPage } from "../features/products/pages/ProductsListPage";
 
 const LoadingScreen = () => (
   <div
@@ -109,12 +110,7 @@ export const AppRoutes = () => {
         path="/products"
         element={
           <ProtectedRoute>
-            <div className="card">
-              <h3>Product Catalogue</h3>
-              <p style={{ color: "var(--gray-text-muted)", fontSize: "14px" }}>
-                Product grid details and analytical panels will be implemented in Milestone 12.
-              </p>
-            </div>
+            <ProductsListPage />
           </ProtectedRoute>
         }
       />
