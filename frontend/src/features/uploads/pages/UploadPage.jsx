@@ -8,8 +8,6 @@ import {
   AlertTriangle,
   XCircle,
   Loader2,
-  Calendar,
-  Layers,
   History,
 } from "lucide-react";
 

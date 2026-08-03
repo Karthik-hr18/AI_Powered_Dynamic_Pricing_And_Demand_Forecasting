@@ -5,16 +5,12 @@ import {
   TrendingUp,
   AlertTriangle,
   Coins,
-  CheckCircle,
-  HelpCircle,
   Clock,
   Sparkles,
 } from "lucide-react";
 import {
   AreaChart,
   Area,
-  XAxis,
-  YAxis,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";

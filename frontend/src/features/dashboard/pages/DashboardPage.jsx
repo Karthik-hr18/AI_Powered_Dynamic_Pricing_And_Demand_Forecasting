@@ -5,12 +5,9 @@ import {
   Package,
   DollarSign,
   AlertTriangle,
-  FileText,
   ChevronRight,
-  TrendingDown,
   Activity,
   Layers,
-  Sparkles,
 } from "lucide-react";
 import {
   LineChart,
