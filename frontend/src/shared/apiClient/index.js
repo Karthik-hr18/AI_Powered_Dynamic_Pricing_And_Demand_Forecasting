@@ -12,15 +12,24 @@ export const apiClient = axios.create({
 // Request interceptor to dynamically inject the active Firebase ID token
 apiClient.interceptors.request.use(
   async (config) => {
+    let token = null;
     const user = auth.currentUser;
     if (user) {
       try {
         // Retrieve fresh token (Firebase automatically handles rotation internally)
-        const token = await user.getIdToken();
-        config.headers.Authorization = `Bearer ${token}`;
+        token = await user.getIdToken();
       } catch (e) {
         console.error("Failed to retrieve Firebase ID token", e);
       }
+    }
+    
+    // Fall back to local mock token for offline development/testing
+    if (!token) {
+      token = localStorage.getItem("mock_auth_token");
+    }
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
