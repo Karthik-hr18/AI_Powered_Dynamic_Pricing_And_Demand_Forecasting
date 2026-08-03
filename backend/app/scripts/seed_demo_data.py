@@ -2,6 +2,7 @@ import asyncio
 import logging
 import random
 from datetime import datetime, timedelta, timezone
+from typing import Any, cast
 
 from beanie import init_beanie
 
@@ -143,9 +144,8 @@ async def seed_demo_data():
     await connect_to_mongo()
     db = get_database()
 
-    # pyrefly: ignore [bad-argument-type]
     await init_beanie(
-        database=db,
+        database=cast(Any, db),
         document_models=[
             UserDocument,
             ProductDocument,

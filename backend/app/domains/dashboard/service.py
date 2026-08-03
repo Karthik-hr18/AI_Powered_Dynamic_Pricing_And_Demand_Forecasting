@@ -195,7 +195,11 @@ async def _compute_dashboard_overview(
             continue
         
         # Estimate gain from recommended price change
-        price_diff = pr.recommended_price - pr.current_price
+        rec_price = pr.recommended_price
+        if rec_price is None:
+            continue
+
+        price_diff = rec_price - pr.current_price
         fc_doc = forecast_map.get(pr.product_id)
         est_units = (
             sum(item.predicted_quantity for item in fc_doc.horizon_7d.predictions)
@@ -206,7 +210,7 @@ async def _compute_dashboard_overview(
         est_gain = max(0.0, price_diff * est_units)
         potential_gain_total += est_gain
 
-        pct_change = round(((pr.recommended_price - pr.current_price) / pr.current_price) * 100, 1) if pr.current_price > 0 else 0.0
+        pct_change = round(((rec_price - pr.current_price) / pr.current_price) * 100, 1) if pr.current_price > 0 else 0.0
         action_verb = "Increase" if pct_change >= 0 else "Decrease"
         action_str = f"{action_verb} price by {abs(pct_change)}%"
 

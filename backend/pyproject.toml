@@ -27,3 +27,13 @@ dependencies = [
 asyncio_mode = "auto"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.pyright]
+extraPaths = ["."]
+
+[tool.pyrefly]
+search-paths = ["."]
+

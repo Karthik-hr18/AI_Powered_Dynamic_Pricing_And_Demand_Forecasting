@@ -1,7 +1,7 @@
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 
-# pyrefly: ignore [missing-import]
+from typing import Any, cast
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
@@ -50,7 +50,7 @@ async def lifespan(app: FastAPI):
         InventoryCurrentDocument,
         AnomalyCurrentDocument
     ]
-    await init_beanie(database=db, document_models=document_models)  # type: ignore[arg-type]
+    await init_beanie(database=cast(Any, db), document_models=document_models)
     # 4. Generate master indexes
     await create_all_indexes()
     # 5. Seed admin account (Firebase + MongoDB)
