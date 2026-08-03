@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from app.core.constants import UserRole
@@ -40,8 +40,8 @@ async def sync_firebase_user(
         # Update mutable parameters from Firebase and client request
         user.email = email_lower
         user.is_email_verified = email_verified
-        user.last_login_at = datetime.utcnow()
-        user.updated_at = datetime.utcnow()
+        user.last_login_at = datetime.now(timezone.utc)
+        user.updated_at = datetime.now(timezone.utc)
 
         # Ensure admin email always retains ADMIN role
         if is_admin_email:
@@ -78,7 +78,7 @@ async def sync_firebase_user(
             business_name=business_name,
             is_email_verified=email_verified,
             is_active=True,
-            last_login_at=datetime.utcnow()
+            last_login_at=datetime.now(timezone.utc)
         )
 
         # Enforce schemas checks (e.g. business name for RETAILER) and insert
@@ -111,7 +111,7 @@ async def seed_admin_to_mongo(firebase_uid: str) -> None:
         business_name=None,
         is_email_verified=True,
         is_active=True,
-        last_login_at=datetime.utcnow()
+        last_login_at=datetime.now(timezone.utc)
     )
     await user.insert()
     logger.info(f"Seeded admin user into MongoDB with UID: {firebase_uid}")

@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List
 
 from beanie import PydanticObjectId
@@ -36,7 +36,7 @@ async def get_dashboard_overview_data(
     executive-grade decision dashboard for retailers. All values are derived
     directly from active database collections.
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     start_date_30d = now - timedelta(days=30)
     start_date_60d = now - timedelta(days=60)
 
@@ -428,7 +428,7 @@ async def get_dashboard_overview_data(
 
             for pred in predictions:
                 if pred.date.date() == target_date:
-                    forecasted_units += float(pred.predicted_quantity)
+                    forecasted_units += pred.predicted_quantity
                     break
 
         forecast_vs_actual.append(

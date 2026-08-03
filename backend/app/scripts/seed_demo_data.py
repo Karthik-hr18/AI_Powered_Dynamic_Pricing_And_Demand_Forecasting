@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from beanie import init_beanie
 
@@ -143,7 +143,8 @@ async def seed_demo_data():
     await connect_to_mongo()
     db = get_database()
 
-    await init_beanie(  # type: ignore[arg-type]
+    # pyrefly: ignore [bad-argument-type]
+    await init_beanie(
         database=db,
         document_models=[
             UserDocument,
@@ -219,7 +220,7 @@ async def seed_demo_data():
     logger.info("Successfully seeded 6 User accounts in MongoDB.")
 
     logger.info("Seeding upload history records...")
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     u1 = UploadDocument(
         retailer_id=demo_mart.id,
         original_filename="sales_august_2026.csv",
@@ -316,7 +317,7 @@ async def seed_demo_data():
                 retailer_id=demo_mart.id,
                 product_id=p.id,
                 date=sale_date,
-                quantity_sold=int(qty),
+                quantity_sold=qty,
                 selling_price=price,
                 unit_cost=cost,
                 category=p.category,
