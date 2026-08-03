@@ -33,11 +33,14 @@ async def sync_firebase_user(
     # Determine role: admin email always gets ADMIN, everything else RETAILER
     is_admin_email = email_lower == ADMIN_EMAIL.lower()
 
-    # 1. Check if user already exists in MongoDB
-    user = await UserDocument.find_one(UserDocument.firebase_uid == firebase_uid)
+    # 1. Check if user already exists in MongoDB by firebase_uid OR email
+    user = await UserDocument.find_one(
+        {"$or": [{"firebase_uid": firebase_uid}, {"email": email_lower}]}
+    )
 
     if user:
         # Update mutable parameters from Firebase and client request
+        user.firebase_uid = firebase_uid
         user.email = email_lower
         user.is_email_verified = email_verified
         user.last_login_at = datetime.now(timezone.utc)
