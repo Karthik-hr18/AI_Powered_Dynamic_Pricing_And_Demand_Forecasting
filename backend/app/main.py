@@ -68,18 +68,24 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configure CORS origins
-origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
-extended_origins = []
-for origin in origins:
-    extended_origins.append(origin)
-    if "localhost" in origin:
-        extended_origins.append(origin.replace("localhost", "127.0.0.1"))
+# CORS configuration:
+# Production: allow all origins — all routes are protected by Firebase JWT auth,
+#             so CORS is not a security boundary here.
+# Development: restrict to localhost only for a tighter dev loop.
+if settings.APP_ENV == "production":
+    allowed_origins = ["*"]
+else:
+    origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
+    allowed_origins = []
+    for origin in origins:
+        allowed_origins.append(origin)
+        if "localhost" in origin:
+            allowed_origins.append(origin.replace("localhost", "127.0.0.1"))
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=extended_origins,
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=True if settings.APP_ENV != "production" else False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
