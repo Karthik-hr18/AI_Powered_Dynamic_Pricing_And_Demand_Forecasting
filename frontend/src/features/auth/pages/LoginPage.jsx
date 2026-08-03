@@ -151,6 +151,25 @@ export const LoginPage = () => {
           {loading ? "Signing in..." : "Sign In"}
         </button>
 
+        {/* Quick Demo Account Filler */}
+        <button
+          type="button"
+          onClick={() => {
+            setEmail("karthikhrvidyanidhi676@gmail.com");
+            setPassword("11111111");
+          }}
+          className="btn btn-secondary"
+          style={{
+            width: "100%",
+            fontSize: "13px",
+            borderColor: "rgba(99, 102, 241, 0.3)",
+            backgroundColor: "rgba(99, 102, 241, 0.1)",
+            color: "#A5B4FC",
+          }}
+        >
+          ✨ Fill Demo Retailer Credentials (karthikhrvidyanidhi676@gmail.com)
+        </button>
+
         {/* Forgot Password */}
         <div style={{ textAlign: "center" }}>
           <Link

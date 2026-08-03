@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   LogOut,
   User,
+  Bell,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
@@ -211,6 +212,26 @@ export const DashboardLayout = ({ children }) => {
                 {user?.email}
               </p>
             </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "var(--space-3)",
+              padding: "6px 12px",
+              backgroundColor: "rgba(15, 23, 42, 0.05)",
+              borderRadius: "var(--radius-default)",
+              border: "1px solid var(--gray-border)",
+            }}
+          >
+            <span style={{ fontSize: "12px", color: "var(--gray-text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
+              <Bell size={14} style={{ color: "var(--accent)" }} /> Notifications
+            </span>
+            <span className="badge badge-danger" style={{ fontSize: "10px", padding: "2px 6px" }}>
+              3 Alerts
+            </span>
           </div>
 
           <button

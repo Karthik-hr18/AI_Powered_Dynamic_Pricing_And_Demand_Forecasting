@@ -76,9 +76,16 @@ def verify_firebase_token(id_token: str) -> Dict[str, Any]:
     """
     if id_token.startswith("mock-token-"):
         uid = id_token.replace("mock-token-", "")
+        if "@" in uid:
+            email = uid
+        elif uid == "karthikhrvidyanidhi676":
+            email = "karthikhrvidyanidhi676@gmail.com"
+        else:
+            email = f"{uid}@example.com"
+
         return {
             "uid": uid,
-            "email": f"{uid}@example.com",
+            "email": email,
             "email_verified": True,
             "name": uid.replace("_", " ").title()
         }
