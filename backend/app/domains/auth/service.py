@@ -93,7 +93,9 @@ async def seed_admin_to_mongo(firebase_uid: str) -> None:
     Ensures the admin user document exists in MongoDB.
     Called once at application startup after Firebase seeding.
     """
-    existing = await UserDocument.find_one(UserDocument.firebase_uid == firebase_uid)
+    existing = await UserDocument.find_one(
+        {"$or": [{"firebase_uid": firebase_uid}, {"email": ADMIN_EMAIL.lower()}]}
+    )
     if existing:
         # Guarantee role is ADMIN even if it somehow got corrupted
         if existing.role != UserRole.ADMIN:
