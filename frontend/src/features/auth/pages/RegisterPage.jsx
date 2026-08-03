@@ -150,29 +150,7 @@ export const RegisterPage = () => {
           </div>
         </div>
 
-        {/* Account Role Selection */}
-        <div className="form-group">
-          <label className="form-label" style={{ color: "#E2E8F0" }}>Account Type</label>
-          <select
-            className="form-input"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            style={{
-              backgroundColor: "rgba(15, 23, 42, 0.6)",
-              borderColor: "rgba(99, 102, 241, 0.2)",
-              color: "#FFFFFF",
-              cursor: "pointer",
-            }}
-            disabled={loading}
-          >
-            <option value="RETAILER" style={{ backgroundColor: "#0F172A", color: "#FFFFFF" }}>
-              Retailer Profile
-            </option>
-            <option value="ADMIN" style={{ backgroundColor: "#0F172A", color: "#FFFFFF" }}>
-              Administrator Profile
-            </option>
-          </select>
-        </div>
+        {/* Account type is always RETAILER — Admin account is pre-seeded */}
 
         {/* Conditional Business Name for Retailers */}
         {role === "RETAILER" && (

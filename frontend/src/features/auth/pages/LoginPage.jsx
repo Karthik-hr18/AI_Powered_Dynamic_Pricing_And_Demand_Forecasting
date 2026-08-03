@@ -150,6 +150,23 @@ export const LoginPage = () => {
           <LogIn size={18} />
           {loading ? "Signing in..." : "Sign In"}
         </button>
+
+        {/* Forgot Password */}
+        <div style={{ textAlign: "center" }}>
+          <Link
+            to="/forgot-password"
+            style={{
+              fontSize: "13px",
+              color: "var(--gray-text-muted)",
+              textDecoration: "none",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#A5B4FC")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--gray-text-muted)")}
+          >
+            Forgot your password?
+          </Link>
+        </div>
       </form>
 
       {/* Navigation Redirect Pathway */}

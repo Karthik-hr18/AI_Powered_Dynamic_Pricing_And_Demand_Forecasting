@@ -13,14 +13,20 @@ import {
 
 import { apiClient } from "../../../shared/apiClient";
 import { useUploadPolling } from "../hooks/useUploadPolling";
+import { useAuth } from "../../../shared/hooks/useAuth";
+import { ShieldAlert, MailCheck } from "lucide-react";
 
 export const UploadPage = () => {
+  const { user, isEmailVerified } = useAuth();
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [schemaMapping, setSchemaMapping] = useState("standard");
   const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const fileInputRef = useRef(null);
+
+  // Block unverified retailers from uploading
+  const isBlocked = user?.role === "RETAILER" && !isEmailVerified;
 
   // Load uploads history from database
   const loadHistory = async () => {
@@ -187,6 +193,43 @@ export const UploadPage = () => {
         </p>
       </div>
 
+      {/* Email verification gate */}
+      {isBlocked && (
+        <div
+          style={{
+            background: "linear-gradient(135deg, rgba(217,119,6,0.08) 0%, rgba(251,191,36,0.05) 100%)",
+            border: "1px solid rgba(217,119,6,0.4)",
+            borderRadius: "var(--radius-card)",
+            padding: "var(--space-6)",
+            display: "flex",
+            gap: "var(--space-4)",
+            alignItems: "flex-start",
+            marginBottom: "var(--space-6)",
+          }}
+        >
+          <div
+            style={{
+              width: "44px", height: "44px", borderRadius: "50%",
+              background: "rgba(217,119,6,0.15)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <MailCheck size={22} style={{ color: "#FBBF24" }} />
+          </div>
+          <div>
+            <p style={{ fontWeight: 700, color: "#FDE68A", fontSize: "15px", marginBottom: "6px" }}>
+              Email Verification Required
+            </p>
+            <p style={{ color: "#FCD34D", fontSize: "13px", lineHeight: 1.65 }}>
+              You must verify your email address before uploading data. Please check your inbox
+              for the verification link we sent when you registered. Once verified, refresh the
+              page and you can start uploading.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div
         style={{
           display: "flex",
@@ -204,17 +247,21 @@ export const UploadPage = () => {
             <div
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
-              onDrop={onDrop}
-              onClick={() => fileInputRef.current?.click()}
+              onDrop={isBlocked ? undefined : onDrop}
+              onClick={isBlocked ? undefined : () => fileInputRef.current?.click()}
               style={{
                 border: dragOver ? "2px solid var(--accent)" : "2px dashed var(--gray-border)",
-                backgroundColor: dragOver ? "rgba(79, 70, 229, 0.04)" : "var(--gray-bg)",
+                backgroundColor: isBlocked
+                  ? "rgba(15,23,42,0.3)"
+                  : dragOver ? "rgba(79, 70, 229, 0.04)" : "var(--gray-bg)",
                 borderRadius: "var(--radius-card)",
                 padding: "var(--space-6) var(--space-4)",
                 textAlign: "center",
-                cursor: "pointer",
+                cursor: isBlocked ? "not-allowed" : "pointer",
                 transition: "all var(--transition-speed-fast) var(--transition-timing)",
                 transform: dragOver ? "scale(1.01)" : "none",
+                opacity: isBlocked ? 0.45 : 1,
+                pointerEvents: isBlocked ? "none" : "auto",
               }}
               className="dropzone-area"
             >
@@ -288,7 +335,8 @@ export const UploadPage = () => {
                   <button
                     onClick={handleUploadSubmit}
                     className="btn btn-primary"
-                    style={{ flex: 1 }}
+                    style={{ flex: 1, opacity: isBlocked ? 0.4 : 1 }}
+                    disabled={isBlocked}
                   >
                     <Play size={16} />
                     Ingest Sales File

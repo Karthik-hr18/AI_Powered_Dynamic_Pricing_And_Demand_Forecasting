@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from beanie import init_beanie
 
-from app.core.firebase import initialize_firebase
+from app.core.firebase import initialize_firebase, seed_admin_user
 from app.core.ml import get_artifact_loader
 from app.core.db.connection import connect_to_mongo, close_mongo_connection, get_database
 from app.core.db.init_indexes import create_all_indexes
@@ -21,6 +21,7 @@ from app.domains.pricing.models import PricingCurrentDocument, PricingHistoryDoc
 from app.domains.inventory.models import InventoryCurrentDocument
 from app.domains.anomaly.models import AnomalyCurrentDocument
 
+from app.domains.auth.service import seed_admin_to_mongo
 from app.domains.auth.router import router as auth_router
 from app.domains.uploads.router import router as uploads_router
 from app.domains.products.router import router as products_router
@@ -51,7 +52,11 @@ async def lifespan(app: FastAPI):
     await init_beanie(database=db, document_models=document_models)
     # 4. Generate master indexes
     await create_all_indexes()
-    # 5. Preload ML models in memory cache
+    # 5. Seed admin account (Firebase + MongoDB)
+    admin_uid = seed_admin_user()
+    if admin_uid:
+        await seed_admin_to_mongo(admin_uid)
+    # 6. Preload ML models in memory cache
     loader = get_artifact_loader()
     loader.load_all()
     yield
