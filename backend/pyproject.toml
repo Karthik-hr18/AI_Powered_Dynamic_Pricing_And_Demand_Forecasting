@@ -20,7 +20,13 @@ dependencies = [
     "pymongo",
     "python-dotenv",
     "loguru",
-    "httpx"
+    "httpx",
+    "beanie>=1.25.0",
+    "firebase-admin>=6.5.0",
+    "reportlab>=5.0.0",
+    "matplotlib>=3.10.0",
+    "pillow>=11.0.0",
+    "pypdf>=6.0.0"
 ]
 
 [tool.pytest.ini_options]
