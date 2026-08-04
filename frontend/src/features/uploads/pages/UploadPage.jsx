@@ -184,13 +184,10 @@ export const UploadPage = () => {
   return (
     <div>
       {/* Page Header */}
-      <div style={{ marginBottom: "var(--space-6)" }}>
-        <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
-          Sales Spreadsheet Ingestion
+      <div style={{ marginBottom: "var(--space-5)" }}>
+        <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
+          Uploads
         </h2>
-        <p style={{ color: "var(--gray-text-muted)", fontSize: "14px" }}>
-          Upload raw retailer transaction files to trigger rolling feature aggregations and downstream ML inferences.
-        </p>
       </div>
 
       {/* Email verification gate */}

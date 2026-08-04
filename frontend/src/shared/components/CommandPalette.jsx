@@ -42,7 +42,7 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
   const actions = [
     {
       id: "nav-dash",
-      label: "Go to Executive Dashboard",
+      label: "Go to Dashboard",
       category: "Navigation",
       icon: <LayoutDashboard size={16} />,
       perform: () => {
@@ -52,7 +52,7 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
     },
     {
       id: "nav-products",
-      label: "Browse Product Catalogue",
+      label: "Browse Products",
       category: "Navigation",
       icon: <ShoppingBag size={16} />,
       perform: () => {
@@ -62,8 +62,8 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
     },
     {
       id: "nav-uploads",
-      label: "Upload Sales CSV",
-      category: "Actions",
+      label: "Upload Sales Data",
+      category: "Navigation",
       icon: <UploadCloud size={16} />,
       perform: () => {
         navigate("/uploads");
@@ -71,41 +71,40 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
       },
     },
     {
-      id: "action-reports",
-      label: "Open Report Center (PDF, Excel, CSV)",
-      category: "Reports",
-      icon: <FileText size={16} />,
-      perform: () => {
-        onClose();
-        if (onOpenReportCenter) onOpenReportCenter();
-      },
-    },
-    {
-      id: "action-search-milk",
-      label: "Search SKU: Organic Whole Milk 1L",
-      category: "Quick Search",
-      icon: <Zap size={16} />,
-      perform: () => {
-        navigate("/products?search=milk");
-        onClose();
-      },
-    },
-    {
       id: "nav-admin",
-      label: "Open Admin Management Portal",
-      category: "Admin",
+      label: "Administration",
+      category: "Navigation",
       icon: <ShieldCheck size={16} />,
       perform: () => {
         navigate("/admin");
         onClose();
       },
     },
+    {
+      id: "act-report",
+      label: "Open Report Center (PDF Export)",
+      category: "Actions",
+      icon: <FileText size={16} style={{ color: "var(--accent)" }} />,
+      perform: () => {
+        onClose();
+        onOpenReportCenter();
+      },
+    },
+    {
+      id: "act-analysis",
+      label: "Run AI Analysis",
+      category: "Actions",
+      icon: <RefreshCw size={16} style={{ color: "#10B981" }} />,
+      perform: () => {
+        onClose();
+        alert("Running AI Analysis...");
+      },
+    },
   ];
 
-  const filteredActions = actions.filter(
-    (item) =>
-      item.label.toLowerCase().includes(query.toLowerCase()) ||
-      item.category.toLowerCase().includes(query.toLowerCase())
+  const filteredActions = actions.filter((item) =>
+    item.label.toLowerCase().includes(query.toLowerCase()) ||
+    item.category.toLowerCase().includes(query.toLowerCase())
   );
 
   return (
@@ -114,15 +113,15 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
       <div
         style={{
           position: "fixed",
-          top: "15%",
+          top: "20%",
           left: "50%",
           transform: "translateX(-50%)",
           width: "90%",
           maxWidth: "600px",
-          backgroundColor: "#1E293B",
+          backgroundColor: "#FFFFFF",
           border: "1px solid var(--gray-border)",
-          borderRadius: "var(--radius-lg)",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)",
+          borderRadius: "var(--radius-card)",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)",
           zIndex: 101,
           overflow: "hidden",
         }}
@@ -135,12 +134,13 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
             padding: "var(--space-3) var(--space-4)",
             borderBottom: "1px solid var(--gray-border)",
             gap: "var(--space-3)",
+            backgroundColor: "#FFFFFF",
           }}
         >
-          <Search size={18} style={{ color: "var(--accent)" }} />
+          <Search size={18} style={{ color: "var(--gray-text-muted)" }} />
           <input
             type="text"
-            placeholder="Type a command or search (e.g. Milk, Upload, Reports)..."
+            placeholder="Type a command or search..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
@@ -148,7 +148,7 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
               flex: 1,
               background: "none",
               border: "none",
-              color: "#FFFFFF",
+              color: "var(--gray-text-primary)",
               fontSize: "14px",
               outline: "none",
             }}
@@ -156,11 +156,12 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
           <span
             style={{
               fontSize: "11px",
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              backgroundColor: "#F1F5F9",
               padding: "2px 6px",
               borderRadius: "4px",
               color: "var(--gray-text-muted)",
               fontFamily: "var(--font-mono)",
+              border: "1px solid var(--gray-border)",
             }}
           >
             ESC to close
@@ -192,45 +193,39 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
                 className="command-item-hover"
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                  <div style={{ color: "var(--accent)" }}>{action.icon}</div>
-                  <div>
-                    <span style={{ fontSize: "14px", fontWeight: 600, color: "#FFFFFF", display: "block" }}>
-                      {action.label}
-                    </span>
-                    <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>
-                      {action.category}
-                    </span>
-                  </div>
+                  <div style={{ color: "var(--gray-text-muted)" }}>{action.icon}</div>
+                  <span style={{ fontSize: "14px", color: "var(--gray-text-primary)", fontWeight: 500 }}>
+                    {action.label}
+                  </span>
                 </div>
-                <ArrowRight size={14} style={{ color: "var(--gray-text-muted)" }} />
+                <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      backgroundColor: "#EEF2FF",
+                      color: "var(--accent)",
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {action.category}
+                  </span>
+                  <ArrowRight size={14} style={{ color: "var(--gray-text-muted)" }} />
+                </div>
               </div>
             ))
           ) : (
-            <div style={{ padding: "var(--space-5)", textAlign: "center", color: "var(--gray-text-muted)", fontSize: "13px" }}>
-              No commands matching "{query}". Try searching for <strong>Upload</strong> or <strong>Reports</strong>.
+            <div style={{ padding: "var(--space-6)", textAlign: "center", color: "var(--gray-text-muted)", fontSize: "13px" }}>
+              No commands match "{query}"
             </div>
           )}
         </div>
-
-        {/* Footer info */}
-        <div
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "rgba(15, 23, 42, 0.6)",
-            borderTop: "1px solid var(--gray-border)",
-            fontSize: "11px",
-            color: "var(--gray-text-muted)",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <span>Tip: Press <strong>Ctrl + K</strong> anywhere to toggle command palette</span>
-          <span>AI Engine v1.0</span>
-        </div>
       </div>
+
       <style>{`
         .command-item-hover:hover {
-          background-color: rgba(99, 102, 241, 0.15) !important;
+          background-color: #F8FAFC !important;
         }
       `}</style>
     </>

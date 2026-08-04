@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Settings, Bell, Key, CreditCard, LogOut, X } from "lucide-react";
+import { User, Settings, Bell, Key, CreditCard, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
@@ -20,11 +20,11 @@ export const UserProfileMenu = ({ isOpen, onClose }) => {
   };
 
   const menuItems = [
-    { label: "Business Profile", icon: <User size={15} />, action: () => alert("Business Profile Settings") },
-    { label: "Account Settings", icon: <Settings size={15} />, action: () => alert("Account Settings") },
-    { label: "Notification Preferences", icon: <Bell size={15} />, action: () => alert("Notification Preferences") },
-    { label: "API Keys & Developer Tools", icon: <Key size={15} />, action: () => alert("API Keys (Enterprise Feature)") },
-    { label: "Billing & Subscriptions", icon: <CreditCard size={15} />, action: () => alert("Billing & Plan Details") },
+    { label: "Profile", icon: <User size={15} />, action: () => alert("Business Profile Settings") },
+    { label: "Settings", icon: <Settings size={15} />, action: () => alert("Account Settings") },
+    { label: "Notifications", icon: <Bell size={15} />, action: () => alert("Notification Preferences") },
+    { label: "API Keys", icon: <Key size={15} />, action: () => alert("API Keys & Developer Tools") },
+    { label: "Billing", icon: <CreditCard size={15} />, action: () => alert("Billing & Subscription") },
   ];
 
   return (
@@ -36,20 +36,20 @@ export const UserProfileMenu = ({ isOpen, onClose }) => {
           bottom: "70px",
           left: "20px",
           width: "240px",
-          backgroundColor: "#1E293B",
+          backgroundColor: "#FFFFFF",
           border: "1px solid var(--gray-border)",
-          borderRadius: "var(--radius-lg)",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
+          borderRadius: "var(--radius-card)",
+          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
           zIndex: 101,
           overflow: "hidden",
           padding: "var(--space-2)",
         }}
       >
         <div style={{ padding: "var(--space-3)", borderBottom: "1px solid var(--gray-border)", marginBottom: "var(--space-2)" }}>
-          <span style={{ fontSize: "13px", fontWeight: 700, color: "#FFFFFF", display: "block" }}>
+          <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--gray-text-primary)", display: "block" }}>
             {user?.business_name || user?.email || "Demo Retailer"}
           </span>
-          <span className="badge badge-purple" style={{ fontSize: "10px", marginTop: "4px" }}>
+          <span style={{ fontSize: "10px", fontWeight: 600, backgroundColor: "#EEF2FF", color: "var(--accent)", padding: "2px 6px", borderRadius: "4px", display: "inline-block", marginTop: "4px" }}>
             {user?.role || "RETAILER"} Tier
           </span>
         </div>
@@ -58,23 +58,23 @@ export const UserProfileMenu = ({ isOpen, onClose }) => {
           <div
             key={idx}
             onClick={() => {
-              item.action();
               onClose();
+              item.action();
             }}
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "10px",
-              padding: "8px 12px",
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "var(--gray-text-primary)",
-              borderRadius: "var(--radius-sm)",
+              gap: "var(--space-3)",
+              padding: "8px 10px",
+              borderRadius: "var(--radius-default)",
               cursor: "pointer",
+              fontSize: "13px",
+              color: "var(--gray-text-primary)",
+              fontWeight: 500,
             }}
-            className="command-item-hover"
+            className="menu-item-hover"
           >
-            <div style={{ color: "var(--accent)" }}>{item.icon}</div>
+            <span style={{ color: "var(--gray-text-muted)" }}>{item.icon}</span>
             {item.label}
           </div>
         ))}
@@ -85,21 +85,30 @@ export const UserProfileMenu = ({ isOpen, onClose }) => {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "10px",
-              padding: "8px 12px",
-              fontSize: "12px",
-              fontWeight: 700,
-              color: "#EF4444",
-              borderRadius: "var(--radius-sm)",
+              gap: "var(--space-3)",
+              padding: "8px 10px",
+              borderRadius: "var(--radius-default)",
               cursor: "pointer",
+              fontSize: "13px",
+              color: "var(--error)",
+              fontWeight: 600,
             }}
-            className="command-item-hover"
+            className="menu-item-hover-danger"
           >
             <LogOut size={15} />
             Sign Out
           </div>
         </div>
       </div>
+
+      <style>{`
+        .menu-item-hover:hover {
+          background-color: #F8FAFC !important;
+        }
+        .menu-item-hover-danger:hover {
+          background-color: #FEF2F2 !important;
+        }
+      `}</style>
     </>
   );
 };

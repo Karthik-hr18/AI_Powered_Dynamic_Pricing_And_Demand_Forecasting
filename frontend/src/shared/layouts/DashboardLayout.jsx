@@ -176,7 +176,7 @@ export const DashboardLayout = ({ children }) => {
             style={{
               width: "100%",
               height: "36px",
-              backgroundColor: "rgba(15, 23, 42, 0.6)",
+              backgroundColor: "#FFFFFF",
               border: "1px solid var(--gray-border)",
               borderRadius: "var(--radius-default)",
               display: "flex",
@@ -186,19 +186,22 @@ export const DashboardLayout = ({ children }) => {
               color: "var(--gray-text-muted)",
               fontSize: "13px",
               cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Search size={14} style={{ color: "var(--accent)" }} />
+              <Search size={14} style={{ color: "var(--gray-text-muted)" }} />
               <span>Search or type Ctrl+K...</span>
             </div>
             <span
               style={{
                 fontSize: "10px",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                backgroundColor: "#F1F5F9",
+                color: "var(--gray-text-muted)",
                 padding: "2px 5px",
                 borderRadius: "4px",
                 fontFamily: "var(--font-mono)",
+                border: "1px solid var(--gray-border)",
               }}
             >
               Ctrl+K
@@ -229,7 +232,7 @@ export const DashboardLayout = ({ children }) => {
                     gap: "var(--space-3)",
                     padding: "10px var(--space-3)",
                     borderRadius: "var(--radius-default)",
-                    color: "var(--gray-text-muted)",
+                    color: "var(--gray-text-primary)",
                     backgroundColor: "transparent",
                     fontWeight: 500,
                     fontSize: "14px",
@@ -256,7 +259,7 @@ export const DashboardLayout = ({ children }) => {
                   gap: "var(--space-3)",
                   padding: "10px var(--space-3)",
                   borderRadius: "var(--radius-default)",
-                  color: isActive ? "var(--accent)" : "var(--gray-text-muted)",
+                  color: isActive ? "var(--accent)" : "var(--gray-text-primary)",
                   backgroundColor: isActive
                     ? "rgba(79, 70, 229, 0.08)"
                     : "transparent",

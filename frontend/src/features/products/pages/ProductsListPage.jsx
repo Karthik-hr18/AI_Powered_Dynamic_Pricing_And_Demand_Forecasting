@@ -65,12 +65,9 @@ export const ProductsListPage = () => {
       {/* Header Toolbar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
-            Product Catalogue
+          <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
+            Products
           </h2>
-          <p style={{ color: "var(--gray-text-muted)", fontSize: "14px" }}>
-            Browse master registry of retailer-owned SKUs and inspect demand-pricing anomalies.
-          </p>
         </div>
       </div>
 
@@ -78,12 +75,12 @@ export const ProductsListPage = () => {
       <div
         className="card"
         style={{
-          padding: "var(--space-4) var(--space-5)",
+          padding: "var(--space-3) var(--space-4)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
-          gap: "var(--space-4)",
+          gap: "var(--space-3)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -102,13 +99,14 @@ export const ProductsListPage = () => {
               onChange={handleSearchChange}
               style={{
                 paddingLeft: "32px",
-                height: "36px",
-                fontSize: "13px",
-                backgroundColor: "rgba(15, 23, 42, 0.6)",
-                borderColor: "var(--gray-border)",
-                color: "#FFFFFF",
-                borderRadius: "var(--radius-default)",
+                height: "34px",
+                fontSize: "12px",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid var(--gray-border)",
+                color: "var(--gray-text-primary)",
+                borderRadius: "8px",
                 width: "220px",
+                boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
               }}
             />
           </div>
@@ -118,13 +116,14 @@ export const ProductsListPage = () => {
             value={category}
             onChange={handleCategoryChange}
             style={{
-              height: "36px",
-              fontSize: "13px",
-              backgroundColor: "rgba(15, 23, 42, 0.6)",
-              borderColor: "var(--gray-border)",
-              color: "#FFFFFF",
-              borderRadius: "var(--radius-default)",
+              height: "34px",
+              fontSize: "12px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid var(--gray-border)",
+              color: "var(--gray-text-primary)",
+              borderRadius: "8px",
               padding: "0 var(--space-3)",
+              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
             }}
           >
             <option value="ALL">All Categories</option>

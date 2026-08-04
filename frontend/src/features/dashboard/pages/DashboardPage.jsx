@@ -187,8 +187,8 @@ export const DashboardPage = () => {
       >
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "4px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
-              Retailer Executive Dashboard
+            <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
+              Retail Dashboard
             </h2>
             <span
               className="badge badge-success"
@@ -204,41 +204,33 @@ export const DashboardPage = () => {
               Health: {business_health?.score ?? 94}/100 ({business_health?.rating ?? "Excellent"})
             </span>
           </div>
-          <p style={{ color: "var(--gray-text-muted)", fontSize: "14px" }}>
-            Real-time financial performance, AI dynamic pricing actions, stock velocity, and dataset auditing.
-          </p>
         </div>
 
-        {/* System Engine & Last AI Analysis Banner */}
+        {/* System Status Banner */}
         <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-end" }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: "var(--space-3)",
-              backgroundColor: "rgba(15, 23, 42, 0.6)",
-              padding: "8px 16px",
+              backgroundColor: "#FFFFFF",
+              padding: "6px 14px",
               borderRadius: "var(--radius-default)",
               border: "1px solid var(--gray-border)",
               fontSize: "12px",
+              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#22C55E" }} />
               <span style={{ color: "var(--gray-text-muted)" }}>Backend:</span>
-              <strong style={{ color: "#FFFFFF" }}>{system_status?.backend_status || "Running"}</strong>
+              <strong style={{ color: "var(--gray-text-primary)" }}>{system_status?.backend_status || "Running"}</strong>
             </div>
             <span style={{ color: "var(--gray-border)" }}>|</span>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "var(--gray-text-muted)" }}>AI Model:</span>
-              <strong style={{ color: "var(--accent)" }}>Ready (v1.0)</strong>
+              <span style={{ color: "var(--gray-text-muted)" }}>Engine:</span>
+              <strong style={{ color: "var(--accent)" }}>v1.0</strong>
             </div>
-          </div>
-          
-          <div style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "flex", gap: "8px" }}>
-            <span>Last Analysis: <strong>Today 11:42 AM</strong></span>
-            <span>•</span>
-            <span>Duration: <strong>12 sec</strong></span>
           </div>
         </div>
       </div>
@@ -747,13 +739,14 @@ export const DashboardPage = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
                   paddingLeft: "32px",
-                  height: "32px",
+                  height: "34px",
                   fontSize: "12px",
-                  backgroundColor: "rgba(15, 23, 42, 0.6)",
-                  borderColor: "var(--gray-border)",
-                  color: "#FFFFFF",
-                  borderRadius: "var(--radius-default)",
-                  width: "180px",
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid var(--gray-border)",
+                  color: "var(--gray-text-primary)",
+                  borderRadius: "8px",
+                  width: "200px",
+                  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
                 }}
               />
             </div>
@@ -763,12 +756,14 @@ export const DashboardPage = () => {
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               style={{
-                height: "32px",
+                height: "34px",
                 fontSize: "12px",
-                backgroundColor: "rgba(15, 23, 42, 0.6)",
-                borderColor: "var(--gray-border)",
-                color: "#FFFFFF",
-                borderRadius: "var(--radius-default)",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid var(--gray-border)",
+                color: "var(--gray-text-primary)",
+                borderRadius: "8px",
+                boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
+                padding: "0 10px",
               }}
             >
               <option value="ALL">All Categories</option>
@@ -785,12 +780,14 @@ export const DashboardPage = () => {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               style={{
-                height: "32px",
+                height: "34px",
                 fontSize: "12px",
-                backgroundColor: "rgba(15, 23, 42, 0.6)",
-                borderColor: "var(--gray-border)",
-                color: "#FFFFFF",
-                borderRadius: "var(--radius-default)",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid var(--gray-border)",
+                color: "var(--gray-text-primary)",
+                borderRadius: "8px",
+                boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
+                padding: "0 10px",
               }}
             >
               <option value="ALL">All Statuses</option>
@@ -801,73 +798,58 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Desktop & Tablet Diagnostics Table View */}
-        <div className="table-responsive desktop-diagnostics-table">
+        {/* Desktop & Tablet Diagnostics Table View (100% Fit Width, No Horizontal Scroll) */}
+        <div className="table-responsive desktop-diagnostics-table" style={{ width: "100%", overflowX: "hidden" }}>
           {filteredProducts.length > 0 ? (
-            <table className="table">
+            <table className="table" style={{ width: "100%", tableLayout: "fixed" }}>
               <thead>
                 <tr>
-                  <th>SKU</th>
-                  <th>Product Name</th>
-                  <th>Category</th>
-                  <th>7d Forecast</th>
-                  <th>Recommended Price</th>
-                  <th>Inventory Status</th>
-                  <th>Alerts</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
+                  <th style={{ width: "14%" }}>SKU</th>
+                  <th style={{ width: "26%" }}>Product Name</th>
+                  <th style={{ width: "14%" }}>Category</th>
+                  <th style={{ width: "13%" }}>7d Forecast</th>
+                  <th style={{ width: "13%" }}>Recommended</th>
+                  <th style={{ width: "10%" }}>Status</th>
+                  <th style={{ width: "10%", textAlign: "right" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredProducts.map((row) => (
                   <tr key={row.id}>
-                    <td style={{ fontFamily: "var(--font-mono)", fontSize: "13px" }}>
+                    <td style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--gray-text-muted)" }}>
                       {row.sku_display}
                     </td>
-                    <td style={{ fontWeight: 600 }}>{row.product_name || "Unknown SKU"}</td>
+                    <td style={{ fontWeight: 600, fontSize: "13px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {row.product_name || "Unknown SKU"}
+                    </td>
                     <td>
-                      <span className="badge badge-purple" style={{ fontSize: "11px" }}>
+                      <span className="badge badge-purple" style={{ fontSize: "10px" }}>
                         {row.category || "General"}
                       </span>
                     </td>
                     <td>
                       {row.forecast_7d !== null ? (
-                        <strong>{row.forecast_7d.toFixed(0)} units</strong>
+                        <strong style={{ fontSize: "13px" }}>{row.forecast_7d.toFixed(0)} units</strong>
                       ) : (
                         <span style={{ color: "var(--gray-text-muted)" }}>N/A</span>
                       )}
                     </td>
                     <td>
                       {row.recommended_price !== null ? (
-                        <strong style={{ color: "var(--success)" }}>${row.recommended_price.toFixed(2)}</strong>
+                        <strong style={{ color: "#059669", fontSize: "13px" }}>${row.recommended_price.toFixed(2)}</strong>
                       ) : (
                         <span style={{ color: "var(--gray-text-muted)" }}>N/A</span>
                       )}
                     </td>
                     <td>{renderInventoryBadge(row.inventory_status)}</td>
-                    <td>
-                      {row.alert_status ? (
-                        <span className="badge badge-danger">
-                          <AlertTriangle size={12} /> Alert
-                        </span>
-                      ) : (
-                        <span className="badge badge-success">Clear</span>
-                      )}
-                    </td>
                     <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
-                      <button
-                        onClick={() => alert(`Applied AI Price recommendation of $${row.recommended_price?.toFixed(2)} to ${row.sku_display}`)}
-                        className="btn btn-primary btn-pill"
-                        style={{ height: "30px", padding: "0 10px", fontSize: "11px", marginRight: "6px" }}
-                      >
-                        <Sparkles size={11} /> Apply AI Price
-                      </button>
                       <button
                         onClick={() => setSelectedProductId(row.id)}
                         className="btn btn-secondary btn-pill"
-                        style={{ height: "30px", padding: "0 var(--space-3)", fontSize: "12px" }}
+                        style={{ height: "28px", padding: "0 10px", fontSize: "11px" }}
                       >
                         Details
-                        <ChevronRight size={14} />
+                        <ChevronRight size={12} />
                       </button>
                     </td>
                   </tr>

@@ -28,15 +28,15 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
     {
       id: "notif-3",
       type: "COMPLETED",
-      title: "AI Analysis Engine Completed",
-      message: "Ingested sales_august_2026.csv (14,820 rows) and refreshed candidate pricing grids.",
+      title: "Data Upload Processed",
+      message: "Ingested sales_august_2026.csv (14,820 rows) and updated pricing models.",
       timestamp: "1 hour ago",
       link: "/uploads",
     },
     {
       id: "notif-4",
       type: "INFO",
-      title: "Monthly Sales Goal Reached 64%",
+      title: "Monthly Revenue Target 64%",
       message: "Store is currently on track to reach the $50,000 monthly target.",
       timestamp: "2 hours ago",
       link: "/dashboard",
@@ -53,11 +53,11 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
       case "CRITICAL":
         return <AlertTriangle size={16} style={{ color: "#EF4444" }} />;
       case "WARNING":
-        return <AlertTriangle size={16} style={{ color: "#F59E0B" }} />;
+        return <AlertTriangle size={16} style={{ color: "#D97706" }} />;
       case "COMPLETED":
-        return <CheckCircle size={16} style={{ color: "#22C55E" }} />;
+        return <CheckCircle size={16} style={{ color: "#10B981" }} />;
       default:
-        return <Info size={16} style={{ color: "#3B82F6" }} />;
+        return <Info size={16} style={{ color: "#4F46E5" }} />;
     }
   };
 
@@ -70,10 +70,10 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
           top: "60px",
           right: "20px",
           width: "360px",
-          backgroundColor: "#1E293B",
+          backgroundColor: "#FFFFFF",
           border: "1px solid var(--gray-border)",
-          borderRadius: "var(--radius-lg)",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
+          borderRadius: "var(--radius-card)",
+          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
           zIndex: 101,
           overflow: "hidden",
         }}
@@ -89,8 +89,10 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
         >
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <Bell size={16} style={{ color: "var(--accent)" }} />
-            <h4 style={{ fontSize: "14px", fontWeight: 700, color: "#FFFFFF" }}>Notifications</h4>
-            <span className="badge badge-purple" style={{ fontSize: "10px" }}>{notifications.length} New</span>
+            <h4 style={{ fontSize: "14px", fontWeight: 700, color: "var(--gray-text-primary)" }}>Notifications</h4>
+            <span style={{ fontSize: "10px", fontWeight: 700, backgroundColor: "#EEF2FF", color: "var(--accent)", padding: "2px 6px", borderRadius: "9999px" }}>
+              {notifications.length} New
+            </span>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--gray-text-muted)", cursor: "pointer" }}>
             <X size={16} />
@@ -98,7 +100,7 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
         </div>
 
         {/* Tab Filters */}
-        <div style={{ display: "flex", borderBottom: "1px solid var(--gray-border)", backgroundColor: "rgba(15, 23, 42, 0.5)" }}>
+        <div style={{ display: "flex", borderBottom: "1px solid var(--gray-border)", backgroundColor: "#F8FAFC" }}>
           {["ALL", "CRITICAL", "WARNING", "COMPLETED"].map((tab) => (
             <button
               key={tab}
@@ -128,31 +130,38 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
             <div
               key={item.id}
               onClick={() => {
-                navigate(item.link);
                 onClose();
+                navigate(item.link);
               }}
               style={{
                 padding: "var(--space-3) var(--space-4)",
-                borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                borderBottom: "1px solid var(--gray-border)",
                 cursor: "pointer",
                 transition: "background-color 0.15s",
+                display: "flex",
+                gap: "var(--space-3)",
+                alignItems: "flex-start",
               }}
-              className="command-item-hover"
+              className="notif-item-hover"
             >
-              <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
-                {getIcon(item.type)}
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
-                    <span style={{ fontSize: "12px", fontWeight: 700, color: "#FFFFFF" }}>{item.title}</span>
-                    <span style={{ fontSize: "10px", color: "var(--gray-text-muted)" }}>{item.timestamp}</span>
-                  </div>
-                  <p style={{ fontSize: "11px", color: "var(--gray-text-muted)", lineHeight: "1.4" }}>{item.message}</p>
+              <div style={{ marginTop: "2px" }}>{getIcon(item.type)}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <h5 style={{ fontSize: "13px", fontWeight: 700, color: "var(--gray-text-primary)" }}>{item.title}</h5>
+                  <span style={{ fontSize: "10px", color: "var(--gray-text-muted)" }}>{item.timestamp}</span>
                 </div>
+                <p style={{ fontSize: "12px", color: "var(--gray-text-muted)", margin: "3px 0 0 0" }}>{item.message}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      <style>{`
+        .notif-item-hover:hover {
+          background-color: #F8FAFC !important;
+        }
+      `}</style>
     </>
   );
 };

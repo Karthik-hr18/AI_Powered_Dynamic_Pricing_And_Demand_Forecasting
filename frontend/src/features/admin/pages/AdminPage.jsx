@@ -93,13 +93,10 @@ export const AdminPage = () => {
   return (
     <div>
       {/* Page Header */}
-      <div style={{ marginBottom: "var(--space-6)" }}>
-        <h2 style={{ fontSize: "28px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
-          Admin Platform Controls
+      <div style={{ marginBottom: "var(--space-5)" }}>
+        <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
+          Administration
         </h2>
-        <p style={{ color: "var(--gray-text-muted)", fontSize: "14px" }}>
-          Monitor retailer user databases, audit signups, and disable account permissions globally.
-        </p>
       </div>
 
       {/* KPI Aggregate cards */}
