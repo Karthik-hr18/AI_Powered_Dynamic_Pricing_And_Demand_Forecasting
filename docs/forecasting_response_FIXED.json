@@ -1,0 +1,3119 @@
+{
+  "metrics": {
+    "MAE": 14.314076862216513,
+    "RMSE": 24.9671979201684,
+    "MAPE": 188.40897849606287
+  },
+  "forecast_7d": [
+    {
+      "ds": "2024-12-28T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 8.490962509247012,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 23.780804034450764,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 2.8177192199684455,
+      "yhat_lower": 0.0,
+      "yhat_upper": 39.854459156362374,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 27.928447152930243,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 385.8140148945844,
+      "yhat_lower": 348.437751939337,
+      "yhat_upper": 420.5209994697383,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 1.5966895359008149,
+      "yhat_lower": 0.0,
+      "yhat_upper": 36.77748910250502,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 19.25189192649259,
+      "yhat_lower": 0.0,
+      "yhat_upper": 54.28140552240515,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-28T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 29.13023380712797,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 10.110782935188613,
+      "yhat_lower": 0.0,
+      "yhat_upper": 43.312168230826174,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 3.79958531961573,
+      "yhat_lower": 0.0,
+      "yhat_upper": 36.27448240406418,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 26.628126015609475,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 27.561605500525275,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 18.452905287370303,
+      "yhat_lower": 0.0,
+      "yhat_upper": 48.86255434017583,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 31.113830330348055,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 15.742743312070985,
+      "yhat_lower": 0.0,
+      "yhat_upper": 45.85112857931972,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 12.737559526763434,
+      "yhat_lower": 0.0,
+      "yhat_upper": 44.977850986273594,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 13.21255570154545,
+      "yhat_lower": 0.0,
+      "yhat_upper": 45.40092950160184,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 14.159698987021182,
+      "yhat_lower": 0.0,
+      "yhat_upper": 46.82742067893526,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 19.43566791412931,
+      "yhat_lower": 0.0,
+      "yhat_upper": 49.0850578912839,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 12.077651079501083,
+      "yhat_lower": 0.0,
+      "yhat_upper": 42.62924490060434,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 13.151847763195141,
+      "yhat_lower": 0.0,
+      "yhat_upper": 45.80672590086088,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-19T00:00:00",
+      "hybrid_yhat": 7.292833688541991,
+      "yhat_lower": 0.0,
+      "yhat_upper": 14.582846059290953,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-20T00:00:00",
+      "hybrid_yhat": 15.466050136722632,
+      "yhat_lower": 8.41322485741279,
+      "yhat_upper": 23.228444869823328,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-21T00:00:00",
+      "hybrid_yhat": 13.787273486286738,
+      "yhat_lower": 6.395372289519973,
+      "yhat_upper": 21.85660279612669,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-22T00:00:00",
+      "hybrid_yhat": 17.630016136488948,
+      "yhat_lower": 9.883175909799757,
+      "yhat_upper": 25.12954153518798,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-23T00:00:00",
+      "hybrid_yhat": 5.225939836721544,
+      "yhat_lower": 0.0,
+      "yhat_upper": 13.701987312595465,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-24T00:00:00",
+      "hybrid_yhat": 12.080219377217304,
+      "yhat_lower": 4.9453484850338345,
+      "yhat_upper": 20.177184187193397,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-25T00:00:00",
+      "hybrid_yhat": 10.631432025000572,
+      "yhat_lower": 2.7346110378484343,
+      "yhat_upper": 17.99892570350832,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 15.216495944577492,
+      "yhat_lower": 4.188684925292263,
+      "yhat_upper": 27.19016391467589,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 12.368595139907512,
+      "yhat_lower": 0.9971975903368849,
+      "yhat_upper": 24.133061577908425,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 10.962381605475352,
+      "yhat_lower": 0.0,
+      "yhat_upper": 23.451293792382778,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 15.222827899983276,
+      "yhat_lower": 3.7452881161627114,
+      "yhat_upper": 26.944997148945273,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 12.222584517849782,
+      "yhat_lower": 0.4206026552697457,
+      "yhat_upper": 23.895171503170143,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 12.761622995104444,
+      "yhat_lower": 1.524171257300777,
+      "yhat_upper": 24.062713825126693,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 12.926196324225419,
+      "yhat_lower": 1.6863384774323698,
+      "yhat_upper": 24.447387018015558,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 0.9895481776943189,
+      "yhat_lower": 0.0,
+      "yhat_upper": 65.79484841635514,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 60.52427493994823,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 10.399441540778817,
+      "yhat_lower": 0.0,
+      "yhat_upper": 70.10689421088084,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 2.1515024139687533,
+      "yhat_lower": 0.0,
+      "yhat_upper": 69.25375810691234,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 10.86087580792483,
+      "yhat_lower": 0.0,
+      "yhat_upper": 73.86180170212918,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 2.771659992816324,
+      "yhat_lower": 0.0,
+      "yhat_upper": 63.85477994696911,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 2.1193139913221497,
+      "yhat_lower": 0.0,
+      "yhat_upper": 66.04454825814256,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 15.214925236509547,
+      "yhat_lower": 0.0,
+      "yhat_upper": 92.42272977923209,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 13.590685738893658,
+      "yhat_lower": 0.0,
+      "yhat_upper": 88.11267690042631,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 14.406819886872231,
+      "yhat_lower": 0.0,
+      "yhat_upper": 89.62393461563178,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 20.051287220382584,
+      "yhat_lower": 0.0,
+      "yhat_upper": 102.52683940162713,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 28.547331031064815,
+      "yhat_lower": 0.0,
+      "yhat_upper": 106.3399571350318,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 19.481800509447275,
+      "yhat_lower": 0.0,
+      "yhat_upper": 94.31568421009665,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 21.099495439667145,
+      "yhat_lower": 0.0,
+      "yhat_upper": 101.75474283367252,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 12.687804516506459,
+      "yhat_lower": 3.450912160249657,
+      "yhat_upper": 22.239781094205778,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 9.71667783727284,
+      "yhat_lower": 0.34880518275674977,
+      "yhat_upper": 19.347756315102046,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 9.637288327646726,
+      "yhat_lower": 0.0,
+      "yhat_upper": 20.08830386726842,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 10.164190199201096,
+      "yhat_lower": 0.9480230825779472,
+      "yhat_upper": 20.105668127655225,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 12.57547856816407,
+      "yhat_lower": 3.2408552343795614,
+      "yhat_upper": 23.21128789263432,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 8.454797460291179,
+      "yhat_lower": 0.0,
+      "yhat_upper": 18.24074956119038,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 9.555988872065305,
+      "yhat_lower": 0.6760579439325772,
+      "yhat_upper": 19.201313240793457,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 63.717548433421285,
+      "yhat_lower": 0.0,
+      "yhat_upper": 215.10428010090106,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 76.1552738950946,
+      "yhat_lower": 0.0,
+      "yhat_upper": 213.87722676814627,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 54.36519633105576,
+      "yhat_lower": 0.0,
+      "yhat_upper": 201.40133204529678,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 49.49855305897432,
+      "yhat_lower": 0.0,
+      "yhat_upper": 188.25317971388813,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 58.966654212965935,
+      "yhat_lower": 0.0,
+      "yhat_upper": 196.01811688749206,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 54.68168584472326,
+      "yhat_lower": 0.0,
+      "yhat_upper": 199.6527050759056,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 54.60027652849472,
+      "yhat_lower": 0.0,
+      "yhat_upper": 194.18286712755884,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 7.00692589511617,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.945630561274044,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 6.121946167508668,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.258504768427322,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 4.6230234496532026,
+      "yhat_lower": 0.0,
+      "yhat_upper": 18.29938654642398,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 5.44199710467627,
+      "yhat_lower": 0.0,
+      "yhat_upper": 18.50856030367064,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 7.156576035544069,
+      "yhat_lower": 0.0,
+      "yhat_upper": 21.205078070001036,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 6.523122566031192,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.363927776969696,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 8.313993461584513,
+      "yhat_lower": 0.0,
+      "yhat_upper": 20.288933827205867,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-27T00:00:00",
+      "hybrid_yhat": 20.425491309349457,
+      "yhat_lower": 11.59680948995079,
+      "yhat_upper": 30.233605631366164,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-28T00:00:00",
+      "hybrid_yhat": 18.83359385139753,
+      "yhat_lower": 10.079065887216297,
+      "yhat_upper": 28.465762229350602,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 22.320361010143603,
+      "yhat_lower": 13.613052130829358,
+      "yhat_upper": 32.104377797736845,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 14.62207793785232,
+      "yhat_lower": 5.510718728755835,
+      "yhat_upper": 24.632578200421303,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 22.814032325233665,
+      "yhat_lower": 13.388941265329297,
+      "yhat_upper": 32.98379355816872,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 25.775793797771687,
+      "yhat_lower": 16.286059102496328,
+      "yhat_upper": 35.43254297766358,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 27.25627653955558,
+      "yhat_lower": 18.102033321151172,
+      "yhat_upper": 37.218534547665094,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 31.48909431895812,
+      "yhat_lower": 0.0,
+      "yhat_upper": 107.34859585053793,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 39.4124326241254,
+      "yhat_lower": 0.0,
+      "yhat_upper": 122.83863902222508,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 31.005500740171485,
+      "yhat_lower": 0.0,
+      "yhat_upper": 102.54192552088176,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 32.51619659408552,
+      "yhat_lower": 0.0,
+      "yhat_upper": 107.31934137011108,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 41.86590743311828,
+      "yhat_lower": 0.0,
+      "yhat_upper": 118.6152428424174,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 30.779788143273556,
+      "yhat_lower": 0.0,
+      "yhat_upper": 109.74444596076205,
+      "horizon_days": 7
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 35.42134200272605,
+      "yhat_lower": 0.0,
+      "yhat_upper": 114.10176681169011,
+      "horizon_days": 7
+    }
+  ],
+  "forecast_30d": [
+    {
+      "ds": "2024-12-28T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 10.586644417762907,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 24.72378318698335,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 2.8177192199684455,
+      "yhat_lower": 0.0,
+      "yhat_upper": 38.23682162802463,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 25.546559654997708,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 385.8140148945844,
+      "yhat_lower": 345.9131054584665,
+      "yhat_upper": 421.8657147405203,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 1.5966895359008149,
+      "yhat_lower": 0.0,
+      "yhat_upper": 38.1727652978253,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 19.25189192649257,
+      "yhat_lower": 0.0,
+      "yhat_upper": 55.85519892819991,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 15.23055351233183,
+      "yhat_lower": 0.0,
+      "yhat_upper": 51.5893979233373,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 18.573825674872722,
+      "yhat_lower": 0.0,
+      "yhat_upper": 55.2130857931882,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 22.987214685018543,
+      "yhat_lower": 0.0,
+      "yhat_upper": 60.091529369443414,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 0.41360425523318156,
+      "yhat_lower": 0.0,
+      "yhat_upper": 37.15766262920704,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 385.65210092742205,
+      "yhat_lower": 348.80949841634975,
+      "yhat_upper": 423.71366321589653,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 28.78774817687357,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 2.169133471769719,
+      "yhat_lower": 0.0,
+      "yhat_upper": 36.44158910765662,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 27.906210777038115,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 26.38973209962221,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 27.85245422732105,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 2.5375820213614193,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 350.08403029720336,
+      "yhat_lower": 313.1268447345924,
+      "yhat_upper": 389.05774170479634,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 0.0,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 4.134961143547006,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 0.0,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 0.0,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 5.128900841051593,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 0.0,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 339.862351814028,
+      "yhat_lower": 301.2977092636689,
+      "yhat_upper": 376.06849305511565,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 0.0,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 10.253369646574809,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 3.937265367280977,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-26T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 11.633018875728881,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-28T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 31.01561330078877,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 10.110782935188613,
+      "yhat_lower": 0.0,
+      "yhat_upper": 41.777345802438525,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 3.79958531961573,
+      "yhat_lower": 0.0,
+      "yhat_upper": 35.3688641148999,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 23.71913963918279,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 26.85125887535168,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 18.452905287370303,
+      "yhat_lower": 0.0,
+      "yhat_upper": 50.905361699157936,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 29.33209736868154,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 29.06195575751361,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 5.646023473306693,
+      "yhat_lower": 0.0,
+      "yhat_upper": 36.84887859754644,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 31.25665056749874,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 22.501455710572348,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 25.096120461674392,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 15.532361975134046,
+      "yhat_lower": 0.0,
+      "yhat_upper": 43.06649083401715,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 23.935845582492355,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 23.691858812719378,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 4.345999106884161,
+      "yhat_lower": 0.0,
+      "yhat_upper": 35.14812904163193,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 31.85755603314095,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 21.398196358302492,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 24.946743348936643,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 16.380359323882114,
+      "yhat_lower": 0.0,
+      "yhat_upper": 49.71220761679226,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 27.505129072482607,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 28.031629336311653,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 6.190607566059796,
+      "yhat_lower": 0.0,
+      "yhat_upper": 36.61361837725862,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 0.8107728729725079,
+      "yhat_lower": 0.0,
+      "yhat_upper": 31.407167646307073,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 23.80901000024479,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 25.175443511852354,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 17.92041808114504,
+      "yhat_lower": 0.0,
+      "yhat_upper": 51.993334610251644,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 27.75404714031243,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 26.59432127659139,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-26T00:00:00",
+      "hybrid_yhat": 6.301988193695325,
+      "yhat_lower": 0.0,
+      "yhat_upper": 37.395678666870424,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 15.742743312070985,
+      "yhat_lower": 0.0,
+      "yhat_upper": 46.91266160846209,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 12.737559526763434,
+      "yhat_lower": 0.0,
+      "yhat_upper": 45.26518405114759,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 13.21255570154545,
+      "yhat_lower": 0.0,
+      "yhat_upper": 44.95376795047829,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 14.159698987021182,
+      "yhat_lower": 0.0,
+      "yhat_upper": 46.60775160001676,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 19.43566791412931,
+      "yhat_lower": 0.0,
+      "yhat_upper": 53.03055593643245,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 12.077651079501083,
+      "yhat_lower": 0.0,
+      "yhat_upper": 44.96989667715185,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 13.151847763195141,
+      "yhat_lower": 0.0,
+      "yhat_upper": 44.534420601572,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 13.363253557396199,
+      "yhat_lower": 0.0,
+      "yhat_upper": 46.856381456719866,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 9.520135491425574,
+      "yhat_lower": 0.0,
+      "yhat_upper": 44.68390274140756,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 9.298528667003442,
+      "yhat_lower": 0.0,
+      "yhat_upper": 41.322316230175524,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 9.703578209709793,
+      "yhat_lower": 0.0,
+      "yhat_upper": 42.23729031726295,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 14.621686754750126,
+      "yhat_lower": 0.0,
+      "yhat_upper": 43.73329295432911,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 7.107002499768962,
+      "yhat_lower": 0.0,
+      "yhat_upper": 41.10092164184637,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 8.203622113784798,
+      "yhat_lower": 0.0,
+      "yhat_upper": 41.04633045393446,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 8.698390183311783,
+      "yhat_lower": 0.0,
+      "yhat_upper": 39.67361956425777,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 5.341441774086105,
+      "yhat_lower": 0.0,
+      "yhat_upper": 38.19891660395062,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 5.803399907291023,
+      "yhat_lower": 0.0,
+      "yhat_upper": 38.44141492867784,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 7.121474578369524,
+      "yhat_lower": 0.0,
+      "yhat_upper": 40.005372794509185,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 13.090376631675937,
+      "yhat_lower": 0.0,
+      "yhat_upper": 43.900351089556715,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 6.747839192476451,
+      "yhat_lower": 0.0,
+      "yhat_upper": 38.817333990188615,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 9.173596009716368,
+      "yhat_lower": 0.0,
+      "yhat_upper": 41.12569919323295,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 11.152355660090922,
+      "yhat_lower": 0.0,
+      "yhat_upper": 45.44767969035744,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 9.204417920727021,
+      "yhat_lower": 0.0,
+      "yhat_upper": 41.347463680075585,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 11.176883298829399,
+      "yhat_lower": 0.0,
+      "yhat_upper": 42.303011702769446,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 13.95860025151269,
+      "yhat_lower": 0.0,
+      "yhat_upper": 47.017588128684444,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 21.38383277788253,
+      "yhat_lower": 0.0,
+      "yhat_upper": 54.51913473318879,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 16.45129513506182,
+      "yhat_lower": 0.0,
+      "yhat_upper": 51.126938671751134,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 20.127273200504987,
+      "yhat_lower": 0.0,
+      "yhat_upper": 55.07818700772316,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-26T00:00:00",
+      "hybrid_yhat": 23.16165074999891,
+      "yhat_lower": 0.0,
+      "yhat_upper": 55.36634493606498,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-27T00:00:00",
+      "hybrid_yhat": 22.15607143714989,
+      "yhat_lower": 0.0,
+      "yhat_upper": 53.5367919778008,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-19T00:00:00",
+      "hybrid_yhat": 7.292833688541991,
+      "yhat_lower": 0.0,
+      "yhat_upper": 15.8353823568218,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-20T00:00:00",
+      "hybrid_yhat": 15.466050136722632,
+      "yhat_lower": 7.867466291558892,
+      "yhat_upper": 22.86329283453824,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-21T00:00:00",
+      "hybrid_yhat": 13.787273486286738,
+      "yhat_lower": 6.631118082308928,
+      "yhat_upper": 21.42927133840046,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-22T00:00:00",
+      "hybrid_yhat": 17.630016136488948,
+      "yhat_lower": 9.710713481576008,
+      "yhat_upper": 25.369828794338304,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-23T00:00:00",
+      "hybrid_yhat": 5.225939836721545,
+      "yhat_lower": 0.0,
+      "yhat_upper": 13.38064125660184,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-24T00:00:00",
+      "hybrid_yhat": 12.080219377217299,
+      "yhat_lower": 4.8095426542765605,
+      "yhat_upper": 20.05667721634875,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-25T00:00:00",
+      "hybrid_yhat": 10.63143202500057,
+      "yhat_lower": 3.031429544373126,
+      "yhat_upper": 18.269826096289528,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-26T00:00:00",
+      "hybrid_yhat": 11.533662138189154,
+      "yhat_lower": 4.049947714835196,
+      "yhat_upper": 19.78483023173788,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-27T00:00:00",
+      "hybrid_yhat": 19.56284976631602,
+      "yhat_lower": 11.508321077710153,
+      "yhat_upper": 27.370054025648425,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-28T00:00:00",
+      "hybrid_yhat": 17.67010455435708,
+      "yhat_lower": 9.97313138033478,
+      "yhat_upper": 25.418576007948992,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 21.189348067663218,
+      "yhat_lower": 13.253042150119473,
+      "yhat_upper": 29.225089705287203,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 8.293296760272803,
+      "yhat_lower": 1.042502441042117,
+      "yhat_upper": 15.96344877213326,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 14.578696952689418,
+      "yhat_lower": 6.944915553900316,
+      "yhat_upper": 21.895103704419284,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 12.48899678755409,
+      "yhat_lower": 4.801455962678141,
+      "yhat_upper": 20.61357310947996,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 12.659709290370072,
+      "yhat_lower": 5.235238367771654,
+      "yhat_upper": 20.63760952239386,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 19.97125592377342,
+      "yhat_lower": 12.590692471637151,
+      "yhat_upper": 27.866349510571087,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 17.32796661933305,
+      "yhat_lower": 9.608262899049539,
+      "yhat_upper": 24.887632182307954,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 20.116642430377603,
+      "yhat_lower": 13.068193478992328,
+      "yhat_upper": 27.95654462079183,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 6.549269102237306,
+      "yhat_lower": 0.0,
+      "yhat_upper": 14.706898696327599,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 12.191344953405405,
+      "yhat_lower": 4.57772363852237,
+      "yhat_upper": 19.996314704871338,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 9.523866576049649,
+      "yhat_lower": 1.712952857785467,
+      "yhat_upper": 17.306178399412545,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 9.222641254399123,
+      "yhat_lower": 1.6533062996452526,
+      "yhat_upper": 17.467142135138417,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 16.167031676759187,
+      "yhat_lower": 8.97720321096464,
+      "yhat_upper": 24.951438277208926,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 13.267357092890888,
+      "yhat_lower": 5.8524130543388315,
+      "yhat_upper": 21.440703572431286,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 15.916414222714643,
+      "yhat_lower": 8.84832229187206,
+      "yhat_upper": 23.756885761715914,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 2.390291133874731,
+      "yhat_lower": 0.0,
+      "yhat_upper": 9.193555089177153,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 8.135678991919704,
+      "yhat_lower": 0.5734807209836318,
+      "yhat_upper": 15.923034877327341,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 5.660015703460108,
+      "yhat_lower": 0.0,
+      "yhat_upper": 13.916447297565353,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 5.672530900468699,
+      "yhat_lower": 0.0,
+      "yhat_upper": 13.877687118372553,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 13.011394037531778,
+      "yhat_lower": 4.929451353097519,
+      "yhat_upper": 20.41738180040522,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 15.216495944577492,
+      "yhat_lower": 3.075481215427625,
+      "yhat_upper": 26.833349720895278,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 12.368595139907512,
+      "yhat_lower": 1.2477628945534385,
+      "yhat_upper": 24.27109075213177,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 10.962381605475352,
+      "yhat_lower": 0.20172480004680518,
+      "yhat_upper": 22.719894310962033,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 15.222827899983276,
+      "yhat_lower": 4.0274922156143464,
+      "yhat_upper": 27.159901971078558,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 12.222584517849782,
+      "yhat_lower": 0.9496566369249513,
+      "yhat_upper": 24.058202659297375,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 12.761622995104444,
+      "yhat_lower": 1.7537491860264973,
+      "yhat_upper": 23.93464668026203,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 12.926196324225419,
+      "yhat_lower": 1.0403616689060629,
+      "yhat_upper": 24.71844824242778,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 17.674172457586828,
+      "yhat_lower": 5.892766456852035,
+      "yhat_upper": 28.38815184390683,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 14.754866806889076,
+      "yhat_lower": 3.5320657931688118,
+      "yhat_upper": 25.9327289114997,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 13.319523319977646,
+      "yhat_lower": 0.9741136689040482,
+      "yhat_upper": 25.204627718279742,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 17.517336662278183,
+      "yhat_lower": 6.256588845962788,
+      "yhat_upper": 29.326401553622098,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 14.36731914640881,
+      "yhat_lower": 2.7648113663947305,
+      "yhat_upper": 26.728501090672214,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 14.833344874041643,
+      "yhat_lower": 3.6880998487212886,
+      "yhat_upper": 25.525024204642065,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 14.86192202095064,
+      "yhat_lower": 3.397699158737344,
+      "yhat_upper": 26.95511616159371,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 19.400019825254635,
+      "yhat_lower": 8.31826280723552,
+      "yhat_upper": 31.71046979964362,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 16.342759757056978,
+      "yhat_lower": 5.556424918264515,
+      "yhat_upper": 27.366137163798125,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 14.663183730524665,
+      "yhat_lower": 3.8952133726404026,
+      "yhat_upper": 26.559505508525486,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 18.552614672000917,
+      "yhat_lower": 7.32766817863374,
+      "yhat_upper": 30.490848711903052,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 15.17594164536959,
+      "yhat_lower": 4.060635998199502,
+      "yhat_upper": 27.35388958115525,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 15.312702788648041,
+      "yhat_lower": 3.5834085372194537,
+      "yhat_upper": 26.663878956206588,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 15.020162104605443,
+      "yhat_lower": 3.6572326854564965,
+      "yhat_upper": 26.75705079554646,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 19.25159505807119,
+      "yhat_lower": 9.087959313290382,
+      "yhat_upper": 31.288472059538467,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 15.81118674625569,
+      "yhat_lower": 4.185914263237572,
+      "yhat_upper": 26.522801166343847,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 13.79385305448925,
+      "yhat_lower": 2.069277827631502,
+      "yhat_upper": 24.878950777721204,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 17.41005214122734,
+      "yhat_lower": 6.275986150094068,
+      "yhat_upper": 29.374651193084002,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 13.696188520690107,
+      "yhat_lower": 1.9446051909525948,
+      "yhat_upper": 25.278260221140002,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 13.519462070600518,
+      "yhat_lower": 1.85464278135066,
+      "yhat_upper": 25.266564208821002,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 12.93373951284526,
+      "yhat_lower": 0.7509324754454468,
+      "yhat_upper": 24.925717279559837,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-26T00:00:00",
+      "hybrid_yhat": 16.868967534181678,
+      "yhat_lower": 5.828360719025839,
+      "yhat_upper": 28.791820650780334,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-27T00:00:00",
+      "hybrid_yhat": 13.175779737306094,
+      "yhat_lower": 1.8187545482670089,
+      "yhat_upper": 25.16096800964702,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 0.9895481776943189,
+      "yhat_lower": 0.0,
+      "yhat_upper": 64.66607078152695,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 63.009609180879345,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 10.399441540778817,
+      "yhat_lower": 0.0,
+      "yhat_upper": 71.90754872653412,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 2.1515024139687533,
+      "yhat_lower": 0.0,
+      "yhat_upper": 66.23920399356197,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 10.86087580792483,
+      "yhat_lower": 0.0,
+      "yhat_upper": 68.68123100987304,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 2.771659992816324,
+      "yhat_lower": 0.0,
+      "yhat_upper": 61.56285040494458,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 2.1193139913221533,
+      "yhat_lower": 0.0,
+      "yhat_upper": 76.13508691971323,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 5.864672756391204,
+      "yhat_lower": 0.0,
+      "yhat_upper": 69.44906012650434,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 1.951199611819991,
+      "yhat_lower": 0.0,
+      "yhat_upper": 64.51144379716997,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 15.217804626312052,
+      "yhat_lower": 0.0,
+      "yhat_upper": 75.94813605502765,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 6.7178491366812025,
+      "yhat_lower": 0.0,
+      "yhat_upper": 68.1752421301872,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 15.035853784263221,
+      "yhat_lower": 0.0,
+      "yhat_upper": 79.35390280241216,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 6.443161244578534,
+      "yhat_lower": 0.0,
+      "yhat_upper": 71.44060863335706,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 5.1771224419713535,
+      "yhat_lower": 0.0,
+      "yhat_upper": 67.03094071912072,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 8.23333330874275,
+      "yhat_lower": 0.0,
+      "yhat_upper": 68.61166965481249,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 3.637580915770089,
+      "yhat_lower": 0.0,
+      "yhat_upper": 68.43483102082438,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 16.1851584957895,
+      "yhat_lower": 0.0,
+      "yhat_upper": 80.46625519854685,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 6.95284929990248,
+      "yhat_lower": 0.0,
+      "yhat_upper": 72.20411448685465,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 14.559674812079646,
+      "yhat_lower": 0.0,
+      "yhat_upper": 73.15018277373203,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 5.324698703990873,
+      "yhat_lower": 0.0,
+      "yhat_upper": 65.12954039636523,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 3.4567786787923103,
+      "yhat_lower": 0.0,
+      "yhat_upper": 69.51666468210549,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 6.0378520651428715,
+      "yhat_lower": 0.0,
+      "yhat_upper": 68.13120042093348,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 1.0272998293332858,
+      "yhat_lower": 0.0,
+      "yhat_upper": 65.3434942553563,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 13.23770878421465,
+      "yhat_lower": 0.0,
+      "yhat_upper": 76.99290882862034,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 3.8339573955851884,
+      "yhat_lower": 0.0,
+      "yhat_upper": 66.615576689808,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 11.37122824958324,
+      "yhat_lower": 0.0,
+      "yhat_upper": 77.5573577060453,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-26T00:00:00",
+      "hybrid_yhat": 2.2037429099616848,
+      "yhat_lower": 0.0,
+      "yhat_upper": 68.2834449834486,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-27T00:00:00",
+      "hybrid_yhat": 0.5492608931209464,
+      "yhat_lower": 0.0,
+      "yhat_upper": 67.67140866640803,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-28T00:00:00",
+      "hybrid_yhat": 3.4122132240161367,
+      "yhat_lower": 0.0,
+      "yhat_upper": 65.54056417518973,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-29T00:00:00",
+      "hybrid_yhat": 0.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 55.985332025885384,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 15.214925236509547,
+      "yhat_lower": 0.0,
+      "yhat_upper": 93.21986547571466,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 13.590685738893658,
+      "yhat_lower": 0.0,
+      "yhat_upper": 95.88062518673179,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 14.406819886872231,
+      "yhat_lower": 0.0,
+      "yhat_upper": 94.49836802990829,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 20.051287220382584,
+      "yhat_lower": 0.0,
+      "yhat_upper": 99.27946444195999,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 28.547331031064815,
+      "yhat_lower": 0.0,
+      "yhat_upper": 105.6622123458473,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 19.481800509447275,
+      "yhat_lower": 0.0,
+      "yhat_upper": 101.97395877134441,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 21.099495439667145,
+      "yhat_lower": 0.0,
+      "yhat_upper": 100.57640721759512,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 15.435789351143082,
+      "yhat_lower": 0.0,
+      "yhat_upper": 93.71635951413963,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 12.606018392131904,
+      "yhat_lower": 0.0,
+      "yhat_upper": 94.3245142703046,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 12.264555696598224,
+      "yhat_lower": 0.0,
+      "yhat_upper": 85.51797378075331,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 16.845478991126306,
+      "yhat_lower": 0.0,
+      "yhat_upper": 92.02272321840672,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 24.3899415350992,
+      "yhat_lower": 0.0,
+      "yhat_upper": 104.18277689676093,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 14.617336022626175,
+      "yhat_lower": 0.0,
+      "yhat_upper": 94.80923510448063,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 15.49055093360142,
+      "yhat_lower": 0.0,
+      "yhat_upper": 94.75616618347749,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 9.377802341326943,
+      "yhat_lower": 0.0,
+      "yhat_upper": 91.21563926857611,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 6.29445179311681,
+      "yhat_lower": 0.0,
+      "yhat_upper": 88.11506185186053,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 5.918384720620155,
+      "yhat_lower": 0.0,
+      "yhat_upper": 80.99312829053609,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 10.644386435806442,
+      "yhat_lower": 0.0,
+      "yhat_upper": 89.65016256922678,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 18.548416040646806,
+      "yhat_lower": 0.0,
+      "yhat_upper": 106.75027265703267,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 9.307083642280048,
+      "yhat_lower": 0.0,
+      "yhat_upper": 91.8780504832854,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 10.88495691789958,
+      "yhat_lower": 0.0,
+      "yhat_upper": 87.99785978211447,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 5.615700716878685,
+      "yhat_lower": 0.0,
+      "yhat_upper": 86.24545283705844,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 3.4896747430527792,
+      "yhat_lower": 0.0,
+      "yhat_upper": 83.98353353403168,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 4.1689518443045745,
+      "yhat_lower": 0.0,
+      "yhat_upper": 86.3823011470925,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 9.978972486379444,
+      "yhat_lower": 0.0,
+      "yhat_upper": 85.50541290140112,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-26T00:00:00",
+      "hybrid_yhat": 18.92969321120986,
+      "yhat_lower": 0.0,
+      "yhat_upper": 103.23154118138994,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-27T00:00:00",
+      "hybrid_yhat": 10.78477804615686,
+      "yhat_lower": 0.0,
+      "yhat_upper": 92.98256721538802,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-28T00:00:00",
+      "hybrid_yhat": 13.3730326386295,
+      "yhat_lower": 0.0,
+      "yhat_upper": 90.42781860068172,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-29T00:00:00",
+      "hybrid_yhat": 9.027192083475189,
+      "yhat_lower": 0.0,
+      "yhat_upper": 85.12499865850803,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-30T00:00:00",
+      "hybrid_yhat": 7.702321974091118,
+      "yhat_lower": 0.0,
+      "yhat_upper": 87.19560327606169,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 12.687804516506459,
+      "yhat_lower": 3.42132364263535,
+      "yhat_upper": 23.01672988170815,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 9.71667783727284,
+      "yhat_lower": 0.13570408323032906,
+      "yhat_upper": 20.639693176160844,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 9.637288327646726,
+      "yhat_lower": 0.7833861265153973,
+      "yhat_upper": 20.7967794946324,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 10.164190199201096,
+      "yhat_lower": 0.33081193291685507,
+      "yhat_upper": 20.069063809425334,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 12.57547856816407,
+      "yhat_lower": 3.344769381511851,
+      "yhat_upper": 22.581936396896484,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 8.454797460291179,
+      "yhat_lower": 0.0,
+      "yhat_upper": 18.898628829841634,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 9.555988872065305,
+      "yhat_lower": 0.6521442285849051,
+      "yhat_upper": 19.324115155358523,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 9.743056405065149,
+      "yhat_lower": 0.15899223778684743,
+      "yhat_upper": 20.13839701866567,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 6.466408396704653,
+      "yhat_lower": 0.0,
+      "yhat_upper": 16.10638000059878,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 6.1738359036453385,
+      "yhat_lower": 0.0,
+      "yhat_upper": 16.226155717938102,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 6.574659211915256,
+      "yhat_lower": 0.0,
+      "yhat_upper": 15.10685059836642,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 8.930608290661478,
+      "yhat_lower": 0.0,
+      "yhat_upper": 18.233755611574637,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 4.8048316505015,
+      "yhat_lower": 0.0,
+      "yhat_upper": 15.605072589281532,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 6.001874128870996,
+      "yhat_lower": 0.0,
+      "yhat_upper": 15.999903658020003,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 6.358540861092329,
+      "yhat_lower": 0.0,
+      "yhat_upper": 16.760473634363642,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 3.3131306977570816,
+      "yhat_lower": 0.0,
+      "yhat_upper": 13.048610986132326,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 3.280819049770102,
+      "yhat_lower": 0.0,
+      "yhat_upper": 14.023655623623204,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 3.9944665016837586,
+      "yhat_lower": 0.0,
+      "yhat_upper": 14.11652885903138,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 6.697693447789806,
+      "yhat_lower": 0.0,
+      "yhat_upper": 16.769704868188487,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 2.951246136346768,
+      "yhat_lower": 0.0,
+      "yhat_upper": 12.853159183733801,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 4.585081788464336,
+      "yhat_lower": 0.0,
+      "yhat_upper": 15.02859361915114,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 5.266862616245615,
+      "yhat_lower": 0.0,
+      "yhat_upper": 15.036524679349068,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 2.619214976686494,
+      "yhat_lower": 0.0,
+      "yhat_upper": 11.871104640066205,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 2.9872400922734164,
+      "yhat_lower": 0.0,
+      "yhat_upper": 12.60329863115518,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 4.068865831279667,
+      "yhat_lower": 0.0,
+      "yhat_upper": 14.168716042344064,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 7.118610782243643,
+      "yhat_lower": 0.0,
+      "yhat_upper": 17.095345680390057,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-26T00:00:00",
+      "hybrid_yhat": 3.684010938432481,
+      "yhat_lower": 0.0,
+      "yhat_upper": 13.336105371594476,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-27T00:00:00",
+      "hybrid_yhat": 5.570401092469066,
+      "yhat_lower": 0.0,
+      "yhat_upper": 14.593545925961982,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-28T00:00:00",
+      "hybrid_yhat": 6.490555640158881,
+      "yhat_lower": 0.0,
+      "yhat_upper": 16.10953433307466,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-29T00:00:00",
+      "hybrid_yhat": 4.029905300020638,
+      "yhat_lower": 0.0,
+      "yhat_upper": 13.92427796118089,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 63.717548433421285,
+      "yhat_lower": 0.0,
+      "yhat_upper": 209.5036674686176,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 76.1552738950946,
+      "yhat_lower": 0.0,
+      "yhat_upper": 210.40757731562766,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 54.36519633105576,
+      "yhat_lower": 0.0,
+      "yhat_upper": 190.11087348075458,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 49.49855305897432,
+      "yhat_lower": 0.0,
+      "yhat_upper": 196.72693712646532,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 58.966654212965935,
+      "yhat_lower": 0.0,
+      "yhat_upper": 202.83648135213406,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 54.68168584472327,
+      "yhat_lower": 0.0,
+      "yhat_upper": 185.22053838095607,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 54.60027652849472,
+      "yhat_lower": 0.0,
+      "yhat_upper": 193.7413407772546,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 48.372874425202255,
+      "yhat_lower": 0.0,
+      "yhat_upper": 194.24738482224603,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 60.322967120008016,
+      "yhat_lower": 0.0,
+      "yhat_upper": 197.8369460835867,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 38.35646317631374,
+      "yhat_lower": 0.0,
+      "yhat_upper": 172.5282609343791,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 33.64601257855186,
+      "yhat_lower": 0.0,
+      "yhat_upper": 178.55266981135208,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 43.570698308879685,
+      "yhat_lower": 0.0,
+      "yhat_upper": 178.07453265912454,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 40.13751276762301,
+      "yhat_lower": 0.0,
+      "yhat_upper": 174.06943543556872,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 41.1374146913153,
+      "yhat_lower": 0.0,
+      "yhat_upper": 185.6390469296242,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 36.221533663503735,
+      "yhat_lower": 0.0,
+      "yhat_upper": 174.73825103126546,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 49.76656663127886,
+      "yhat_lower": 0.0,
+      "yhat_upper": 201.4540478507425,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 29.582400497715767,
+      "yhat_lower": 0.0,
+      "yhat_upper": 162.17467072779715,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 26.886710492415837,
+      "yhat_lower": 0.0,
+      "yhat_upper": 168.77697724680667,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 39.039534633445925,
+      "yhat_lower": 0.0,
+      "yhat_upper": 177.07991851836783,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 37.59458561237293,
+      "yhat_lower": 0.0,
+      "yhat_upper": 174.1689207291101,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 40.81772739333048,
+      "yhat_lower": 0.0,
+      "yhat_upper": 178.5007372833834,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 38.146249855509396,
+      "yhat_lower": 0.0,
+      "yhat_upper": 178.97851648629617,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 53.884505912225265,
+      "yhat_lower": 0.0,
+      "yhat_upper": 182.31261906102023,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 35.76867487611115,
+      "yhat_lower": 0.0,
+      "yhat_upper": 170.65893543193204,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 34.98391862598479,
+      "yhat_lower": 0.0,
+      "yhat_upper": 172.18999679607393,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-26T00:00:00",
+      "hybrid_yhat": 48.77050886402742,
+      "yhat_lower": 0.0,
+      "yhat_upper": 186.9200220042179,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-27T00:00:00",
+      "hybrid_yhat": 48.837444834856406,
+      "yhat_lower": 0.0,
+      "yhat_upper": 178.85738567044942,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-28T00:00:00",
+      "hybrid_yhat": 53.31080203311748,
+      "yhat_lower": 0.0,
+      "yhat_upper": 186.8611377307663,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-29T00:00:00",
+      "hybrid_yhat": 51.61616566300909,
+      "yhat_lower": 0.0,
+      "yhat_upper": 197.7349911418678,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-30T00:00:00",
+      "hybrid_yhat": 68.0121600439454,
+      "yhat_lower": 0.0,
+      "yhat_upper": 211.29191575411812,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 7.00692589511617,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.24321034043508,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 6.121946167508668,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.677194390622223,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 4.6230234496532026,
+      "yhat_lower": 0.0,
+      "yhat_upper": 18.522371933304303,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 5.44199710467627,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.23421931332752,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 7.156576035544069,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.934662123283015,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 6.523122566031192,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.712529400976507,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 8.313993461584513,
+      "yhat_lower": 0.0,
+      "yhat_upper": 21.70022800551516,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 6.4851589983699185,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.80020955331617,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 5.930301475693732,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.3703158663148,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 4.763237636768549,
+      "yhat_lower": 0.0,
+      "yhat_upper": 17.58217895824163,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 5.783050015153705,
+      "yhat_lower": 0.0,
+      "yhat_upper": 18.279957282268505,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 7.7664844142919165,
+      "yhat_lower": 0.0,
+      "yhat_upper": 21.633819866511928,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 7.358927675770244,
+      "yhat_lower": 0.0,
+      "yhat_upper": 21.192703006417048,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 9.367905274086526,
+      "yhat_lower": 0.0,
+      "yhat_upper": 23.796025535688514,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 7.842993154297871,
+      "yhat_lower": 0.0,
+      "yhat_upper": 20.46161451878105,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 7.3945458218418185,
+      "yhat_lower": 0.0,
+      "yhat_upper": 20.455380912437604,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 6.306236032068089,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.836093625466518,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 7.424818199607212,
+      "yhat_lower": 0.0,
+      "yhat_upper": 20.718991629341378,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 9.434029841749549,
+      "yhat_lower": 0.0,
+      "yhat_upper": 23.154204230731846,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 9.03871160172368,
+      "yhat_lower": 0.0,
+      "yhat_upper": 22.3798882794475,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 11.04818072315516,
+      "yhat_lower": 0.0,
+      "yhat_upper": 24.99535443746994,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 9.34634406651368,
+      "yhat_lower": 0.0,
+      "yhat_upper": 23.338545926538956,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 8.785083175326333,
+      "yhat_lower": 0.0,
+      "yhat_upper": 21.62346303421609,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 7.576611606613428,
+      "yhat_lower": 0.0,
+      "yhat_upper": 19.867379235086283,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 8.524112829007548,
+      "yhat_lower": 0.0,
+      "yhat_upper": 22.33871486096996,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 10.349042190772206,
+      "yhat_lower": 0.0,
+      "yhat_upper": 24.234830477038344,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-26T00:00:00",
+      "hybrid_yhat": 9.737511400316803,
+      "yhat_lower": 0.0,
+      "yhat_upper": 22.34861222912902,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-27T00:00:00",
+      "hybrid_yhat": 11.472069896001,
+      "yhat_lower": 0.0,
+      "yhat_upper": 24.311855667950713,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-28T00:00:00",
+      "hybrid_yhat": 9.584111944902883,
+      "yhat_lower": 0.0,
+      "yhat_upper": 21.761235178466002,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-29T00:00:00",
+      "hybrid_yhat": 8.799967176766511,
+      "yhat_lower": 0.0,
+      "yhat_upper": 22.055424814310737,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-27T00:00:00",
+      "hybrid_yhat": 20.425491309349457,
+      "yhat_lower": 11.311728572822037,
+      "yhat_upper": 30.27896217649356,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-28T00:00:00",
+      "hybrid_yhat": 18.83359385139753,
+      "yhat_lower": 9.964714539453801,
+      "yhat_upper": 28.635386097820444,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-29T00:00:00",
+      "hybrid_yhat": 22.320361010143603,
+      "yhat_lower": 13.286733203627843,
+      "yhat_upper": 32.730321058112,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-30T00:00:00",
+      "hybrid_yhat": 14.62207793785232,
+      "yhat_lower": 4.91993088177876,
+      "yhat_upper": 23.622521621008904,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 22.814032325233665,
+      "yhat_lower": 13.271151551116875,
+      "yhat_upper": 32.180337085822615,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 25.77579379777169,
+      "yhat_lower": 16.51429577358027,
+      "yhat_upper": 34.99089161282769,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 27.256276539555575,
+      "yhat_lower": 17.744820454244323,
+      "yhat_upper": 36.976969802367876,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 25.569235249514776,
+      "yhat_lower": 16.980546239095364,
+      "yhat_upper": 35.69339271279399,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 22.287146787675802,
+      "yhat_lower": 13.807351846502527,
+      "yhat_upper": 31.78661102798635,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 24.199438427533785,
+      "yhat_lower": 15.529284329474393,
+      "yhat_upper": 33.42700750675055,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 14.847216132587006,
+      "yhat_lower": 5.4932906946696365,
+      "yhat_upper": 24.382291074230665,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 21.523460624851367,
+      "yhat_lower": 12.890093966124233,
+      "yhat_upper": 31.25141109862327,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 22.985089581910984,
+      "yhat_lower": 13.993295346325938,
+      "yhat_upper": 33.16762396688648,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 23.123544973952107,
+      "yhat_lower": 14.015764395716129,
+      "yhat_upper": 32.73375022077486,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 20.235018020575176,
+      "yhat_lower": 11.26433444576488,
+      "yhat_upper": 30.28971057932577,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 16.0068182934333,
+      "yhat_lower": 7.252354823059179,
+      "yhat_upper": 25.703390056222315,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 17.067016357406725,
+      "yhat_lower": 8.292271578099117,
+      "yhat_upper": 26.54686297615394,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 7.2717113252874706,
+      "yhat_lower": 0.0,
+      "yhat_upper": 16.81886962289515,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 13.589296934202725,
+      "yhat_lower": 3.7075676428668656,
+      "yhat_upper": 23.35491809333648,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 15.04557332048847,
+      "yhat_lower": 6.340264509236229,
+      "yhat_upper": 24.890027887644838,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 15.341141641503532,
+      "yhat_lower": 6.738574524438676,
+      "yhat_upper": 24.591488384028963,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 12.899723442149732,
+      "yhat_lower": 3.3675283537739724,
+      "yhat_upper": 22.620362397243834,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 9.347769344193289,
+      "yhat_lower": 0.6220049668233611,
+      "yhat_upper": 19.318468843788093,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 11.371446609920573,
+      "yhat_lower": 2.213171739240982,
+      "yhat_upper": 21.691671040425604,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 2.5240805442132572,
+      "yhat_lower": 0.0,
+      "yhat_upper": 11.455786929750897,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 10.066292041080906,
+      "yhat_lower": 1.0790432625696416,
+      "yhat_upper": 19.713541669138564,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 12.878131972234545,
+      "yhat_lower": 3.5780342359906157,
+      "yhat_upper": 22.349468034020834,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 14.600296276259996,
+      "yhat_lower": 5.097177015030186,
+      "yhat_upper": 24.226318751195475,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 13.631562992257503,
+      "yhat_lower": 4.626012189842954,
+      "yhat_upper": 23.60489114413259,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 11.552933410631637,
+      "yhat_lower": 2.777713573500032,
+      "yhat_upper": 21.436289437229387,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2024-12-31T00:00:00",
+      "hybrid_yhat": 31.48909431895812,
+      "yhat_lower": 0.0,
+      "yhat_upper": 108.26559986867598,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-01T00:00:00",
+      "hybrid_yhat": 39.4124326241254,
+      "yhat_lower": 0.0,
+      "yhat_upper": 116.82453357343017,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-02T00:00:00",
+      "hybrid_yhat": 31.005500740171485,
+      "yhat_lower": 0.0,
+      "yhat_upper": 111.36587159627828,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-03T00:00:00",
+      "hybrid_yhat": 32.51619659408552,
+      "yhat_lower": 0.0,
+      "yhat_upper": 107.31463763426302,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-04T00:00:00",
+      "hybrid_yhat": 41.86590743311828,
+      "yhat_lower": 0.0,
+      "yhat_upper": 115.71435508684624,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-05T00:00:00",
+      "hybrid_yhat": 30.779788143273556,
+      "yhat_lower": 0.0,
+      "yhat_upper": 102.37936997586435,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-06T00:00:00",
+      "hybrid_yhat": 35.42134200272605,
+      "yhat_lower": 0.0,
+      "yhat_upper": 112.75362587907546,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-07T00:00:00",
+      "hybrid_yhat": 33.45086827554535,
+      "yhat_lower": 0.0,
+      "yhat_upper": 117.49933539247897,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-08T00:00:00",
+      "hybrid_yhat": 40.08022139461225,
+      "yhat_lower": 0.0,
+      "yhat_upper": 119.22409780277472,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-09T00:00:00",
+      "hybrid_yhat": 30.338232799057387,
+      "yhat_lower": 0.0,
+      "yhat_upper": 110.16543418047047,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-10T00:00:00",
+      "hybrid_yhat": 30.463352429852662,
+      "yhat_lower": 0.0,
+      "yhat_upper": 107.83853055970786,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-11T00:00:00",
+      "hybrid_yhat": 38.46272330633659,
+      "yhat_lower": 0.0,
+      "yhat_upper": 119.61477903087984,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-12T00:00:00",
+      "hybrid_yhat": 26.07746715686446,
+      "yhat_lower": 0.0,
+      "yhat_upper": 105.48132731272092,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-13T00:00:00",
+      "hybrid_yhat": 29.59477133864189,
+      "yhat_lower": 0.0,
+      "yhat_upper": 102.33658160772275,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-14T00:00:00",
+      "hybrid_yhat": 26.491775420191118,
+      "yhat_lower": 0.0,
+      "yhat_upper": 107.9222571583126,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-15T00:00:00",
+      "hybrid_yhat": 32.1245898846407,
+      "yhat_lower": 0.0,
+      "yhat_upper": 113.06107297393243,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-16T00:00:00",
+      "hybrid_yhat": 21.512118977245915,
+      "yhat_lower": 0.0,
+      "yhat_upper": 96.63580301061312,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-17T00:00:00",
+      "hybrid_yhat": 20.887929108355138,
+      "yhat_lower": 0.0,
+      "yhat_upper": 97.48586137775587,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-18T00:00:00",
+      "hybrid_yhat": 28.377696395380408,
+      "yhat_lower": 0.0,
+      "yhat_upper": 110.41349375083375,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-19T00:00:00",
+      "hybrid_yhat": 15.653034346748372,
+      "yhat_lower": 0.0,
+      "yhat_upper": 91.21911981698919,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-20T00:00:00",
+      "hybrid_yhat": 18.90876430828837,
+      "yhat_lower": 0.0,
+      "yhat_upper": 96.66576296291228,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-21T00:00:00",
+      "hybrid_yhat": 15.822030311232687,
+      "yhat_lower": 0.0,
+      "yhat_upper": 97.26309858355208,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-22T00:00:00",
+      "hybrid_yhat": 21.646273315594303,
+      "yhat_lower": 0.0,
+      "yhat_upper": 98.52860919111635,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-23T00:00:00",
+      "hybrid_yhat": 11.430055601374203,
+      "yhat_lower": 0.0,
+      "yhat_upper": 88.62531340661081,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-24T00:00:00",
+      "hybrid_yhat": 11.416927635502315,
+      "yhat_lower": 0.0,
+      "yhat_upper": 84.18334122002828,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-25T00:00:00",
+      "hybrid_yhat": 19.645872100222164,
+      "yhat_lower": 0.0,
+      "yhat_upper": 96.12653405088268,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-26T00:00:00",
+      "hybrid_yhat": 7.806979190721897,
+      "yhat_lower": 0.0,
+      "yhat_upper": 87.22535022730634,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-27T00:00:00",
+      "hybrid_yhat": 12.096827130300804,
+      "yhat_lower": 0.0,
+      "yhat_upper": 92.8689984964016,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-28T00:00:00",
+      "hybrid_yhat": 10.158506640458652,
+      "yhat_lower": 0.0,
+      "yhat_upper": 86.77142117748883,
+      "horizon_days": 30
+    },
+    {
+      "ds": "2025-01-29T00:00:00",
+      "hybrid_yhat": 17.237199313792107,
+      "yhat_lower": 0.0,
+      "yhat_upper": 100.5577488485084,
+      "horizon_days": 30
+    }
+  ]
+}

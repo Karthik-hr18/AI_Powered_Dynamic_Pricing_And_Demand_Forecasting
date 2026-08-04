@@ -1,0 +1,11 @@
+{
+  "eligibility_status": "eligible",
+  "eligibility_reason": null,
+  "recommended_price": null,
+  "expected_revenue": null,
+  "elasticity_model_type": "Log-Log Ridge Elasticity",
+  "model_version": "1.0.0",
+  "bound_range": null,
+  "candidate_grid": null,
+  "_note": "Run Colab Cell 20 (fixed) to populate pricing response from m5 output."
+}

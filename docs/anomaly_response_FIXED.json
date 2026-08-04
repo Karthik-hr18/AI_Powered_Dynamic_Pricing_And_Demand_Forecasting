@@ -1,0 +1,13 @@
+{
+  "model_version": "1.0.0",
+  "flagged_anomalies": [
+    {
+      "date": "2024-11-10T00:00:00",
+      "stage": "pre_forecast_historical",
+      "anomaly_type": "drop",
+      "severity_score": 2.8,
+      "explanation": "Sales quantity (8) is 2.8 standard deviations below the historical mean (50.7). Possible supply disruption.",
+      "acknowledged": false
+    }
+  ]
+}
