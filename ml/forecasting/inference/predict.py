@@ -82,25 +82,72 @@ def predict_demand(
         
         res_data = call_hf_api(payload)
         
-        pipeline_type = ForecastPipelineType(res_data.get("pipeline_type", "insufficient_data"))
-        confidence_label = ForecastConfidenceLabel(res_data.get("confidence_label", "low"))
-        eligibility_reason = res_data.get("eligibility_reason")
-        model_version = res_data.get("model_version", "1.0.0-huggingface")
-        
-        def parse_horizon(h_data):
-            if not h_data:
+        # ── Derive model metadata ──────────────────────────────────────────────
+        # The HF model does NOT return pipeline_type / confidence_label /
+        # model_version directly. Derive them from the "metrics" block instead.
+        metrics      = res_data.get("metrics", {})
+        mape         = float(metrics.get("MAPE", 999.0))
+        model_version = "1.0.0-huggingface-hybrid"
+        eligibility_reason = None
+
+        if mape < 20.0:
+            confidence_label = ForecastConfidenceLabel.HIGH
+        elif mape < 50.0:
+            confidence_label = ForecastConfidenceLabel.MEDIUM
+        else:
+            # MAPE > 50 (e.g. 188%) → model is low confidence
+            confidence_label = ForecastConfidenceLabel.LOW
+
+        # ── Parse horizon arrays ───────────────────────────────────────────────
+        # Actual format: flat list of dicts with keys:
+        #   product_id, ds (ISO datetime string), yhat, xgb_residual,
+        #   hybrid_yhat, yhat_lower, yhat_upper, horizon_days
+        #
+        # We use "hybrid_yhat" (Prophet + XGBoost combined prediction) as the
+        # canonical predicted quantity, clamped to 0 since quantities can't
+        # be negative (model can produce negative yhat for low-demand products).
+
+        def parse_forecast_array(rows: list) -> Optional["ForecastHorizon"]:
+            """Convert a flat forecast row array into a ForecastHorizon document."""
+            if not rows:
                 return None
-            preds = [
-                ForecastPrediction(
-                    date=datetime.fromisoformat(p["date"]),
-                    predicted_quantity=p["predicted_quantity"]
+            preds = []
+            for row in rows:
+                raw_qty = row.get("hybrid_yhat", row.get("yhat", 0.0))
+                clamped_qty = max(0.0, round(float(raw_qty), 4))
+                date_str = row.get("ds", "")
+                try:
+                    pred_date = datetime.fromisoformat(date_str)
+                except (ValueError, TypeError):
+                    logger.warning(f"Skipping row with invalid ds value: {date_str!r}")
+                    continue
+                preds.append(
+                    ForecastPrediction(
+                        date=pred_date,
+                        predicted_quantity=clamped_qty
+                    )
                 )
-                for p in h_data.get("predictions", [])
-            ]
-            return ForecastHorizon(predictions=preds, confidence=h_data.get("confidence", "low"))
-            
-        horizon_7d = parse_horizon(res_data.get("horizon_7d"))
-        horizon_30d = parse_horizon(res_data.get("horizon_30d"))
+            if not preds:
+                return None
+            return ForecastHorizon(predictions=preds, confidence=confidence_label.value)
+
+        raw_7d  = res_data.get("forecast_7d",  [])
+        raw_30d = res_data.get("forecast_30d", [])
+
+        horizon_7d  = parse_forecast_array(raw_7d)
+        horizon_30d = parse_forecast_array(raw_30d)
+
+        # Derive pipeline type from actual prediction availability
+        if horizon_7d and horizon_7d.predictions:
+            pipeline_type = ForecastPipelineType.FULL if horizon_30d else ForecastPipelineType.FALLBACK
+        else:
+            pipeline_type = ForecastPipelineType.INSUFFICIENT_DATA
+            eligibility_reason = "Hugging Face model returned no forecast rows for this product."
+
+        logger.info(
+            f"HF forecasting parsed: 7d_rows={len(raw_7d)}, 30d_rows={len(raw_30d)}, "
+            f"MAPE={mape:.1f}%, confidence={confidence_label.value}, pipeline={pipeline_type.value}"
+        )
 
     else:
         # Graceful Local Fallback Mock
