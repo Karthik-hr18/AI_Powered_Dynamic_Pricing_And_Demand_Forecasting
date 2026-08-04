@@ -661,3 +661,368 @@ OUTPUT VALIDATION — RUN BEFORE RETURNING EVERY RESPONSE
 - [ ] Add `model_version` field to forecasting response
 - [ ] Add output schema validation before returning
 - [ ] Log per-product metrics, not only aggregate MAPE
+
+---
+
+## 7. Full Demo Examples — Input the Backend Sends & Output the Model Must Return
+
+> These are realistic examples using Indian retail data (Basmati Rice 5kg, SKU-4412).
+> The backend sends data exactly in this format. The model must return exactly the format shown.
+
+---
+
+### 7A. Demo — Forecasting Task
+
+#### What the Backend Sends (Input JSON)
+
+The backend sends 30 days of aggregated daily sales history for a single product.
+
+```json
+{
+  "task": "forecasting",
+  "history": [
+    { "date": "2024-11-01", "quantity_sold": 42.0,  "selling_price": 620.0 },
+    { "date": "2024-11-02", "quantity_sold": 38.0,  "selling_price": 620.0 },
+    { "date": "2024-11-03", "quantity_sold": 55.0,  "selling_price": 600.0 },
+    { "date": "2024-11-04", "quantity_sold": 61.0,  "selling_price": 600.0 },
+    { "date": "2024-11-05", "quantity_sold": 72.0,  "selling_price": 590.0 },
+    { "date": "2024-11-06", "quantity_sold": 68.0,  "selling_price": 590.0 },
+    { "date": "2024-11-07", "quantity_sold": 45.0,  "selling_price": 620.0 },
+    { "date": "2024-11-08", "quantity_sold": 41.0,  "selling_price": 620.0 },
+    { "date": "2024-11-09", "quantity_sold": 39.0,  "selling_price": 620.0 },
+    { "date": "2024-11-10", "quantity_sold": 52.0,  "selling_price": 610.0 },
+    { "date": "2024-11-11", "quantity_sold": 48.0,  "selling_price": 610.0 },
+    { "date": "2024-11-12", "quantity_sold": 66.0,  "selling_price": 595.0 },
+    { "date": "2024-11-13", "quantity_sold": 74.0,  "selling_price": 595.0 },
+    { "date": "2024-11-14", "quantity_sold": 50.0,  "selling_price": 615.0 },
+    { "date": "2024-11-15", "quantity_sold": 44.0,  "selling_price": 620.0 },
+    { "date": "2024-11-16", "quantity_sold": 40.0,  "selling_price": 620.0 },
+    { "date": "2024-11-17", "quantity_sold": 36.0,  "selling_price": 625.0 },
+    { "date": "2024-11-18", "quantity_sold": 58.0,  "selling_price": 605.0 },
+    { "date": "2024-11-19", "quantity_sold": 63.0,  "selling_price": 600.0 },
+    { "date": "2024-11-20", "quantity_sold": 71.0,  "selling_price": 590.0 },
+    { "date": "2024-11-21", "quantity_sold": 69.0,  "selling_price": 592.0 },
+    { "date": "2024-11-22", "quantity_sold": 47.0,  "selling_price": 618.0 },
+    { "date": "2024-11-23", "quantity_sold": 43.0,  "selling_price": 620.0 },
+    { "date": "2024-11-24", "quantity_sold": 37.0,  "selling_price": 622.0 },
+    { "date": "2024-11-25", "quantity_sold": 54.0,  "selling_price": 608.0 },
+    { "date": "2024-11-26", "quantity_sold": 60.0,  "selling_price": 600.0 },
+    { "date": "2024-11-27", "quantity_sold": 76.0,  "selling_price": 588.0 },
+    { "date": "2024-11-28", "quantity_sold": 80.0,  "selling_price": 585.0 },
+    { "date": "2024-11-29", "quantity_sold": 55.0,  "selling_price": 610.0 },
+    { "date": "2024-11-30", "quantity_sold": 49.0,  "selling_price": 615.0 }
+  ]
+}
+```
+
+**What the model should observe in this data:**
+- Average daily quantity: ~55 units/day
+- Clear weekly pattern: higher Tue-Thu (55-76 units), lower Sun-Mon (36-45 units)
+- Inverse price-demand: lower price drives higher quantity
+- Last 7 days average: ~65 units/day (slight upward trend)
+- No anomalies present (all within +/-2.5 std of mean)
+
+#### What the Model Must Return (Expected Output JSON)
+
+```json
+{
+  "metrics": {
+    "MAE": 6.42,
+    "RMSE": 8.91,
+    "MAPE": 12.8
+  },
+  "forecast_7d": [
+    { "ds": "2024-12-01T00:00:00", "hybrid_yhat": 51.3,  "yhat_lower": 42.0,  "yhat_upper": 61.5,  "horizon_days": 7 },
+    { "ds": "2024-12-02T00:00:00", "hybrid_yhat": 66.8,  "yhat_lower": 55.1,  "yhat_upper": 78.5,  "horizon_days": 7 },
+    { "ds": "2024-12-03T00:00:00", "hybrid_yhat": 72.4,  "yhat_lower": 60.2,  "yhat_upper": 85.1,  "horizon_days": 7 },
+    { "ds": "2024-12-04T00:00:00", "hybrid_yhat": 69.1,  "yhat_lower": 57.8,  "yhat_upper": 81.3,  "horizon_days": 7 },
+    { "ds": "2024-12-05T00:00:00", "hybrid_yhat": 61.5,  "yhat_lower": 50.4,  "yhat_upper": 73.2,  "horizon_days": 7 },
+    { "ds": "2024-12-06T00:00:00", "hybrid_yhat": 45.2,  "yhat_lower": 35.6,  "yhat_upper": 55.8,  "horizon_days": 7 },
+    { "ds": "2024-12-07T00:00:00", "hybrid_yhat": 43.7,  "yhat_lower": 34.1,  "yhat_upper": 53.2,  "horizon_days": 7 }
+  ],
+  "forecast_30d": [
+    { "ds": "2024-12-01T00:00:00", "hybrid_yhat": 51.3,  "yhat_lower": 38.5,  "yhat_upper": 64.1,  "horizon_days": 30 },
+    { "ds": "2024-12-02T00:00:00", "hybrid_yhat": 66.8,  "yhat_lower": 51.2,  "yhat_upper": 82.4,  "horizon_days": 30 },
+    { "ds": "2024-12-03T00:00:00", "hybrid_yhat": 72.4,  "yhat_lower": 55.1,  "yhat_upper": 89.7,  "horizon_days": 30 },
+    { "ds": "2024-12-04T00:00:00", "hybrid_yhat": 69.1,  "yhat_lower": 52.3,  "yhat_upper": 85.9,  "horizon_days": 30 },
+    { "ds": "2024-12-05T00:00:00", "hybrid_yhat": 61.5,  "yhat_lower": 46.0,  "yhat_upper": 77.0,  "horizon_days": 30 },
+    { "ds": "2024-12-06T00:00:00", "hybrid_yhat": 45.2,  "yhat_lower": 32.0,  "yhat_upper": 58.4,  "horizon_days": 30 },
+    { "ds": "2024-12-07T00:00:00", "hybrid_yhat": 43.7,  "yhat_lower": 30.5,  "yhat_upper": 56.9,  "horizon_days": 30 },
+    { "ds": "2024-12-08T00:00:00", "hybrid_yhat": 53.1,  "yhat_lower": 38.4,  "yhat_upper": 67.8,  "horizon_days": 30 },
+    { "ds": "2024-12-09T00:00:00", "hybrid_yhat": 68.5,  "yhat_lower": 51.2,  "yhat_upper": 85.8,  "horizon_days": 30 },
+    { "ds": "2024-12-10T00:00:00", "hybrid_yhat": 74.0,  "yhat_lower": 55.5,  "yhat_upper": 92.5,  "horizon_days": 30 },
+    { "ds": "2024-12-11T00:00:00", "hybrid_yhat": 70.8,  "yhat_lower": 52.4,  "yhat_upper": 89.2,  "horizon_days": 30 },
+    { "ds": "2024-12-12T00:00:00", "hybrid_yhat": 63.2,  "yhat_lower": 46.1,  "yhat_upper": 80.3,  "horizon_days": 30 },
+    { "ds": "2024-12-13T00:00:00", "hybrid_yhat": 46.9,  "yhat_lower": 32.0,  "yhat_upper": 61.8,  "horizon_days": 30 },
+    { "ds": "2024-12-14T00:00:00", "hybrid_yhat": 45.3,  "yhat_lower": 30.5,  "yhat_upper": 60.1,  "horizon_days": 30 },
+    { "ds": "2024-12-15T00:00:00", "hybrid_yhat": 54.8,  "yhat_lower": 38.2,  "yhat_upper": 71.4,  "horizon_days": 30 },
+    { "ds": "2024-12-16T00:00:00", "hybrid_yhat": 70.1,  "yhat_lower": 51.6,  "yhat_upper": 88.6,  "horizon_days": 30 },
+    { "ds": "2024-12-17T00:00:00", "hybrid_yhat": 75.6,  "yhat_lower": 56.2,  "yhat_upper": 95.0,  "horizon_days": 30 },
+    { "ds": "2024-12-18T00:00:00", "hybrid_yhat": 72.3,  "yhat_lower": 53.1,  "yhat_upper": 91.5,  "horizon_days": 30 },
+    { "ds": "2024-12-19T00:00:00", "hybrid_yhat": 64.7,  "yhat_lower": 46.5,  "yhat_upper": 82.9,  "horizon_days": 30 },
+    { "ds": "2024-12-20T00:00:00", "hybrid_yhat": 48.1,  "yhat_lower": 32.8,  "yhat_upper": 63.4,  "horizon_days": 30 },
+    { "ds": "2024-12-21T00:00:00", "hybrid_yhat": 46.5,  "yhat_lower": 31.2,  "yhat_upper": 61.8,  "horizon_days": 30 },
+    { "ds": "2024-12-22T00:00:00", "hybrid_yhat": 56.2,  "yhat_lower": 39.5,  "yhat_upper": 72.9,  "horizon_days": 30 },
+    { "ds": "2024-12-23T00:00:00", "hybrid_yhat": 71.5,  "yhat_lower": 52.8,  "yhat_upper": 90.2,  "horizon_days": 30 },
+    { "ds": "2024-12-24T00:00:00", "hybrid_yhat": 77.2,  "yhat_lower": 57.6,  "yhat_upper": 96.8,  "horizon_days": 30 },
+    { "ds": "2024-12-25T00:00:00", "hybrid_yhat": 88.4,  "yhat_lower": 68.1,  "yhat_upper": 108.7, "horizon_days": 30 },
+    { "ds": "2024-12-26T00:00:00", "hybrid_yhat": 80.1,  "yhat_lower": 61.2,  "yhat_upper": 99.0,  "horizon_days": 30 },
+    { "ds": "2024-12-27T00:00:00", "hybrid_yhat": 66.3,  "yhat_lower": 49.0,  "yhat_upper": 83.6,  "horizon_days": 30 },
+    { "ds": "2024-12-28T00:00:00", "hybrid_yhat": 50.4,  "yhat_lower": 35.1,  "yhat_upper": 65.7,  "horizon_days": 30 },
+    { "ds": "2024-12-29T00:00:00", "hybrid_yhat": 48.8,  "yhat_lower": 33.5,  "yhat_upper": 64.1,  "horizon_days": 30 },
+    { "ds": "2024-12-30T00:00:00", "hybrid_yhat": 58.4,  "yhat_lower": 42.1,  "yhat_upper": 74.7,  "horizon_days": 30 }
+  ]
+}
+```
+
+**How the backend uses this response:**
+
+| Field | How backend uses it |
+|---|---|
+| `metrics.MAPE` | 12.8% -> derives confidence_label = "medium" |
+| `forecast_7d` rows | Stored as ForecastCurrentDocument.horizon_7d.predictions |
+| `forecast_30d` rows | Stored as ForecastCurrentDocument.horizon_30d.predictions |
+| `hybrid_yhat` | Becomes ForecastPrediction.predicted_quantity |
+| `ds` | Parsed into ForecastPrediction.date (Python datetime) |
+| 7 rows in forecast_7d + 30 in forecast_30d | pipeline_type = "full" |
+
+---
+
+### 7B. Demo — Pricing Task
+
+#### What the Backend Sends (Input JSON)
+
+Same product, same 30-day history, with current_price and bound_pct appended.
+
+```json
+{
+  "task": "pricing",
+  "history": [
+    { "date": "2024-11-01", "quantity_sold": 42.0, "selling_price": 620.0 },
+    { "date": "2024-11-03", "quantity_sold": 55.0, "selling_price": 600.0 },
+    { "date": "2024-11-05", "quantity_sold": 72.0, "selling_price": 590.0 },
+    { "date": "2024-11-10", "quantity_sold": 52.0, "selling_price": 610.0 },
+    { "date": "2024-11-12", "quantity_sold": 66.0, "selling_price": 595.0 },
+    { "date": "2024-11-17", "quantity_sold": 36.0, "selling_price": 625.0 },
+    { "date": "2024-11-20", "quantity_sold": 71.0, "selling_price": 590.0 },
+    { "date": "2024-11-24", "quantity_sold": 37.0, "selling_price": 622.0 },
+    { "date": "2024-11-27", "quantity_sold": 76.0, "selling_price": 588.0 },
+    { "date": "2024-11-30", "quantity_sold": 49.0, "selling_price": 615.0 }
+  ],
+  "current_price": 615.0,
+  "bound_pct": 0.20
+}
+```
+
+**What the model should compute:**
+- 10 rows -> eligible (>= 7 required)
+- Price ranges 585 to 625 -> price variation exists -> eligible
+- Log-Log elasticity: price up 1% -> demand down ~1.8% (elastic commodity)
+- bound_min = 615 * 0.80 = 492.0, bound_max = 615 * 1.20 = 738.0
+
+#### What the Model Must Return (Expected Output JSON)
+
+```json
+{
+  "eligibility_status": "eligible",
+  "eligibility_reason": null,
+  "recommended_price": 560.0,
+  "expected_revenue": 38640.0,
+  "elasticity_model_type": "Log-Log OLS Elasticity",
+  "model_version": "1.0.0",
+  "bound_range": {
+    "min": 492.0,
+    "max": 738.0
+  },
+  "candidate_grid": [
+    { "candidate_price": 492.0, "estimated_demand": 91.2,  "estimated_revenue": 44870.4 },
+    { "candidate_price": 553.5, "estimated_demand": 78.4,  "estimated_revenue": 43394.4 },
+    { "candidate_price": 615.0, "estimated_demand": 66.5,  "estimated_revenue": 40897.5 },
+    { "candidate_price": 676.5, "estimated_demand": 55.6,  "estimated_revenue": 37613.4 },
+    { "candidate_price": 738.0, "estimated_demand": 45.8,  "estimated_revenue": 33800.4 }
+  ]
+}
+```
+
+**How the backend uses this response:**
+
+| Field | How backend uses it |
+|---|---|
+| `eligibility_status` | Stored in PricingCurrentDocument.eligibility_status |
+| `recommended_price` | Displayed as "Recommended Price" in INR on dashboard |
+| `expected_revenue` | Displayed as "Expected Revenue" on product card |
+| `bound_range` | Shown as pricing guardrails in UI |
+| `candidate_grid` | Powers the price sensitivity chart in Product Detail |
+| `elasticity_model_type` | Shown as model label in Report Center |
+
+---
+
+### 7C. Demo — Anomaly Task
+
+#### What the Backend Sends (Input JSON)
+
+Same product with 2 unusual sales days injected: a supply disruption drop (Nov 10) and a Diwali spike (Nov 24).
+
+```json
+{
+  "task": "anomaly",
+  "history": [
+    { "date": "2024-11-01", "quantity_sold": 42.0,  "selling_price": 620.0 },
+    { "date": "2024-11-02", "quantity_sold": 38.0,  "selling_price": 620.0 },
+    { "date": "2024-11-03", "quantity_sold": 55.0,  "selling_price": 600.0 },
+    { "date": "2024-11-04", "quantity_sold": 61.0,  "selling_price": 600.0 },
+    { "date": "2024-11-05", "quantity_sold": 72.0,  "selling_price": 590.0 },
+    { "date": "2024-11-06", "quantity_sold": 68.0,  "selling_price": 590.0 },
+    { "date": "2024-11-07", "quantity_sold": 45.0,  "selling_price": 620.0 },
+    { "date": "2024-11-08", "quantity_sold": 41.0,  "selling_price": 620.0 },
+    { "date": "2024-11-09", "quantity_sold": 39.0,  "selling_price": 620.0 },
+    { "date": "2024-11-10", "quantity_sold": 8.0,   "selling_price": 620.0 },
+    { "date": "2024-11-11", "quantity_sold": 48.0,  "selling_price": 610.0 },
+    { "date": "2024-11-12", "quantity_sold": 66.0,  "selling_price": 595.0 },
+    { "date": "2024-11-13", "quantity_sold": 74.0,  "selling_price": 595.0 },
+    { "date": "2024-11-14", "quantity_sold": 50.0,  "selling_price": 615.0 },
+    { "date": "2024-11-15", "quantity_sold": 44.0,  "selling_price": 620.0 },
+    { "date": "2024-11-16", "quantity_sold": 40.0,  "selling_price": 620.0 },
+    { "date": "2024-11-17", "quantity_sold": 36.0,  "selling_price": 625.0 },
+    { "date": "2024-11-18", "quantity_sold": 58.0,  "selling_price": 605.0 },
+    { "date": "2024-11-19", "quantity_sold": 63.0,  "selling_price": 600.0 },
+    { "date": "2024-11-20", "quantity_sold": 71.0,  "selling_price": 590.0 },
+    { "date": "2024-11-21", "quantity_sold": 69.0,  "selling_price": 592.0 },
+    { "date": "2024-11-22", "quantity_sold": 47.0,  "selling_price": 618.0 },
+    { "date": "2024-11-23", "quantity_sold": 43.0,  "selling_price": 620.0 },
+    { "date": "2024-11-24", "quantity_sold": 210.0, "selling_price": 560.0 },
+    { "date": "2024-11-25", "quantity_sold": 54.0,  "selling_price": 608.0 },
+    { "date": "2024-11-26", "quantity_sold": 60.0,  "selling_price": 600.0 },
+    { "date": "2024-11-27", "quantity_sold": 76.0,  "selling_price": 588.0 },
+    { "date": "2024-11-28", "quantity_sold": 80.0,  "selling_price": 585.0 },
+    { "date": "2024-11-29", "quantity_sold": 55.0,  "selling_price": 610.0 },
+    { "date": "2024-11-30", "quantity_sold": 49.0,  "selling_price": 615.0 }
+  ]
+}
+```
+
+**What the model should detect:**
+- Mean qty ~ 57.6, std ~ 36.8
+- 2024-11-10: qty=8 -> Z = (8-57.6)/36.8 = -1.35 ... with mean recalculated excluding spike: mean~50.7, std~15.2 -> Z = -2.8 -> DROP flagged
+- 2024-11-24: qty=210 -> Z = (210-50.7)/15.2 = +10.5 (capped at 10.0) -> SPIKE flagged
+- Both dates are more than 7 days before 2024-11-30 -> stage = "pre_forecast_historical"
+
+#### What the Model Must Return (Expected Output JSON)
+
+```json
+{
+  "model_version": "1.0.0",
+  "flagged_anomalies": [
+    {
+      "date": "2024-11-10T00:00:00",
+      "stage": "pre_forecast_historical",
+      "anomaly_type": "drop",
+      "severity_score": 2.8,
+      "explanation": "Sales quantity (8) is 2.8 standard deviations below the historical mean (50.7). Possible supply disruption, stockout, or data entry error on this date.",
+      "acknowledged": false
+    },
+    {
+      "date": "2024-11-24T00:00:00",
+      "stage": "pre_forecast_historical",
+      "anomaly_type": "spike",
+      "severity_score": 10.0,
+      "explanation": "Sales quantity (210) is 10.0+ standard deviations above the historical mean (50.7). Likely caused by a promotional event, festive demand surge (Diwali proximity), or bulk corporate purchase.",
+      "acknowledged": false
+    }
+  ]
+}
+```
+
+**How the backend uses this response:**
+
+| Field | How backend uses it |
+|---|---|
+| `flagged_anomalies` | Each item stored as FlaggedAnomaly in AnomalyCurrentDocument |
+| `stage` | Determines which dashboard alert section it appears in |
+| `anomaly_type` | Badge color: spike = orange, drop = red |
+| `severity_score` | Sort order: highest severity first |
+| `explanation` | Shown as tooltip/description on anomaly alert card |
+| `acknowledged` | User clicks "Acknowledge" in UI -> set to true |
+
+---
+
+### 7D. Edge Case — Insufficient Data (new product, only 5 days history)
+
+**Input:**
+```json
+{
+  "task": "forecasting",
+  "history": [
+    { "date": "2024-11-26", "quantity_sold": 12.0, "selling_price": 350.0 },
+    { "date": "2024-11-27", "quantity_sold": 15.0, "selling_price": 350.0 },
+    { "date": "2024-11-28", "quantity_sold": 10.0, "selling_price": 355.0 },
+    { "date": "2024-11-29", "quantity_sold": 18.0, "selling_price": 348.0 },
+    { "date": "2024-11-30", "quantity_sold": 14.0, "selling_price": 350.0 }
+  ]
+}
+```
+
+**Expected Output — return empty arrays, no crash:**
+```json
+{
+  "metrics": { "MAE": 0.0, "RMSE": 0.0, "MAPE": 0.0 },
+  "forecast_7d": [],
+  "forecast_30d": []
+}
+```
+
+> Backend detects empty arrays -> sets pipeline_type = "insufficient_data" -> shows "Not enough data" message in dashboard.
+
+---
+
+### 7E. Edge Case — No Anomalies Found
+
+**Expected Output — always return the key, just with empty list:**
+```json
+{
+  "model_version": "1.0.0",
+  "flagged_anomalies": []
+}
+```
+
+> Backend stores AnomalyCurrentDocument with total_flagged_count=0 and has_unreviewed_alerts=false. Dashboard shows green "All Clear" badge.
+
+---
+
+### 7F. Complete Field Reference Table
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| **FORECASTING** | | | |
+| metrics.MAE | float | Yes | >= 0 |
+| metrics.RMSE | float | Yes | >= 0 |
+| metrics.MAPE | float | Yes | >= 0, drives confidence label |
+| forecast_7d | array | Yes | Exactly 0 or 7 items |
+| forecast_30d | array | Yes | Exactly 0 or 30 items |
+| [].ds | string | Yes | "2025-01-01T00:00:00" |
+| [].hybrid_yhat | float | Yes | Must be >= 0 |
+| [].yhat_lower | float | Yes | Must be >= 0 |
+| [].yhat_upper | float | Yes | >= yhat_lower |
+| [].horizon_days | int | Yes | 7 or 30 |
+| **PRICING** | | | |
+| eligibility_status | string enum | Yes | eligible, ineligible, insufficient_history, insufficient_price_variation |
+| eligibility_reason | string or null | Yes | null if eligible |
+| recommended_price | float or null | Yes | Within bound_range |
+| expected_revenue | float or null | Yes | >= 0 |
+| elasticity_model_type | string or null | Yes | e.g. "Log-Log OLS Elasticity" |
+| model_version | string | Yes | e.g. "1.0.0" |
+| bound_range.min | float | Yes | current_price x (1 - bound_pct) |
+| bound_range.max | float | Yes | current_price x (1 + bound_pct) |
+| candidate_grid | array or null | Yes | Exactly 5 items if eligible |
+| candidate_grid[].candidate_price | float | Yes | Within bound_range |
+| candidate_grid[].estimated_demand | float | Yes | >= 0 |
+| candidate_grid[].estimated_revenue | float | Yes | >= 0 |
+| **ANOMALY** | | | |
+| model_version | string | Yes | e.g. "1.0.0" |
+| flagged_anomalies | array | Yes | Empty [] if no anomalies |
+| [].date | string | Yes | "2024-11-10T00:00:00" |
+| [].stage | string enum | Yes | post_upload_alert or pre_forecast_historical |
+| [].anomaly_type | string enum | Yes | spike or drop |
+| [].severity_score | float | Yes | 0.0 to 10.0, always positive |
+| [].explanation | string | Yes | Plain English, mentions actual qty and mean |
+| [].acknowledged | bool | Yes | Always false |
