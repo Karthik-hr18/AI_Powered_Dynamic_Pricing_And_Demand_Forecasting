@@ -97,6 +97,7 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
     <>
       <div className="slide-drawer-backdrop" onClick={onClose} style={{ zIndex: 100 }} />
       <div
+        className="report-center-modal-box"
         style={{
           position: "fixed",
           top: "50%",
@@ -114,13 +115,14 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-5)" }}>
           <div>
-            <h3 style={{ fontSize: "20px", fontWeight: 800, color: "var(--gray-text-primary)" }}>Report Center & Exports</h3>
-            <p style={{ fontSize: "13px", color: "var(--gray-text-muted)", marginTop: "2px" }}>
+            <h3 className="report-center-title" style={{ fontSize: "20px", fontWeight: 800, color: "var(--gray-text-primary)", letterSpacing: "-0.015em", fontFamily: "var(--font-sans, system-ui, -apple-system, sans-serif)" }}>Report Center & Exports</h3>
+            <p className="report-center-subtitle" style={{ fontSize: "13px", color: "var(--gray-text-muted)", marginTop: "2px" }}>
               Generate and download 10-page executive PDF reports, forecasts, and AI price optimization datasets.
             </p>
           </div>
           <button
             onClick={onClose}
+            className="report-close-btn"
             style={{
               background: "#F1F5F9",
               border: "none",
@@ -132,6 +134,7 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              flexShrink: 0,
             }}
           >
             <X size={18} />
@@ -145,7 +148,7 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", maxHeight: "420px", overflowY: "auto" }}>
+        <div className="report-list-container" style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", maxHeight: "420px", overflowY: "auto" }}>
           {reports.map((item) => (
             <div
               key={item.id}
@@ -231,6 +234,38 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
           background-color: #FFFFFF !important;
           border-color: rgba(79, 70, 229, 0.3) !important;
           box-shadow: 0 4px 14px rgba(79, 70, 229, 0.08) !important;
+        }
+
+        /* Mobile Report Center responsive styles */
+        @media (max-width: 767px) {
+          .report-center-modal-box {
+            width: 96vw !important;
+            max-width: 96vw !important;
+            padding: 20px 16px !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            border-radius: 16px !important;
+            max-height: 90vh !important;
+            overflow-y: auto !important;
+          }
+          .report-center-title {
+            font-size: 18px !important;
+            font-family: var(--font-sans, system-ui, -apple-system, sans-serif) !important;
+            font-weight: 800 !important;
+            color: var(--gray-text-primary) !important;
+            letter-spacing: -0.015em !important;
+          }
+          .report-center-subtitle {
+            font-size: 12px !important;
+          }
+          .report-list-container {
+            max-height: 55vh !important;
+          }
+          .report-close-btn {
+            width: 36px !important;
+            height: 36px !important;
+          }
         }
       `}</style>
     </>

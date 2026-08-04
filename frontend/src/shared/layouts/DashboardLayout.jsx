@@ -13,6 +13,7 @@ import {
   Search,
   FileText,
   Sparkles,
+  Home,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { CommandPalette } from "../components/CommandPalette";
@@ -365,6 +366,30 @@ export const DashboardLayout = ({ children }) => {
               4 New
             </span>
           </div>
+
+          {/* Back to Home */}
+          <Link
+            to="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "8px 10px",
+              borderRadius: "var(--radius-default)",
+              border: "1px solid var(--gray-border)",
+              color: "var(--gray-text-muted)",
+              fontSize: "12px",
+              fontWeight: 500,
+              textDecoration: "none",
+              backgroundColor: "transparent",
+              transition: "all 150ms ease",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--gray-bg)"; e.currentTarget.style.color = "var(--gray-text-primary)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "var(--gray-text-muted)"; }}
+          >
+            <Home size={14} />
+            Back to Home
+          </Link>
         </div>
       </aside>
 
@@ -582,6 +607,30 @@ export const DashboardLayout = ({ children }) => {
                 <LogOut size={16} />
                 Logout
               </button>
+
+              {/* Back to Home */}
+              <Link
+                to="/"
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "10px",
+                  borderRadius: "var(--radius-default)",
+                  border: "1px solid var(--gray-border)",
+                  color: "var(--gray-text-muted)",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  textDecoration: "none",
+                  backgroundColor: "transparent",
+                  minHeight: "44px",
+                }}
+              >
+                <Home size={15} />
+                Back to Home
+              </Link>
             </div>
           </div>
         </div>

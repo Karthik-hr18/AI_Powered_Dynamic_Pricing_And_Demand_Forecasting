@@ -9,8 +9,9 @@ export const AuthLayout = ({ children }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "var(--space-4)",
+        padding: "16px",
         backgroundImage: "radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 45%)",
+        overflowX: "hidden",
       }}
     >
       <div
@@ -114,23 +115,26 @@ export const AuthLayout = ({ children }) => {
         @media (max-width: 767px) {
           .auth-card-container {
             flex-direction: column !important;
-            max-width: 440px !important;
+            max-width: 400px !important;
+            width: 100% !important;
             min-height: auto !important;
             border-radius: 16px !important;
+            overflow: hidden !important;
           }
           .auth-hero-panel {
-            padding: 24px 20px !important;
+            padding: 20px 16px !important;
             text-align: center;
           }
           .auth-hero-panel h2 {
-            font-size: 22px !important;
-            margin-bottom: 6px !important;
+            font-size: 20px !important;
+            margin-bottom: 4px !important;
           }
           .auth-hero-panel p {
             font-size: 13px !important;
           }
           .auth-form-panel {
-            padding: 24px 20px !important;
+            padding: 20px 16px !important;
+            overflow-y: auto;
           }
           .form-input {
             height: 44px !important;
@@ -139,6 +143,16 @@ export const AuthLayout = ({ children }) => {
           .btn-primary {
             height: 46px !important;
             font-size: 15px !important;
+          }
+          .btn-secondary {
+            font-size: 12px !important;
+            padding: 8px 10px !important;
+            word-break: break-word;
+            white-space: normal !important;
+            height: auto !important;
+            min-height: 44px !important;
+            line-height: 1.3 !important;
+            text-align: center !important;
           }
         }
       `}</style>

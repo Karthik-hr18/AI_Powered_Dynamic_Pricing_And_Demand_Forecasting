@@ -17,6 +17,8 @@ import {
   Activity,
   Award,
   Globe,
+  Menu,
+  X,
 } from "lucide-react";
 
 import { useAuth } from "../../../shared/hooks/useAuth";
@@ -57,8 +59,134 @@ export const LandingPage = () => {
     }
   };
 
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   return (
     <div className="landing-wrapper">
+      {/* -------------------------------------------------------------------------- */}
+      {/* MOBILE NAV BACKDROP */}
+      {mobileNavOpen && (
+        <div
+          className="landing-mobile-backdrop"
+          onClick={() => setMobileNavOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(9,13,22,0.5)",
+            backdropFilter: "blur(4px)",
+            zIndex: 200,
+          }}
+        />
+      )}
+
+      {/* MOBILE SIDEBAR DRAWER */}
+      <div
+        className="landing-mobile-sidebar"
+        style={{
+          position: "fixed",
+          top: 0,
+          right: mobileNavOpen ? 0 : "-100%",
+          width: "280px",
+          height: "100%",
+          backgroundColor: "#FFFFFF",
+          zIndex: 201,
+          display: "flex",
+          flexDirection: "column",
+          padding: "24px 20px",
+          gap: "8px",
+          boxShadow: "-12px 0 40px rgba(0,0,0,0.08)",
+          transition: "right 280ms cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        {/* Sidebar header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+          <Link to="/" className="brand-logo" onClick={() => setMobileNavOpen(false)}>
+            <div className="brand-icon-pill">P</div>
+            <span className="brand-text">ProfitSync</span>
+          </Link>
+          <button
+            onClick={() => setMobileNavOpen(false)}
+            style={{ background: "#F1F5F9", border: "none", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#64748B" }}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Nav links */}
+        {[
+          { label: "Features", href: "#features" },
+          { label: "How It Works", href: "#how-it-works" },
+          { label: "Why ProfitSync", href: "#comparison" },
+          { label: "FAQ", href: "#faq" },
+        ].map((item) => (
+          <a
+            key={item.href}
+            href={item.href}
+            onClick={() => setMobileNavOpen(false)}
+            style={{
+              display: "block",
+              padding: "14px 16px",
+              borderRadius: "10px",
+              color: "#0F172A",
+              fontWeight: 600,
+              fontSize: "15px",
+              textDecoration: "none",
+              minHeight: "44px",
+              lineHeight: "1.4",
+              transition: "background 150ms ease",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F8FAFC")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+          >
+            {item.label}
+          </a>
+        ))}
+
+        <div style={{ borderTop: "1px solid #E2E8F0", marginTop: "12px", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
+          {isAuthenticated ? (
+            <Link
+              to="/dashboard"
+              onClick={() => setMobileNavOpen(false)}
+              className="btn btn-primary btn-pill"
+              style={{ width: "100%", justifyContent: "center", height: "46px", fontSize: "15px" }}
+            >
+              Go to Dashboard
+              <ArrowRight size={16} />
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                onClick={() => setMobileNavOpen(false)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "46px",
+                  padding: "0 16px",
+                  borderRadius: "9999px",
+                  border: "1.5px solid #4F46E5",
+                  color: "#4F46E5",
+                  fontWeight: 600,
+                  fontSize: "15px",
+                  textDecoration: "none",
+                }}
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setMobileNavOpen(false)}
+                className="btn btn-primary btn-pill"
+                style={{ width: "100%", justifyContent: "center", height: "46px", fontSize: "15px" }}
+              >
+                Get Started Free
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+
       {/* -------------------------------------------------------------------------- */}
       {/* NAVBAR */}
       {/* -------------------------------------------------------------------------- */}
@@ -69,6 +197,7 @@ export const LandingPage = () => {
             <span className="brand-text">ProfitSync</span>
           </Link>
 
+          {/* Desktop nav links with subtle underline hover */}
           <nav className="nav-links">
             <a href="#features">Features</a>
             <a href="#how-it-works">How It Works</a>
@@ -76,23 +205,40 @@ export const LandingPage = () => {
             <a href="#faq">FAQ</a>
           </nav>
 
+          {/* Desktop CTA buttons */}
           <div className="nav-actions">
             {isAuthenticated ? (
-              <Link to="/dashboard" className="btn btn-primary btn-pill">
+              <Link to="/dashboard" className="btn btn-primary btn-pill nav-cta-btn">
                 Go to Dashboard
                 <ArrowRight size={14} />
               </Link>
             ) : (
               <>
-                <Link to="/login" className="nav-link-login">
-                  Sign In
-                </Link>
-                <Link to="/register" className="btn btn-primary btn-pill">
+                <Link to="/login" className="nav-link-login">Sign In</Link>
+                <Link to="/register" className="btn btn-primary btn-pill nav-cta-btn">
                   Get Started
                 </Link>
               </>
             )}
           </div>
+
+          {/* Mobile hamburger button */}
+          <button
+            className="nav-hamburger"
+            onClick={() => setMobileNavOpen(true)}
+            aria-label="Open navigation menu"
+            style={{
+              display: "none",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "6px",
+              color: "#0F172A",
+              borderRadius: "8px",
+            }}
+          >
+            <Menu size={24} />
+          </button>
         </div>
       </header>
 
@@ -643,15 +789,17 @@ export const LandingPage = () => {
           position: sticky;
           top: 0;
           z-index: 100;
-          background-color: rgba(248, 250, 252, 0.8);
-          backdrop-filter: blur(12px);
-          border-bottom: 1px solid transparent;
+          background-color: rgba(248, 250, 252, 0.92);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border-bottom: 1px solid #E2E8F0;
           transition: all 200ms ease-in-out;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
         .landing-navbar.scrolled {
-          background-color: rgba(255, 255, 255, 0.95);
-          border-bottom-color: #E2E8F0;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+          background-color: rgba(255, 255, 255, 0.98);
+          border-bottom-color: #CBD5E1;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.06);
         }
         .nav-container {
           height: 72px;
@@ -666,48 +814,65 @@ export const LandingPage = () => {
           text-decoration: none;
         }
         .brand-icon-pill {
-          width: 32px;
-          height: 32px;
-          background-color: #4F46E5;
+          width: 34px;
+          height: 34px;
+          background: linear-gradient(135deg, #4F46E5, #3730A3);
           color: #FFFFFF;
-          border-radius: 8px;
+          border-radius: 9px;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 800;
           font-size: 16px;
+          box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
         }
         .brand-text {
           font-size: 18px;
           font-weight: 800;
           color: #0F172A;
-          letter-spacing: -0.02em;
+          letter-spacing: -0.025em;
         }
         .nav-links {
           display: flex;
-          gap: 32px;
+          gap: 4px;
+          align-items: center;
         }
         .nav-links a {
           text-decoration: none;
-          color: #64748B;
+          color: #475569;
           font-size: 14px;
           font-weight: 500;
-          transition: color 150ms ease;
+          padding: 6px 14px;
+          border-radius: 8px;
+          transition: all 150ms ease;
+          position: relative;
         }
         .nav-links a:hover {
           color: #4F46E5;
+          background-color: #EEF2FF;
         }
         .nav-actions {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 12px;
         }
         .nav-link-login {
           text-decoration: none;
           color: #0F172A;
           font-size: 14px;
           font-weight: 600;
-          padding: 8px 12px;
+          padding: 8px 14px;
+          border-radius: 8px;
+          transition: background 150ms ease;
+        }
+        .nav-link-login:hover {
+          background-color: #F1F5F9;
+        }
+        .nav-cta-btn {
+          font-size: 14px !important;
+          height: 38px !important;
+          padding: 0 18px !important;
+          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
         }
 
         /* Hero Section */
@@ -1436,14 +1601,78 @@ export const LandingPage = () => {
         }
 
         @media (max-width: 767px) {
+          /* Navbar: hide desktop links, show hamburger */
           .nav-links { display: none; }
-          .hero-title { font-size: 32px; }
+          .nav-actions { display: none; }
+          .nav-hamburger { display: flex !important; align-items: center; justify-content: center; }
+
+          /* Navbar premium design enhancements */
+          .landing-navbar {
+            border-bottom: 1px solid #E2E8F0 !important;
+            background-color: rgba(255, 255, 255, 0.98) !important;
+          }
+          .nav-container { height: 60px !important; }
+
+          /* Hero section: stack vertically, readable on mobile */
+          .hero-section { padding: 48px 0 56px 0; }
+          .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+          .hero-title { font-size: 30px; line-height: 1.2; }
+          .hero-subtitle { font-size: 15px; }
+
+          /* Show browser mockup on mobile but smaller */
+          .hero-visual {
+            display: block !important;
+            width: 100%;
+          }
+          .browser-mockup {
+            border-radius: 10px !important;
+          }
+          .browser-body { padding: 14px !important; }
+          .mock-kpi-row {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px !important;
+            margin-bottom: 12px !important;
+          }
+          .mock-card {
+            padding: 8px !important;
+          }
+          .mock-value { font-size: 12px !important; }
+          .mock-label { font-size: 9px !important; }
+          .mock-trend { font-size: 9px !important; }
+          .mock-chart-bars { height: 72px !important; }
+          .bar { width: 16px !important; }
+          .bar-column span { font-size: 8px !important; }
+
+          /* Hero CTA buttons: stack vertically */
+          .hero-ctas {
+            flex-direction: column !important;
+            gap: 12px !important;
+            margin-bottom: 28px !important;
+          }
+          .hero-ctas .btn-lg {
+            width: 100% !important;
+            height: 48px !important;
+            justify-content: center !important;
+            font-size: 15px !important;
+          }
+
+          /* Trust metrics: horizontal scroll or wrap */
+          .hero-trust-metrics {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr 1fr !important;
+            gap: 16px !important;
+            padding-top: 20px !important;
+          }
+          .metric-divider { display: none !important; }
+          .metric-item { text-align: center; }
+          .metric-item strong { font-size: 16px !important; }
+          .metric-item span { font-size: 11px !important; }
+
+          /* Other sections */
           .section-title { font-size: 26px; }
           .features-grid, .timeline-grid, .comparison-grid { grid-template-columns: 1fr; }
           .footer-grid { grid-template-columns: 1fr; }
           .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
-          .mock-kpi-row { grid-template-columns: 1fr; }
-          .table-header-row, .table-data-row { grid-template-columns: 1fr 1fr; }
         }
       `}</style>
     </div>
