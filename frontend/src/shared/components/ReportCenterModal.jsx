@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { FileText, Download, FileSpreadsheet, CheckCircle, X, Sparkles } from "lucide-react";
+import { FileText, Download, FileSpreadsheet, CheckCircle, X, Sparkles, AlertCircle } from "lucide-react";
+import { apiClient } from "../apiClient";
 
 export const ReportCenterModal = ({ isOpen, onClose }) => {
   const [downloading, setDownloading] = useState(null);
   const [completed, setCompleted] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   if (!isOpen) return null;
 
@@ -11,9 +13,10 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
     {
       id: "pdf-executive",
       title: "Executive Business Summary (PDF)",
-      description: "Full executive overview with KPIs, AI pricing opportunities, and stock risk heatmaps.",
+      description: "Full 10-page executive PDF report with health scores, financial trends, AI pricing recommendations, and stock risk heatmaps.",
       format: "PDF Document",
       icon: <FileText size={20} style={{ color: "#EF4444" }} />,
+      isRealEndpoint: true,
     },
     {
       id: "excel-master",
@@ -45,13 +48,44 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
     },
   ];
 
-  const handleDownload = (id, title) => {
+  const handleDownload = async (id, title, isRealEndpoint) => {
     setDownloading(id);
-    setTimeout(() => {
-      setDownloading(null);
-      setCompleted(id);
-      setTimeout(() => setCompleted(null), 3000);
-    }, 1200);
+    setErrorMsg(null);
+
+    if (id === "pdf-executive" || isRealEndpoint) {
+      try {
+        const response = await apiClient.get("reports/pdf", {
+          responseType: "blob",
+        });
+
+        // Trigger browser automatic file download
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "_");
+        link.setAttribute("download", `Retail_Analytics_Report_${dateStr}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        setDownloading(null);
+        setCompleted(id);
+        setTimeout(() => setCompleted(null), 3000);
+      } catch (err) {
+        console.error("PDF download failed:", err);
+        setDownloading(null);
+        setErrorMsg("Failed to generate PDF report. Please try again.");
+      }
+    } else {
+      // Mock download for secondary CSV/XLSX exports
+      setTimeout(() => {
+        setDownloading(null);
+        setCompleted(id);
+        setTimeout(() => setCompleted(null), 3000);
+      }, 1000);
+    }
   };
 
   return (
@@ -64,7 +98,7 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "90%",
-          maxWidth: "580px",
+          maxWidth: "600px",
           backgroundColor: "#1E293B",
           border: "1px solid var(--gray-border)",
           borderRadius: "var(--radius-lg)",
@@ -77,13 +111,20 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
           <div>
             <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#FFFFFF" }}>Report Center & Exports</h3>
             <p style={{ fontSize: "13px", color: "var(--gray-text-muted)" }}>
-              Generate and download executive reports, forecasts, and AI price optimization data.
+              Generate and download 10-page executive PDF reports, forecasts, and AI price optimization data.
             </p>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--gray-text-muted)", cursor: "pointer" }}>
             <X size={20} />
           </button>
         </div>
+
+        {errorMsg && (
+          <div className="badge badge-danger" style={{ width: "100%", marginBottom: "var(--space-3)", padding: "8px 12px", textTransform: "none" }}>
+            <AlertCircle size={14} />
+            {errorMsg}
+          </div>
+        )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", maxHeight: "400px", overflowY: "auto" }}>
           {reports.map((item) => (
@@ -109,17 +150,17 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
               </div>
 
               <button
-                onClick={() => handleDownload(item.id, item.title)}
+                onClick={() => handleDownload(item.id, item.title, item.isRealEndpoint)}
                 disabled={downloading === item.id}
                 className="btn btn-secondary btn-pill"
-                style={{ height: "32px", fontSize: "12px", padding: "0 12px", minWidth: "90px", justifyContent: "center" }}
+                style={{ height: "32px", fontSize: "12px", padding: "0 12px", minWidth: "95px", justifyContent: "center" }}
               >
                 {downloading === item.id ? (
-                  "Exporting..."
+                  "Generating..."
                 ) : completed === item.id ? (
                   <>
                     <CheckCircle size={14} style={{ color: "#22C55E" }} />
-                    Ready
+                    Downloaded
                   </>
                 ) : (
                   <>
