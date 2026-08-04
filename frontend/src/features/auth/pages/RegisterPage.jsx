@@ -36,6 +36,30 @@ export const RegisterPage = () => {
 
   return (
     <div>
+      {/* Back to Home */}
+      <Link
+        to="/"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
+          fontSize: "13px",
+          color: "rgba(165, 180, 252, 0.8)",
+          textDecoration: "none",
+          marginBottom: "20px",
+          padding: "6px 12px",
+          borderRadius: "9999px",
+          border: "1px solid rgba(99, 102, 241, 0.25)",
+          backgroundColor: "rgba(99, 102, 241, 0.07)",
+          transition: "all 150ms ease",
+          fontWeight: 500,
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(99,102,241,0.15)"; e.currentTarget.style.color = "#A5B4FC"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(99,102,241,0.07)"; e.currentTarget.style.color = "rgba(165,180,252,0.8)"; }}
+      >
+        ← Back to Home
+      </Link>
+
       {/* Page Title Header */}
       <h3
         style={{

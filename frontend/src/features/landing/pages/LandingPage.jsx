@@ -259,11 +259,14 @@ export const LandingPage = () => {
               Monitor sales trends, forecast inventory demand, evaluate pricing recommendations, and export executive reports from one unified analytics platform.
             </p>
             <div className="hero-ctas">
-              <button onClick={handleCtaClick} className="btn btn-primary btn-lg btn-pill">
+              <button onClick={handleCtaClick} className="btn btn-primary btn-lg btn-pill hero-cta-primary">
                 Get Started Free
                 <ArrowRight size={16} />
               </button>
-              <Link to={isAuthenticated ? "/dashboard" : "/login"} className="btn btn-secondary btn-lg btn-pill">
+              <Link
+                to={isAuthenticated ? "/dashboard" : "/login"}
+                className="hero-cta-ghost btn-pill"
+              >
                 View Live Demo
               </Link>
             </div>
@@ -472,28 +475,43 @@ export const LandingPage = () => {
               <div className="preview-title">ProfitSync Executive Dashboard</div>
             </div>
             <div className="preview-body">
-              <div className="preview-badge-callout callout-1">
+              {/* Callout badges — hidden on mobile via CSS */}
+              <div className="preview-badge-callout callout-1 preview-callout-hide-mobile">
                 <TrendingUp size={14} /> Revenue Opportunities: +₹24,500
               </div>
-              <div className="preview-badge-callout callout-2">
+              <div className="preview-badge-callout callout-2 preview-callout-hide-mobile">
                 <ShieldCheck size={14} /> Inventory Health: 94% Healthy
+              </div>
+
+              {/* Inline callouts for mobile only */}
+              <div className="preview-inline-callouts">
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" }}>
+                  <span className="preview-inline-badge" style={{ borderColor: "#10B981", color: "#34D399" }}>
+                    <TrendingUp size={11} /> Revenue Opportunities: +₹24,500
+                  </span>
+                  <span className="preview-inline-badge" style={{ borderColor: "#4F46E5", color: "#818CF8" }}>
+                    <ShieldCheck size={11} /> Inventory Health: 94% Healthy
+                  </span>
+                </div>
               </div>
 
               <div className="mock-grid-main">
                 <div className="mock-panel full">
                   <h4>Active Product Diagnostics Grid</h4>
-                  <div className="mock-table">
-                    <div className="table-header-row">
-                      <span>SKU</span><span>Product Name</span><span>Category</span><span>Forecast</span><span>Recommended</span><span>Status</span>
-                    </div>
-                    <div className="table-data-row">
-                      <span>SKU-8821</span><span>Organic Green Tea 250g</span><span>Beverages</span><span>320 Units</span><span className="green">₹145.00</span><span className="badge-status success">Healthy</span>
-                    </div>
-                    <div className="table-data-row">
-                      <span>SKU-4412</span><span>Basmati Rice 5kg</span><span>Grains</span><span>1,420 Units</span><span className="green">₹620.00</span><span className="badge-status warning">Stockout Risk</span>
-                    </div>
-                    <div className="table-data-row">
-                      <span>SKU-9904</span><span>Dark Chocolate 100g</span><span>Snacks</span><span>180 Units</span><span className="green">₹95.00</span><span className="badge-status primary">Stable</span>
+                  <div className="mock-table-scroll-wrapper">
+                    <div className="mock-table">
+                      <div className="table-header-row">
+                        <span>SKU</span><span>Product Name</span><span>Category</span><span>Forecast</span><span>Recommended</span><span>Status</span>
+                      </div>
+                      <div className="table-data-row">
+                        <span>SKU-8821</span><span>Organic Green Tea 250g</span><span>Beverages</span><span>320 Units</span><span className="green">₹145.00</span><span className="badge-status success">Healthy</span>
+                      </div>
+                      <div className="table-data-row">
+                        <span>SKU-4412</span><span>Basmati Rice 5kg</span><span>Grains</span><span>1,420 Units</span><span className="green">₹620.00</span><span className="badge-status warning">Stockout Risk</span>
+                      </div>
+                      <div className="table-data-row">
+                        <span>SKU-9904</span><span>Dark Chocolate 100g</span><span>Snacks</span><span>180 Units</span><span className="green">₹95.00</span><span className="badge-status primary">Stable</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -916,6 +934,39 @@ export const LandingPage = () => {
           display: flex;
           gap: 16px;
           margin-bottom: 40px;
+          align-items: center;
+        }
+        .hero-cta-primary {
+          box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3) !important;
+          transition: all 200ms ease !important;
+        }
+        .hero-cta-primary:hover {
+          transform: translateY(-2px) !important;
+          box-shadow: 0 12px 32px rgba(79, 70, 229, 0.4) !important;
+        }
+        .hero-cta-ghost {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          height: 48px;
+          padding: 0 24px;
+          font-size: 15px;
+          font-weight: 600;
+          color: #0F172A;
+          background-color: #FFFFFF;
+          border: 1.5px solid #CBD5E1;
+          border-radius: 9999px;
+          text-decoration: none;
+          transition: all 200ms ease;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+          cursor: pointer;
+        }
+        .hero-cta-ghost:hover {
+          border-color: #4F46E5;
+          color: #4F46E5;
+          background-color: #EEF2FF;
+          box-shadow: 0 4px 14px rgba(79, 70, 229, 0.15);
         }
         .btn-lg {
           height: 48px;
@@ -1231,6 +1282,24 @@ export const LandingPage = () => {
         }
         .callout-1 { top: 20px; right: 40px; border: 1px solid #10B981; }
         .callout-2 { bottom: 20px; left: 40px; border: 1px solid #4F46E5; }
+        /* Inline callouts: shown only on mobile */
+        .preview-inline-callouts { display: none; }
+        .preview-inline-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 10px;
+          font-weight: 600;
+          padding: 4px 10px;
+          border-radius: 9999px;
+          border: 1px solid;
+          background-color: rgba(15,23,42,0.6);
+        }
+        /* Table scroll wrapper */
+        .mock-table-scroll-wrapper {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
 
         .mock-grid-main {
           background-color: #1E293B;
@@ -1649,11 +1718,20 @@ export const LandingPage = () => {
             gap: 12px !important;
             margin-bottom: 28px !important;
           }
-          .hero-ctas .btn-lg {
+          .hero-cta-primary, .hero-ctas .btn-lg {
             width: 100% !important;
             height: 48px !important;
             justify-content: center !important;
             font-size: 15px !important;
+          }
+          .hero-cta-ghost {
+            width: 100% !important;
+            height: 48px !important;
+            justify-content: center !important;
+            font-size: 15px !important;
+            background-color: #F1F5F9 !important;
+            border-color: #CBD5E1 !important;
+            color: #334155 !important;
           }
 
           /* Trust metrics: horizontal scroll or wrap */
@@ -1667,6 +1745,32 @@ export const LandingPage = () => {
           .metric-item { text-align: center; }
           .metric-item strong { font-size: 16px !important; }
           .metric-item span { font-size: 11px !important; }
+
+          /* Preview section: fix the "Clean Analytics Dashboard" card on mobile */
+          .preview-section { padding: 56px 0 !important; }
+          .preview-body {
+            padding: 16px !important;
+            position: static !important;
+          }
+          /* Hide absolute callout bubbles on mobile (they overlap content) */
+          .preview-callout-hide-mobile { display: none !important; }
+          /* Show inline callout badges instead */
+          .preview-inline-callouts { display: block !important; }
+          /* Table: constrain width and allow horizontal scroll */
+          .mock-table-scroll-wrapper {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            margin-right: -4px;
+          }
+          .mock-table { min-width: 540px !important; }
+          .table-header-row, .table-data-row {
+            grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr !important;
+            font-size: 10px !important;
+            padding: 8px 10px !important;
+          }
+          .mock-grid-main { padding: 14px !important; border-radius: 8px !important; }
+          .mock-panel h4 { font-size: 13px !important; margin-bottom: 10px !important; }
+          .large-preview-card { border-radius: 12px !important; }
 
           /* Other sections */
           .section-title { font-size: 26px; }
