@@ -221,7 +221,7 @@ export const ProductCard = ({ product, onSelect }) => {
             style={{ padding: "6px 10px", fontSize: "12px", color: "#059669", cursor: "pointer", borderRadius: "4px" }}
             className="command-item-hover"
           >
-            Apply AI Price (${recommendedPrice.toFixed(2)})
+            Apply AI Price ({formatCurrency(recommendedPrice)})
           </div>
         </div>
       )}
@@ -313,7 +313,7 @@ export const ProductCard = ({ product, onSelect }) => {
           </span>
         </div>
         <span style={{ fontSize: "11px", fontWeight: 800, color: "#059669" }}>
-          +${priceGain.toFixed(0)} gain
+          +{formatCurrency(priceGain)} gain
         </span>
       </div>
 

@@ -37,7 +37,7 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
       id: "notif-4",
       type: "INFO",
       title: "Monthly Revenue Target 64%",
-      message: "Store is currently on track to reach the $50,000 monthly target.",
+      message: "Store is currently on track to reach the ₹50,000 monthly target.",
       timestamp: "2 hours ago",
       link: "/dashboard",
     },

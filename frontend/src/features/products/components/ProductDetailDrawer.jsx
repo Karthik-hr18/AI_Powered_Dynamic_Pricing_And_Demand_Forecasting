@@ -28,6 +28,14 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
     enabled: !!productId,
   });
 
+  const formatCurrency = (val) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(val || 0);
+  };
+
   // Handle Escape key dismissal
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -211,7 +219,7 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                 </div>
                 {data.pricing?.recommended_price ? (
                   <span className="badge badge-success" style={{ fontSize: "11px" }}>
-                    ${data.pricing.recommended_price.toFixed(2)}
+                    {formatCurrency(data.pricing.recommended_price)}
                   </span>
                 ) : (
                   <span className="badge badge-danger" style={{ fontSize: "11px" }}>Ineligible</span>
@@ -241,10 +249,10 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                           border: isRecommended ? "1px solid rgba(16, 185, 129, 0.3)" : "none",
                         }}
                       >
-                        <span>${cand.candidate_price.toFixed(2)}</span>
+                        <span>{formatCurrency(cand.candidate_price)}</span>
                         <span>{cand.estimated_demand.toFixed(1)} units</span>
                         <span style={{ color: isRecommended ? "var(--success)" : "inherit" }}>
-                          ${cand.estimated_revenue.toFixed(2)}
+                          {formatCurrency(cand.estimated_revenue)}
                         </span>
                       </div>
                     );

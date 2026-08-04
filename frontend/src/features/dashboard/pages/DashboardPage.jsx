@@ -343,7 +343,7 @@ export const DashboardPage = () => {
                 Monthly Target
               </span>
               <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
-                Target: ${goal_progress?.target_revenue?.toLocaleString() ?? "50,000"}
+                Target: {formatCurrency(goal_progress?.target_revenue || 50000)}
               </span>
             </div>
 
@@ -771,7 +771,7 @@ export const DashboardPage = () => {
                     </span>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px" }}>
                       <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>
-                        ${op.current_price?.toFixed(2)} → <strong style={{ color: "#059669" }}>${op.recommended_price?.toFixed(2)}</strong>
+                        {formatCurrency(op.current_price)} → <strong style={{ color: "#059669" }}>{formatCurrency(op.recommended_price)}</strong>
                       </span>
                       <span style={{ fontSize: "10px", fontWeight: 600, backgroundColor: "#ECFDF5", color: "#059669", padding: "1px 6px", borderRadius: "4px" }}>
                         Inventory Healthy
@@ -1071,7 +1071,7 @@ export const DashboardPage = () => {
                     </td>
                     <td style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9" }}>
                       {row.recommended_price !== null ? (
-                        <strong style={{ color: "#059669", fontSize: "13px" }}>${row.recommended_price.toFixed(2)}</strong>
+                        <strong style={{ color: "#059669", fontSize: "13px" }}>{formatCurrency(row.recommended_price)}</strong>
                       ) : (
                         <span style={{ color: "var(--gray-text-muted)" }}>N/A</span>
                       )}
@@ -1186,8 +1186,8 @@ export const DashboardPage = () => {
                       <div style={{ backgroundColor: "#EEF2FF", padding: "10px", borderRadius: "8px", border: "1px solid rgba(79, 70, 229, 0.2)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
                           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>RECOMMENDED PRICE</span>
-                          <strong style={{ fontSize: "15px", color: "#059669" }}>${recommendedPrice.toFixed(2)}</strong>
-                          <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>Current: ${currentPrice.toFixed(2)}</span>
+                          <strong style={{ fontSize: "15px", color: "#059669" }}>{formatCurrency(recommendedPrice)}</strong>
+                          <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>Current: {formatCurrency(currentPrice)}</span>
                         </div>
                         <strong style={{ fontSize: "13px", color: "#059669" }}>+{formatCurrency(priceGain)} gain</strong>
                       </div>
