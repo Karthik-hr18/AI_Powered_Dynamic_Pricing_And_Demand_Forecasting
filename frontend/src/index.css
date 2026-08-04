@@ -507,4 +507,72 @@ h4 {
   background-color: #F8FAFC !important;
 }
 
+/* Mobile Executive SaaS Responsive Rules */
+@media (max-width: 767px) {
+  /* Main Content Container Padding & Mobile Header Compensation */
+  main {
+    padding-top: 76px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-bottom: 32px !important;
+  }
+
+  .mobile-header {
+    display: flex !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .mobile-nav-wrapper {
+    display: block !important;
+  }
+
+  /* Touch Targets & Minimum Height */
+  .btn {
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+
+  /* Header Toolbar Action Buttons Stack */
+  .header-action-buttons {
+    width: 100% !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .header-action-buttons .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Mobile Accordion Action Buttons Stack */
+  .mobile-accordion-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+
+  .mobile-accordion-actions button {
+    width: 100% !important;
+    height: 44px !important;
+    font-size: 13px !important;
+    justify-content: center !important;
+  }
+
+  /* Report Center Download Row Mobile Stacking */
+  .report-item-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .report-item-btn {
+    width: 100% !important;
+    height: 44px !important;
+    font-size: 13px !important;
+    justify-content: center !important;
+  }
+}
+
 

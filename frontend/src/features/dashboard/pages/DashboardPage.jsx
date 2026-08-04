@@ -417,9 +417,10 @@ export const DashboardPage = () => {
       {/* -------------------------------------------------------------------------- */}
       {/* 2. Highest Revenue Opportunity Hero Card (Reduced height, White Card) */}
       {/* -------------------------------------------------------------------------- */}
+      {/* 2. Top Pricing Opportunity / AI Recommendation Card */}
       {highest_opportunity && (
         <div
-          className="card"
+          className="card ai-recommendation-card"
           style={{
             padding: "var(--space-4) var(--space-5)",
             backgroundColor: "#FFFFFF",
@@ -427,73 +428,67 @@ export const DashboardPage = () => {
             borderRadius: "var(--radius-card)",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
+            flexDirection: "column",
             gap: "var(--space-3)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", flex: 1, minWidth: "280px" }}>
-            <div
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "10px",
-                backgroundColor: "#EEF2FF",
-                border: "1px solid rgba(79, 70, 229, 0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--accent)",
-                flexShrink: 0,
-              }}
-            >
-              <Zap size={20} />
-            </div>
+          {/* Top Row: Opportunity Badge & Confidence */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+            <span style={{ fontSize: "11px", fontWeight: 700, backgroundColor: "#EEF2FF", color: "var(--accent)", padding: "4px 10px", borderRadius: "9999px", display: "inline-flex", alignItems: "center", gap: "5px" }}>
+              <Zap size={13} /> Top Pricing Opportunity
+            </span>
+            <span style={{ fontSize: "12px", color: "var(--gray-text-muted)", fontWeight: 600 }}>
+              Confidence <strong>{highest_opportunity.confidence_score}%</strong>
+            </span>
+          </div>
+
+          {/* Product Name & Strategy Label */}
+          <div>
+            <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--gray-text-primary)", margin: 0 }}>
+              {highest_opportunity.product_name}
+            </h3>
+            <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--accent)", display: "block", marginTop: "2px" }}>
+              {highest_opportunity.action_label}
+            </span>
+          </div>
+
+          {/* Price Shift Comparison Row */}
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", backgroundColor: "#F8FAFC", padding: "10px 14px", borderRadius: "8px", border: "1px solid var(--gray-border)", flexWrap: "wrap" }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
-                <span style={{ fontSize: "10px", fontWeight: 700, backgroundColor: "#EEF2FF", color: "var(--accent)", padding: "2px 8px", borderRadius: "9999px" }}>
-                  Top Pricing Opportunity
-                </span>
-                <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
-                  Confidence: <strong>{highest_opportunity.confidence_score}%</strong>
-                </span>
-              </div>
-              <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--gray-text-primary)", margin: 0 }}>
-                {highest_opportunity.action_label} for {highest_opportunity.product_name}
-              </h3>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "4px" }}>
-                <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
-                  Price Shift: <strong>${highest_opportunity.current_price?.toFixed(2)}</strong> → <strong style={{ color: "#059669" }}>${highest_opportunity.recommended_price?.toFixed(2)}</strong>
-                </span>
-                <span style={{ fontSize: "10px", fontWeight: 600, backgroundColor: "#ECFDF5", color: "#059669", padding: "2px 6px", borderRadius: "4px" }}>
-                  Demand ↑ 14%
-                </span>
-              </div>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>Current Price</span>
+              <strong style={{ fontSize: "15px", color: "var(--gray-text-primary)" }}>{formatCurrency(highest_opportunity.current_price)}</strong>
+            </div>
+            <span style={{ color: "var(--accent)", fontWeight: 700, fontSize: "16px" }}>→</span>
+            <div>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>Recommended Price</span>
+              <strong style={{ fontSize: "15px", color: "#059669" }}>{formatCurrency(highest_opportunity.recommended_price)}</strong>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
-            <div style={{ textAlign: "right" }}>
-              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>
-                Projected Revenue
-              </span>
-              <span style={{ fontSize: "20px", fontWeight: 800, color: "#059669" }}>
-                +{formatCurrency(highest_opportunity.expected_revenue_gain)}
-              </span>
+          {/* Metrics Grid: Revenue & Demand */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "10px" }}>
+            <div style={{ backgroundColor: "#ECFDF5", padding: "10px", borderRadius: "8px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
+              <span style={{ fontSize: "11px", color: "#047857", display: "block", fontWeight: 600 }}>Projected Revenue</span>
+              <strong style={{ fontSize: "16px", color: "#059669" }}>+{formatCurrency(highest_opportunity.expected_revenue_gain)}</strong>
             </div>
-            <button
-              onClick={() => {
-                const matched = product_table.find((p) => p.sku_display === highest_opportunity.sku);
-                if (matched) setSelectedProductId(matched.id);
-              }}
-              className="btn btn-primary btn-pill"
-              style={{ height: "36px", fontSize: "12px", padding: "0 16px" }}
-            >
-              View Details
-              <ChevronRight size={14} />
-            </button>
+            <div style={{ backgroundColor: "#F1F5F9", padding: "10px", borderRadius: "8px", border: "1px solid var(--gray-border)" }}>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 600 }}>Demand Forecast</span>
+              <strong style={{ fontSize: "15px", color: "var(--gray-text-primary)" }}>↑ 14% Velocity</strong>
+            </div>
           </div>
+
+          {/* Full-Width Action Button */}
+          <button
+            onClick={() => {
+              const matched = product_table.find((p) => p.sku_display === highest_opportunity.sku);
+              if (matched) setSelectedProductId(matched.id);
+            }}
+            className="btn btn-primary btn-pill"
+            style={{ width: "100%", height: "44px", fontSize: "13px", justifyContent: "center", marginTop: "4px" }}
+          >
+            View Diagnostics Details
+            <ChevronRight size={16} />
+          </button>
         </div>
       )}
 
@@ -614,7 +609,7 @@ export const DashboardPage = () => {
           <span style={{ fontSize: "13px", fontWeight: 700, color: "#FFFFFF" }}>Quick Actions:</span>
         </div>
 
-        <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap" }}>
+        <div className="header-action-buttons" style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap" }}>
           <button onClick={() => navigate("/uploads")} className="btn btn-primary" style={{ height: "34px", fontSize: "12px" }}>
             <UploadCloud size={14} />
             Upload Sales CSV
@@ -1214,20 +1209,18 @@ export const DashboardPage = () => {
                       </div>
 
                       {/* Action Buttons */}
-                      <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                      <div className="mobile-accordion-actions">
                         <button
                           onClick={() => setSelectedProductId(row.id)}
                           className="btn btn-primary btn-pill"
-                          style={{ flex: 1, height: "34px", fontSize: "12px", justifyContent: "center" }}
                         >
-                          <Sparkles size={13} /> View Diagnostics
+                          <Sparkles size={14} /> View Diagnostics
                         </button>
                         <button
-                          onClick={() => alert(`Applied AI Price of $${recommendedPrice.toFixed(2)} to ${row.sku_display}`)}
+                          onClick={() => alert(`Applied AI Price of ${formatCurrency(recommendedPrice)} to ${row.sku_display}`)}
                           className="btn btn-secondary btn-pill"
-                          style={{ height: "34px", fontSize: "12px", padding: "0 12px", justifyContent: "center" }}
                         >
-                          <Zap size={13} style={{ color: "var(--warning)" }} /> Apply Price
+                          <Zap size={14} style={{ color: "var(--warning)" }} /> Apply Price
                         </button>
                       </div>
                     </div>

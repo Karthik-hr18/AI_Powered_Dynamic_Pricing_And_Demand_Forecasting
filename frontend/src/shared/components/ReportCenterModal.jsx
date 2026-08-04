@@ -159,7 +159,7 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
                 borderRadius: "var(--radius-default)",
                 transition: "all 150ms ease-in-out",
               }}
-              className="report-card-hover"
+              className="report-card-hover report-item-row"
             >
               <div style={{ display: "flex", gap: "var(--space-4)", alignItems: "center", flex: 1 }}>
                 <div
@@ -176,7 +176,7 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
                   {item.icon}
                 </div>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px", flexWrap: "wrap" }}>
                     <h4 style={{ fontSize: "14px", fontWeight: 700, color: "var(--gray-text-primary)" }}>{item.title}</h4>
                     <span
                       style={{
@@ -198,7 +198,7 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
               <button
                 onClick={() => handleDownload(item.id, item.title, item.isRealEndpoint)}
                 disabled={downloading === item.id}
-                className={item.isRealEndpoint ? "btn btn-primary btn-pill" : "btn btn-secondary btn-pill"}
+                className={item.isRealEndpoint ? "btn btn-primary btn-pill report-item-btn" : "btn btn-secondary btn-pill report-item-btn"}
                 style={{ height: "36px", fontSize: "12px", padding: "0 16px", minWidth: "105px", justifyContent: "center", flexShrink: 0 }}
               >
                 {downloading === item.id ? (

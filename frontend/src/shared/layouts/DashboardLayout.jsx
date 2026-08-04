@@ -386,19 +386,37 @@ export const DashboardLayout = ({ children }) => {
         }}
         className="mobile-header"
       >
-        <span style={{ fontWeight: 700, fontSize: "16px", color: "var(--gray-text-primary)" }}>
-          Antigravity
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div
+            style={{
+              width: "28px",
+              height: "28px",
+              borderRadius: "6px",
+              backgroundColor: "var(--accent)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#FFFFFF",
+              fontWeight: 800,
+              fontSize: "14px",
+            }}
+          >
+            P
+          </div>
+          <span style={{ fontWeight: 800, fontSize: "16px", color: "var(--gray-text-primary)" }}>
+            ProfitSync
+          </span>
+        </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <button
             onClick={() => setCommandPaletteOpen(true)}
-            style={{ background: "none", border: "none", color: "#FFFFFF", cursor: "pointer" }}
+            style={{ background: "none", border: "none", color: "var(--gray-text-primary)", cursor: "pointer", padding: "6px" }}
           >
             <Search size={20} />
           </button>
           <button
             onClick={() => setNotificationCenterOpen(true)}
-            style={{ background: "none", border: "none", color: "#FFFFFF", cursor: "pointer", position: "relative" }}
+            style={{ background: "none", border: "none", color: "var(--gray-text-primary)", cursor: "pointer", position: "relative", padding: "6px" }}
           >
             <Bell size={20} />
           </button>
@@ -409,7 +427,7 @@ export const DashboardLayout = ({ children }) => {
               border: "none",
               cursor: "pointer",
               color: "var(--gray-text-primary)",
-              padding: "var(--space-1)",
+              padding: "6px",
             }}
           >
             <Menu size={24} />
@@ -434,7 +452,25 @@ export const DashboardLayout = ({ children }) => {
                 justifyContent: "space-between",
               }}
             >
-              <span style={{ fontWeight: 700, fontSize: "16px" }}>Menu</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    borderRadius: "6px",
+                    backgroundColor: "var(--accent)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#FFFFFF",
+                    fontWeight: 800,
+                    fontSize: "14px",
+                  }}
+                >
+                  P
+                </div>
+                <span style={{ fontWeight: 800, fontSize: "16px" }}>ProfitSync Menu</span>
+              </div>
               <button
                 onClick={() => setMobileOpen(false)}
                 style={{
@@ -442,6 +478,7 @@ export const DashboardLayout = ({ children }) => {
                   border: "none",
                   cursor: "pointer",
                   color: "var(--gray-text-primary)",
+                  padding: "6px",
                 }}
               >
                 <X size={24} />
@@ -459,6 +496,37 @@ export const DashboardLayout = ({ children }) => {
             >
               {activeNavItems.map((item) => {
                 const isActive = location.pathname === item.path;
+                if (item.isAction) {
+                  return (
+                    <button
+                      key={item.label}
+                      onClick={() => {
+                        setMobileOpen(false);
+                        if (item.action) item.action();
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "var(--space-3)",
+                        padding: "12px var(--space-3)",
+                        borderRadius: "var(--radius-default)",
+                        color: "var(--gray-text-primary)",
+                        backgroundColor: "transparent",
+                        fontFamily: "inherit",
+                        fontWeight: 500,
+                        fontSize: "14px",
+                        border: "none",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        width: "100%",
+                        minHeight: "44px",
+                      }}
+                    >
+                      {item.icon}
+                      {item.label}
+                    </button>
+                  );
+                }
                 return (
                   <Link
                     key={item.path}
@@ -470,12 +538,13 @@ export const DashboardLayout = ({ children }) => {
                       gap: "var(--space-3)",
                       padding: "12px var(--space-3)",
                       borderRadius: "var(--radius-default)",
-                      color: isActive ? "var(--accent)" : "var(--gray-text-muted)",
+                      color: isActive ? "var(--accent)" : "var(--gray-text-primary)",
                       backgroundColor: isActive
                         ? "rgba(79, 70, 229, 0.08)"
                         : "transparent",
                       fontWeight: isActive ? 600 : 500,
                       textDecoration: "none",
+                      minHeight: "44px",
                     }}
                   >
                     {item.icon}
@@ -483,30 +552,6 @@ export const DashboardLayout = ({ children }) => {
                   </Link>
                 );
               })}
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  setReportCenterOpen(true);
-                }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--space-3)",
-                  padding: "12px var(--space-3)",
-                  borderRadius: "var(--radius-default)",
-                  color: "var(--gray-text-muted)",
-                  background: "none",
-                  border: "none",
-                  fontWeight: 500,
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  width: "100%",
-                }}
-              >
-                <FileText size={20} />
-                Report Center
-              </button>
             </nav>
 
             <div
