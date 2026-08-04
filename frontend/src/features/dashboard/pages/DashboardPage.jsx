@@ -895,7 +895,7 @@ export const DashboardPage = () => {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-4)" }}>
-            <AlertCircle size={18} style={{ color: "#D97706" }} />
+            <AlertTriangle size={18} style={{ color: "#D97706" }} />
             <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
               Low Performing SKUs (Requires Action)
             </h3>
