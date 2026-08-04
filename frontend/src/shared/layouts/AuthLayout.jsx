@@ -14,7 +14,7 @@ export const AuthLayout = ({ children }) => {
       }}
     >
       <div
-        className="card"
+        className="card auth-card-container"
         style={{
           width: "100%",
           maxWidth: "880px",
@@ -79,7 +79,7 @@ export const AuthLayout = ({ children }) => {
                 letterSpacing: "-0.02em",
               }}
             >
-              Antigravity Pricing
+              ProfitSync Retail OS
             </h2>
             <p
               style={{
@@ -89,13 +89,14 @@ export const AuthLayout = ({ children }) => {
                 fontWeight: 500,
               }}
             >
-              Enterprise demand forecasting and revenue optimization built for high-performance retail analytics.
+              Enterprise demand forecasting and revenue optimization built for Indian retail enterprises.
             </p>
           </div>
         </div>
 
         {/* Right Side: Render children login/register forms */}
         <div
+          className="auth-form-panel"
           style={{
             flex: 1.2,
             padding: "var(--space-6) var(--space-7)",
@@ -108,6 +109,39 @@ export const AuthLayout = ({ children }) => {
           {children}
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 767px) {
+          .auth-card-container {
+            flex-direction: column !important;
+            max-width: 440px !important;
+            min-height: auto !important;
+            border-radius: 16px !important;
+          }
+          .auth-hero-panel {
+            padding: 24px 20px !important;
+            text-align: center;
+          }
+          .auth-hero-panel h2 {
+            font-size: 22px !important;
+            margin-bottom: 6px !important;
+          }
+          .auth-hero-panel p {
+            font-size: 13px !important;
+          }
+          .auth-form-panel {
+            padding: 24px 20px !important;
+          }
+          .form-input {
+            height: 44px !important;
+            font-size: 15px !important;
+          }
+          .btn-primary {
+            height: 46px !important;
+            font-size: 15px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };

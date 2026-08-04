@@ -36,6 +36,7 @@ import {
 
 import { apiClient } from "../../../shared/apiClient";
 import { ProductDetailDrawer } from "../../products/components/ProductDetailDrawer";
+import { EnterprisePagination } from "../../../shared/components/EnterprisePagination";
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
@@ -59,11 +60,12 @@ export const DashboardPage = () => {
     },
   });
 
-  // Utility formatters
+  // Utility formatters (Indian Rupees)
   const formatCurrency = (val) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "USD",
+      currency: "INR",
+      maximumFractionDigits: 2,
     }).format(val || 0);
   };
 
@@ -1241,102 +1243,20 @@ export const DashboardPage = () => {
           )}
         </div>
 
-        {/* Diagnostics Table Pagination Footer Bar */}
-        <div
-          style={{
-            padding: "var(--space-3) var(--space-4)",
-            borderTop: "1px solid var(--gray-border)",
-            backgroundColor: "#FFFFFF",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "var(--space-3)",
-            borderBottomLeftRadius: "var(--radius-card)",
-            borderBottomRightRadius: "var(--radius-card)",
+        {/* Premium Enterprise Pagination Component */}
+        <EnterprisePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredProducts.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={(page) => setCurrentPage(page)}
+          onItemsPerPageChange={(size) => {
+            setItemsPerPage(size);
+            setCurrentPage(1);
           }}
-        >
-          {/* Left: Summary text & Items per page dropdown */}
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "13px", color: "var(--gray-text-muted)" }}>
-              Showing{" "}
-              <strong style={{ color: "var(--gray-text-primary)" }}>
-                {filteredProducts.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}
-              </strong>{" "}
-              to{" "}
-              <strong style={{ color: "var(--gray-text-primary)" }}>
-                {Math.min(currentPage * itemsPerPage, filteredProducts.length)}
-              </strong>{" "}
-              of <strong style={{ color: "var(--gray-text-primary)" }}>{filteredProducts.length}</strong> SKUs
-            </span>
-
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>Per page:</span>
-              <select
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                style={{
-                  height: "28px",
-                  fontSize: "12px",
-                  backgroundColor: "#FFFFFF",
-                  border: "1px solid var(--gray-border)",
-                  color: "var(--gray-text-primary)",
-                  borderRadius: "6px",
-                  padding: "0 6px",
-                  cursor: "pointer",
-                }}
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Right: Page navigation buttons */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="btn btn-secondary btn-pill"
-              style={{
-                height: "32px",
-                padding: "0 12px",
-                fontSize: "12px",
-                opacity: currentPage === 1 ? 0.5 : 1,
-                cursor: currentPage === 1 ? "not-allowed" : "pointer",
-              }}
-            >
-              <ChevronLeft size={14} />
-              Previous
-            </button>
-
-            <span style={{ fontSize: "13px", color: "var(--gray-text-muted)", padding: "0 4px" }}>
-              Page <strong style={{ color: "var(--gray-text-primary)" }}>{currentPage}</strong> of{" "}
-              <strong style={{ color: "var(--gray-text-primary)" }}>{totalPages}</strong>
-            </span>
-
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage >= totalPages || filteredProducts.length === 0}
-              className="btn btn-secondary btn-pill"
-              style={{
-                height: "32px",
-                padding: "0 12px",
-                fontSize: "12px",
-                opacity: currentPage >= totalPages || filteredProducts.length === 0 ? 0.5 : 1,
-                cursor: currentPage >= totalPages || filteredProducts.length === 0 ? "not-allowed" : "pointer",
-              }}
-            >
-              Next
-              <ChevronRight size={14} />
-            </button>
-          </div>
-        </div>
+          itemLabel="SKUs"
+          pageSizeOptions={[10, 25, 50, 100]}
+        />
       </div>
 
       {/* -------------------------------------------------------------------------- */}

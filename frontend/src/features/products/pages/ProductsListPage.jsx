@@ -12,6 +12,7 @@ import {
 import { apiClient } from "../../../shared/apiClient";
 import { ProductDetailDrawer } from "../components/ProductDetailDrawer";
 import { ProductCard, ProductCardSkeleton } from "../components/ProductCard";
+import { EnterprisePagination } from "../../../shared/components/EnterprisePagination";
 
 export const ProductsListPage = () => {
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -164,30 +165,19 @@ export const ProductsListPage = () => {
         </div>
       )}
 
-      {/* Pagination Controls */}
-      {pagesCount > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "var(--space-4)", marginTop: "var(--space-4)" }}>
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="btn btn-secondary btn-pill"
-            style={{ width: "36px", height: "36px", padding: 0, justifyContent: "center" }}
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <span style={{ fontSize: "14px", color: "var(--gray-text-muted)" }}>
-            Page <strong>{page}</strong> of <strong>{pagesCount}</strong>
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(pagesCount, p + 1))}
-            disabled={page === pagesCount}
-            className="btn btn-secondary btn-pill"
-            style={{ width: "36px", height: "36px", padding: 0, justifyContent: "center" }}
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
-      )}
+      {/* Enterprise Pagination Controls */}
+      <div style={{ marginTop: "var(--space-4)" }}>
+        <EnterprisePagination
+          currentPage={page}
+          totalPages={pagesCount}
+          totalItems={totalCount}
+          itemsPerPage={limit}
+          onPageChange={(p) => setPage(p)}
+          onItemsPerPageChange={() => {}}
+          itemLabel="Products"
+          pageSizeOptions={[15, 30, 60]}
+        />
+      </div>
 
       {/* Slide-over diagnostics drawer */}
       {selectedProductId && (

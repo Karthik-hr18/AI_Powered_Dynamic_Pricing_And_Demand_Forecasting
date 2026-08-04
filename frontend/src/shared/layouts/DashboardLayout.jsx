@@ -155,7 +155,7 @@ export const DashboardLayout = ({ children }) => {
               fontSize: "18px",
             }}
           >
-            A
+            P
           </div>
           <span
             style={{
@@ -165,7 +165,7 @@ export const DashboardLayout = ({ children }) => {
               color: "var(--gray-text-primary)",
             }}
           >
-            Antigravity
+            ProfitSync
           </span>
         </div>
 
