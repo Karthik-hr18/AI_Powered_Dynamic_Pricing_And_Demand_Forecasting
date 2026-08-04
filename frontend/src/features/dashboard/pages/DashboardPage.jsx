@@ -71,20 +71,89 @@ export const DashboardPage = () => {
   };
 
   const renderInventoryBadge = (status) => {
-    const cleanStatus = String(status || "").toUpperCase();
-    switch (cleanStatus) {
-      case "HEALTHY":
-      case "STABLE":
-        return <span className="badge badge-success">{status}</span>;
-      case "OVERSTOCK_RISK":
-      case "RISING":
-      case "FALLING":
-        return <span className="badge badge-warning">{status}</span>;
-      case "STOCKOUT_RISK":
-        return <span className="badge badge-danger">{status}</span>;
-      default:
-        return <span className="badge badge-info">{status || "UNKNOWN"}</span>;
+    const clean = String(status || "").toUpperCase();
+    if (clean.includes("STOCKOUT") || clean.includes("RISK")) {
+      return (
+        <span
+          style={{
+            fontSize: "11px",
+            fontWeight: 600,
+            backgroundColor: "#FEF2F2",
+            color: "#DC2626",
+            border: "1px solid rgba(220, 38, 38, 0.2)",
+            padding: "2px 8px",
+            borderRadius: "9999px",
+            display: "inline-flex",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+            height: "26px",
+          }}
+        >
+          Stockout Risk
+        </span>
+      );
     }
+    if (clean.includes("OVERSTOCK")) {
+      return (
+        <span
+          style={{
+            fontSize: "11px",
+            fontWeight: 600,
+            backgroundColor: "#FFFBEB",
+            color: "#D97706",
+            border: "1px solid rgba(217, 119, 6, 0.2)",
+            padding: "2px 8px",
+            borderRadius: "9999px",
+            display: "inline-flex",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+            height: "26px",
+          }}
+        >
+          Overstock Risk
+        </span>
+      );
+    }
+    if (clean.includes("STABLE") || clean.includes("LOW")) {
+      return (
+        <span
+          style={{
+            fontSize: "11px",
+            fontWeight: 600,
+            backgroundColor: "#EFF6FF",
+            color: "#2563EB",
+            border: "1px solid rgba(37, 99, 235, 0.2)",
+            padding: "2px 8px",
+            borderRadius: "9999px",
+            display: "inline-flex",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+            height: "26px",
+          }}
+        >
+          Stable
+        </span>
+      );
+    }
+    return (
+      <span
+        style={{
+          fontSize: "11px",
+          fontWeight: 600,
+          backgroundColor: "#ECFDF5",
+          color: "#059669",
+          border: "1px solid rgba(5, 150, 105, 0.2)",
+          padding: "2px 8px",
+          borderRadius: "9999px",
+          display: "inline-flex",
+          alignItems: "center",
+          whiteSpace: "nowrap",
+          height: "26px",
+        }}
+      >
+        Healthy
+      </span>
+    );
   };
 
   // CSV Export for Product Table
@@ -235,8 +304,6 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Goal Progress Banner & Today's Summary Card */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
       {/* Goal Progress & Activity Feed (2 Column Grid) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
         {/* Monthly Target Card */}
@@ -767,13 +834,7 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      <style>{`
-        .op-card-hover:hover {
-          background-color: #F8FAFC !important;
-          border-color: #CBD5E1 !important;
-          transform: translateY(-1px);
-        }
-      `}</style>
+
 
       {/* -------------------------------------------------------------------------- */}
       {/* 7. Top & Low Sellers Comparison */}
@@ -960,52 +1021,57 @@ export const DashboardPage = () => {
         {/* Desktop & Tablet Diagnostics Table View (100% Fit Width, No Horizontal Scroll) */}
         <div className="table-responsive desktop-diagnostics-table" style={{ width: "100%", overflowX: "hidden" }}>
           {filteredProducts.length > 0 ? (
-            <table className="table" style={{ width: "100%", tableLayout: "fixed" }}>
+            <table className="table" style={{ width: "100%", tableLayout: "fixed", borderCollapse: "separate", borderSpacing: 0 }}>
               <thead>
                 <tr>
-                  <th style={{ width: "14%" }}>SKU</th>
-                  <th style={{ width: "26%" }}>Product Name</th>
-                  <th style={{ width: "14%" }}>Category</th>
-                  <th style={{ width: "13%" }}>7d Forecast</th>
-                  <th style={{ width: "13%" }}>Recommended</th>
-                  <th style={{ width: "10%" }}>Status</th>
-                  <th style={{ width: "10%", textAlign: "right" }}>Actions</th>
+                  <th style={{ width: "14%", backgroundColor: "#F8FAFC", padding: "12px 16px", color: "var(--gray-text-muted)", fontSize: "12px", fontWeight: 600, borderBottom: "1px solid var(--gray-border)" }}>SKU</th>
+                  <th style={{ width: "28%", backgroundColor: "#F8FAFC", padding: "12px 16px", color: "var(--gray-text-muted)", fontSize: "12px", fontWeight: 600, borderBottom: "1px solid var(--gray-border)" }}>Product Name</th>
+                  <th style={{ width: "12%", backgroundColor: "#F8FAFC", padding: "12px 16px", color: "var(--gray-text-muted)", fontSize: "12px", fontWeight: 600, borderBottom: "1px solid var(--gray-border)" }}>Category</th>
+                  <th style={{ width: "14%", backgroundColor: "#F8FAFC", padding: "12px 16px", color: "var(--gray-text-muted)", fontSize: "12px", fontWeight: 600, borderBottom: "1px solid var(--gray-border)" }}>7-Day Forecast</th>
+                  <th style={{ width: "12%", backgroundColor: "#F8FAFC", padding: "12px 16px", color: "var(--gray-text-muted)", fontSize: "12px", fontWeight: 600, borderBottom: "1px solid var(--gray-border)" }}>Recommended</th>
+                  <th style={{ width: "10%", backgroundColor: "#F8FAFC", padding: "12px 16px", color: "var(--gray-text-muted)", fontSize: "12px", fontWeight: 600, borderBottom: "1px solid var(--gray-border)" }}>Status</th>
+                  <th style={{ width: "10%", textAlign: "right", backgroundColor: "#F8FAFC", padding: "12px 16px", color: "var(--gray-text-muted)", fontSize: "12px", fontWeight: 600, borderBottom: "1px solid var(--gray-border)" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredProducts.map((row) => (
-                  <tr key={row.id}>
-                    <td style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--gray-text-muted)" }}>
+                  <tr key={row.id} className="diagnostics-table-row">
+                    <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--gray-text-muted)", borderBottom: "1px solid #F1F5F9" }}>
                       {row.sku_display}
                     </td>
-                    <td style={{ fontWeight: 600, fontSize: "13px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <td
+                      title={row.product_name || "Unknown SKU"}
+                      style={{ padding: "12px 16px", fontWeight: 600, fontSize: "13px", color: "var(--gray-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", borderBottom: "1px solid #F1F5F9" }}
+                    >
                       {row.product_name || "Unknown SKU"}
                     </td>
-                    <td>
-                      <span className="badge badge-purple" style={{ fontSize: "10px" }}>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9" }}>
+                      <span style={{ fontSize: "11px", fontWeight: 600, backgroundColor: "#EEF2FF", color: "var(--accent)", padding: "2px 8px", borderRadius: "9999px", whiteSpace: "nowrap" }}>
                         {row.category || "General"}
                       </span>
                     </td>
-                    <td>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9" }}>
                       {row.forecast_7d !== null ? (
-                        <strong style={{ fontSize: "13px" }}>{row.forecast_7d.toFixed(0)} units</strong>
+                        <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>{row.forecast_7d.toFixed(0)} units</strong>
                       ) : (
                         <span style={{ color: "var(--gray-text-muted)" }}>N/A</span>
                       )}
                     </td>
-                    <td>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9" }}>
                       {row.recommended_price !== null ? (
                         <strong style={{ color: "#059669", fontSize: "13px" }}>${row.recommended_price.toFixed(2)}</strong>
                       ) : (
                         <span style={{ color: "var(--gray-text-muted)" }}>N/A</span>
                       )}
                     </td>
-                    <td>{renderInventoryBadge(row.inventory_status)}</td>
-                    <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                    <td style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9" }}>
+                      {renderInventoryBadge(row.inventory_status)}
+                    </td>
+                    <td style={{ padding: "12px 16px", textAlign: "right", whiteSpace: "nowrap", borderBottom: "1px solid #F1F5F9" }}>
                       <button
                         onClick={() => setSelectedProductId(row.id)}
                         className="btn btn-secondary btn-pill"
-                        style={{ height: "28px", padding: "0 10px", fontSize: "11px" }}
+                        style={{ width: "95px", height: "28px", padding: "0 10px", fontSize: "11px", justifyContent: "center" }}
                       >
                         Details
                         <ChevronRight size={12} />
@@ -1032,8 +1098,8 @@ export const DashboardPage = () => {
           {filteredProducts.length > 0 ? (
             filteredProducts.map((row) => {
               const isExpanded = expandedRowId === row.id;
-              const currentPrice = row.recommended_price ? row.recommended_price * 0.94 : 3.99;
               const recommendedPrice = row.recommended_price || 4.25;
+              const currentPrice = row.recommended_price ? row.recommended_price * 0.94 : 3.99;
               const priceGain = Math.max(0, (recommendedPrice - currentPrice) * (row.forecast_7d || 50));
 
               return (

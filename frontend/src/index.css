@@ -491,3 +491,20 @@ h4 {
   }
 }
 
+/* Card & Table Row Hover Utilities */
+.op-card-hover:hover {
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+  transform: translateY(-1px);
+}
+
+.diagnostics-table-row {
+  transition: background-color 150ms ease-in-out;
+  height: 58px;
+}
+
+.diagnostics-table-row:hover {
+  background-color: #F8FAFC !important;
+}
+
+
