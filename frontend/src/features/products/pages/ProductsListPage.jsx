@@ -15,6 +15,7 @@ import { ProductCard, ProductCardSkeleton } from "../components/ProductCard";
 
 export const ProductsListPage = () => {
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [expandedProductId, setExpandedProductId] = useState(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("ALL");
   const [page, setPage] = useState(1);
@@ -137,20 +138,24 @@ export const ProductsListPage = () => {
         </div>
       </div>
 
-      {/* Responsive Grid of Executive Product Cards */}
+      {/* Mobile-First Expandable Product Card Accordion List */}
       {isLoading ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
           {[...Array(6)].map((_, idx) => (
             <ProductCardSkeleton key={idx} />
           ))}
         </div>
       ) : items.length > 0 ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
           {items.map((prod) => (
             <ProductCard
               key={prod.id}
               product={prod}
-              onSelect={(id) => setSelectedProductId(id)}
+              isExpanded={expandedProductId === prod.id}
+              onToggleExpand={() =>
+                setExpandedProductId((prev) => (prev === prod.id ? null : prod.id))
+              }
+              onOpenDiagnostics={(id) => setSelectedProductId(id)}
             />
           ))}
         </div>
