@@ -68,6 +68,14 @@ export const DashboardLayout = ({ children }) => {
       role: ["RETAILER"],
     },
     {
+      label: "Report Center",
+      path: "#reports",
+      isAction: true,
+      action: () => setReportCenterOpen(true),
+      icon: <FileText size={20} />,
+      role: ["RETAILER"],
+    },
+    {
       label: "Admin Portal",
       path: "/admin",
       icon: <ShieldCheck size={20} />,
@@ -210,6 +218,34 @@ export const DashboardLayout = ({ children }) => {
         >
           {activeNavItems.map((item) => {
             const isActive = location.pathname === item.path;
+            if (item.isAction) {
+              return (
+                <button
+                  key={item.label}
+                  onClick={item.action}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-3)",
+                    padding: "10px var(--space-3)",
+                    borderRadius: "var(--radius-default)",
+                    color: "var(--gray-text-muted)",
+                    backgroundColor: "transparent",
+                    fontWeight: 500,
+                    fontSize: "14px",
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    width: "100%",
+                    transition: "all var(--transition-speed-fast) var(--transition-timing)",
+                  }}
+                  className="sidebar-link"
+                >
+                  {item.icon}
+                  {item.label}
+                </button>
+              );
+            }
             return (
               <Link
                 key={item.path}
@@ -236,29 +272,6 @@ export const DashboardLayout = ({ children }) => {
               </Link>
             );
           })}
-
-          <button
-            onClick={() => setReportCenterOpen(true)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "var(--space-3)",
-              padding: "10px var(--space-3)",
-              borderRadius: "var(--radius-default)",
-              color: "var(--gray-text-muted)",
-              background: "none",
-              border: "none",
-              fontWeight: 500,
-              fontSize: "14px",
-              cursor: "pointer",
-              textAlign: "left",
-              width: "100%",
-            }}
-            className="sidebar-link"
-          >
-            <FileText size={20} />
-            Report Center
-          </button>
         </nav>
 
         {/* Sidebar Footer & Profile Trigger */}

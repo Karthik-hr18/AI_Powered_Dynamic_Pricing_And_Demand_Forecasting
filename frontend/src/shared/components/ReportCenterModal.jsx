@@ -126,34 +126,36 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", maxHeight: "400px", overflowY: "auto" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", maxHeight: "420px", overflowY: "auto" }}>
           {reports.map((item) => (
             <div
               key={item.id}
+              className="card card-interactive"
               style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "var(--space-4)",
-                backgroundColor: "rgba(15, 23, 42, 0.5)",
-                border: "1px solid var(--gray-border)",
-                borderRadius: "var(--radius-default)",
               }}
             >
               <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "flex-start" }}>
-                {item.icon}
+                <div style={{ padding: "8px", borderRadius: "8px", backgroundColor: "rgba(15, 23, 42, 0.6)", flexShrink: 0 }}>
+                  {item.icon}
+                </div>
                 <div>
-                  <h4 style={{ fontSize: "14px", fontWeight: 600, color: "#FFFFFF", marginBottom: "2px" }}>{item.title}</h4>
-                  <p style={{ fontSize: "12px", color: "var(--gray-text-muted)", marginBottom: "4px" }}>{item.description}</p>
-                  <span className="badge badge-secondary" style={{ fontSize: "10px" }}>{item.format}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
+                    <h4 style={{ fontSize: "14px", fontWeight: 700, color: "#FFFFFF" }}>{item.title}</h4>
+                    <span className="badge badge-purple" style={{ fontSize: "10px" }}>{item.format}</span>
+                  </div>
+                  <p style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>{item.description}</p>
                 </div>
               </div>
 
               <button
                 onClick={() => handleDownload(item.id, item.title, item.isRealEndpoint)}
                 disabled={downloading === item.id}
-                className="btn btn-secondary btn-pill"
-                style={{ height: "32px", fontSize: "12px", padding: "0 12px", minWidth: "95px", justifyContent: "center" }}
+                className={item.isRealEndpoint ? "btn btn-primary btn-pill" : "btn btn-secondary btn-pill"}
+                style={{ height: "34px", fontSize: "12px", padding: "0 14px", minWidth: "100px", justifyContent: "center", flexShrink: 0 }}
               >
                 {downloading === item.id ? (
                   "Generating..."
