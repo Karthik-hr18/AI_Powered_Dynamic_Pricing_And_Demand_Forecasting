@@ -11,6 +11,7 @@ import {
 
 import { apiClient } from "../../../shared/apiClient";
 import { ProductDetailDrawer } from "../components/ProductDetailDrawer";
+import { ProductCard, ProductCardSkeleton } from "../components/ProductCard";
 
 export const ProductsListPage = () => {
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -136,64 +137,30 @@ export const ProductsListPage = () => {
         </div>
       </div>
 
-      {/* Grid of Product Cards */}
+      {/* Responsive Grid of Executive Product Cards */}
       {isLoading ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
           {[...Array(6)].map((_, idx) => (
-            <div key={idx} className="skeleton-card" style={{ height: "160px" }} />
+            <ProductCardSkeleton key={idx} />
           ))}
         </div>
       ) : items.length > 0 ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
           {items.map((prod) => (
-            <div
+            <ProductCard
               key={prod.id}
-              className="card card-interactive"
-              style={{
-                padding: "var(--space-4)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                height: "160px",
-              }}
-            >
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "var(--space-2)" }}>
-                  <span className="badge badge-purple" style={{ fontSize: "10px" }}>
-                    {prod.category || "General"}
-                  </span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--gray-text-muted)" }}>
-                    {prod.sku_display}
-                  </span>
-                </div>
-                <h4 style={{ fontSize: "15px", fontWeight: 700, color: "#FFFFFF", margin: "4px 0" }}>
-                  {prod.product_name || "Unnamed SKU"}
-                </h4>
-                {prod.brand && (
-                  <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
-                    Brand: {prod.brand}
-                  </span>
-                )}
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "var(--space-3)" }}>
-                <button
-                  onClick={() => setSelectedProductId(prod.id)}
-                  className="btn btn-secondary btn-pill"
-                  style={{ height: "30px", fontSize: "12px", padding: "0 12px" }}
-                >
-                  <Sparkles size={12} />
-                  Diagnostics
-                  <ChevronRight size={12} />
-                </button>
-              </div>
-            </div>
+              product={prod}
+              onSelect={(id) => setSelectedProductId(id)}
+            />
           ))}
         </div>
       ) : (
         <div style={{ padding: "80px var(--space-4)", textAlign: "center" }} className="card">
           <Package size={48} style={{ color: "var(--gray-text-muted)", marginBottom: "var(--space-3)", opacity: 0.5 }} />
-          <h4 style={{ color: "var(--gray-text-muted)" }}>No products found in catalogue.</h4>
+          <h4 style={{ color: "var(--gray-text-muted)", marginBottom: "var(--space-2)" }}>No products found in catalogue.</h4>
+          <p style={{ fontSize: "13px", color: "var(--gray-text-muted)", marginBottom: "var(--space-4)" }}>
+            Upload your first sales CSV dataset to start AI demand forecasting and price optimization analysis.
+          </p>
         </div>
       )}
 
