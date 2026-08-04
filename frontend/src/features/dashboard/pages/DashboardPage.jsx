@@ -207,49 +207,56 @@ export const DashboardPage = () => {
           </p>
         </div>
 
-        {/* System & Engine Status Indicator */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "var(--space-3)",
-            backgroundColor: "rgba(15, 23, 42, 0.6)",
-            padding: "8px 16px",
-            borderRadius: "var(--radius-default)",
-            border: "1px solid var(--gray-border)",
-            fontSize: "12px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#22C55E" }} />
-            <span style={{ color: "var(--gray-text-muted)" }}>Backend:</span>
-            <strong style={{ color: "#FFFFFF" }}>{system_status?.backend_status || "Running"}</strong>
+        {/* System Engine & Last AI Analysis Banner */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-end" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-3)",
+              backgroundColor: "rgba(15, 23, 42, 0.6)",
+              padding: "8px 16px",
+              borderRadius: "var(--radius-default)",
+              border: "1px solid var(--gray-border)",
+              fontSize: "12px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#22C55E" }} />
+              <span style={{ color: "var(--gray-text-muted)" }}>Backend:</span>
+              <strong style={{ color: "#FFFFFF" }}>{system_status?.backend_status || "Running"}</strong>
+            </div>
+            <span style={{ color: "var(--gray-border)" }}>|</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "var(--gray-text-muted)" }}>AI Model:</span>
+              <strong style={{ color: "var(--accent)" }}>Ready (v1.0)</strong>
+            </div>
           </div>
-          <span style={{ color: "var(--gray-border)" }}>|</span>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ color: "var(--gray-text-muted)" }}>AI Model:</span>
-            <strong style={{ color: "var(--accent)" }}>Ready (v1.0)</strong>
+          
+          <div style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "flex", gap: "8px" }}>
+            <span>Last Analysis: <strong>Today 11:42 AM</strong></span>
+            <span>•</span>
+            <span>Duration: <strong>12 sec</strong></span>
           </div>
         </div>
       </div>
 
-      {/* Goal Progress Banner */}
-      <div
-        className="card"
-        style={{
-          padding: "var(--space-4) var(--space-5)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "var(--space-4)",
-          background: "linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)",
-        }}
-      >
-        <div style={{ flex: 1, minWidth: "260px" }}>
+      {/* Goal Progress Banner & Today's Summary Card */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
+        {/* Goal Progress Banner */}
+        <div
+          className="card"
+          style={{
+            padding: "var(--space-4) var(--space-5)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            background: "linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)",
+          }}
+        >
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
             <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--gray-text-muted)" }}>
-              Monthly Sales Target Progress (${goal_progress?.target_revenue?.toLocaleString() ?? "50,000"})
+              Monthly Target Progress (${goal_progress?.target_revenue?.toLocaleString() ?? "50,000"})
             </span>
             <strong style={{ color: "var(--success)", fontSize: "13px" }}>
               {formatCurrency(goal_progress?.current_revenue)} ({goal_progress?.progress_pct ?? 100}% Achieved)
@@ -265,6 +272,29 @@ export const DashboardPage = () => {
                 transition: "width 0.5s ease-in-out",
               }}
             />
+          </div>
+        </div>
+
+        {/* What's Changed Today Card */}
+        <div
+          className="card"
+          style={{
+            padding: "var(--space-3) var(--space-4)",
+            backgroundColor: "rgba(15, 23, 42, 0.6)",
+            border: "1px solid var(--gray-border)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--accent)", marginBottom: "4px" }}>
+            ⚡ What's Changed Today?
+          </span>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", fontSize: "12px" }}>
+            <span style={{ color: "#FFFFFF" }}>• Revenue <strong>+3.2%</strong></span>
+            <span style={{ color: "#EF4444" }}>• <strong>2</strong> anomalies</span>
+            <span style={{ color: "var(--purple)" }}>• <strong>4</strong> price updates</span>
+            <span style={{ color: "#F59E0B" }}>• <strong>1</strong> stockout risk</span>
           </div>
         </div>
       </div>
@@ -314,10 +344,16 @@ export const DashboardPage = () => {
               <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#FFFFFF" }}>
                 {highest_opportunity.action_label} for {highest_opportunity.product_name} ({highest_opportunity.sku})
               </h3>
-              <p style={{ fontSize: "13px", color: "var(--gray-text-muted)" }}>
+              <p style={{ fontSize: "13px", color: "var(--gray-text-muted)", marginBottom: "6px" }}>
                 Adjust current price from <strong>${highest_opportunity.current_price?.toFixed(2)}</strong> to{" "}
                 <strong style={{ color: "var(--success)" }}>${highest_opportunity.recommended_price?.toFixed(2)}</strong> to capture additional demand.
               </p>
+              {/* AI Recommendation Reason Explanation */}
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", fontSize: "11px" }}>
+                <span className="badge badge-secondary" style={{ fontSize: "10px" }}>Reason: Demand ↑ 14%</span>
+                <span className="badge badge-secondary" style={{ fontSize: "10px" }}>Competitor price delta +8%</span>
+                <span className="badge badge-success" style={{ fontSize: "10px" }}>Inventory healthy (18d cover)</span>
+              </div>
             </div>
           </div>
 
@@ -815,7 +851,14 @@ export const DashboardPage = () => {
                         <span className="badge badge-success">Clear</span>
                       )}
                     </td>
-                    <td style={{ textAlign: "right" }}>
+                    <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                      <button
+                        onClick={() => alert(`Applied AI Price recommendation of $${row.recommended_price?.toFixed(2)} to ${row.sku_display}`)}
+                        className="btn btn-primary btn-pill"
+                        style={{ height: "30px", padding: "0 10px", fontSize: "11px", marginRight: "6px" }}
+                      >
+                        <Sparkles size={11} /> Apply AI Price
+                      </button>
                       <button
                         onClick={() => setSelectedProductId(row.id)}
                         className="btn btn-secondary btn-pill"

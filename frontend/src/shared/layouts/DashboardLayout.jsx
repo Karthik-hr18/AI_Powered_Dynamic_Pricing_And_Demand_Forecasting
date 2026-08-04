@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Menu,
@@ -10,14 +10,34 @@ import {
   LogOut,
   User,
   Bell,
+  Search,
+  FileText,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { CommandPalette } from "../components/CommandPalette";
+import { NotificationCenter } from "../components/NotificationCenter";
+import { ReportCenterModal } from "../components/ReportCenterModal";
+import { UserProfileMenu } from "../components/UserProfileMenu";
 
 export const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Modals & Drawers state
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [notificationCenterOpen, setNotificationCenterOpen] = useState(false);
+  const [reportCenterOpen, setReportCenterOpen] = useState(false);
+  const [userProfileMenuOpen, setUserProfileMenuOpen] = useState(false);
+
+  // Custom listener for command palette trigger
+  useEffect(() => {
+    const handleOpenCommandPalette = () => setCommandPaletteOpen(true);
+    window.addEventListener("open-command-palette", handleOpenCommandPalette);
+    return () => window.removeEventListener("open-command-palette", handleOpenCommandPalette);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -68,7 +88,26 @@ export const DashboardLayout = ({ children }) => {
         backgroundColor: "var(--gray-bg)",
       }}
     >
-      {/* 1. Desktop Sidebar Container */}
+      {/* Modals & Drawers */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onOpenReportCenter={() => setReportCenterOpen(true)}
+      />
+      <NotificationCenter
+        isOpen={notificationCenterOpen}
+        onClose={() => setNotificationCenterOpen(false)}
+      />
+      <ReportCenterModal
+        isOpen={reportCenterOpen}
+        onClose={() => setReportCenterOpen(false)}
+      />
+      <UserProfileMenu
+        isOpen={userProfileMenuOpen}
+        onClose={() => setUserProfileMenuOpen(false)}
+      />
+
+      {/* 1. Primary Desktop Navigation Sidebar */}
       <aside
         style={{
           width: "260px",
@@ -84,14 +123,14 @@ export const DashboardLayout = ({ children }) => {
         }}
         className="desktop-sidebar"
       >
-        {/* Sidebar Header Brand */}
+        {/* Sidebar Brand Header */}
         <div
           style={{
-            padding: "var(--space-5)",
+            padding: "var(--space-5) var(--space-4)",
             borderBottom: "1px solid var(--gray-border)",
             display: "flex",
             alignItems: "center",
-            gap: "var(--space-2)",
+            gap: "var(--space-3)",
           }}
         >
           <div
@@ -122,11 +161,48 @@ export const DashboardLayout = ({ children }) => {
           </span>
         </div>
 
+        {/* Global Search & Command Palette Button */}
+        <div style={{ padding: "var(--space-3) var(--space-4)" }}>
+          <button
+            onClick={() => setCommandPaletteOpen(true)}
+            style={{
+              width: "100%",
+              height: "36px",
+              backgroundColor: "rgba(15, 23, 42, 0.6)",
+              border: "1px solid var(--gray-border)",
+              borderRadius: "var(--radius-default)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "0 10px",
+              color: "var(--gray-text-muted)",
+              fontSize: "13px",
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Search size={14} style={{ color: "var(--accent)" }} />
+              <span>Search or type Ctrl+K...</span>
+            </div>
+            <span
+              style={{
+                fontSize: "10px",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                padding: "2px 5px",
+                borderRadius: "4px",
+                fontFamily: "var(--font-mono)",
+              }}
+            >
+              Ctrl+K
+            </span>
+          </button>
+        </div>
+
         {/* Sidebar Navigation Options */}
         <nav
           style={{
             flex: 1,
-            padding: "var(--space-4) var(--space-3)",
+            padding: "var(--space-2) var(--space-3)",
             display: "flex",
             flexDirection: "column",
             gap: "var(--space-1)",
@@ -160,9 +236,32 @@ export const DashboardLayout = ({ children }) => {
               </Link>
             );
           })}
+
+          <button
+            onClick={() => setReportCenterOpen(true)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-3)",
+              padding: "10px var(--space-3)",
+              borderRadius: "var(--radius-default)",
+              color: "var(--gray-text-muted)",
+              background: "none",
+              border: "none",
+              fontWeight: 500,
+              fontSize: "14px",
+              cursor: "pointer",
+              textAlign: "left",
+              width: "100%",
+            }}
+            className="sidebar-link"
+          >
+            <FileText size={20} />
+            Report Center
+          </button>
         </nav>
 
-        {/* Sidebar User Info & Logout Drawer Footer */}
+        {/* Sidebar Footer & Profile Trigger */}
         <div
           style={{
             padding: "var(--space-4)",
@@ -172,37 +271,51 @@ export const DashboardLayout = ({ children }) => {
             gap: "var(--space-3)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div
+            onClick={() => setUserProfileMenuOpen(!userProfileMenuOpen)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              cursor: "pointer",
+              padding: "6px",
+              borderRadius: "var(--radius-default)",
+              backgroundColor: "rgba(255, 255, 255, 0.03)",
+            }}
+          >
             <div
               style={{
                 width: "36px",
                 height: "36px",
                 borderRadius: "50%",
-                backgroundColor: "var(--gray-bg)",
+                backgroundColor: "var(--accent)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "var(--gray-text-muted)",
+                color: "#FFFFFF",
+                fontWeight: 700,
+                fontSize: "14px",
+                flexShrink: 0,
               }}
             >
-              <User size={18} />
+              {user?.business_name ? user.business_name[0].toUpperCase() : "U"}
             </div>
-            <div style={{ minWidth: 0 }}>
+            <div style={{ overflow: "hidden", flex: 1 }}>
               <p
                 style={{
-                  fontSize: "13px",
                   fontWeight: 600,
+                  fontSize: "13px",
+                  color: "var(--gray-text-primary)",
                   textOverflow: "ellipsis",
                   overflow: "hidden",
                   whiteSpace: "nowrap",
-                  color: "var(--gray-text-primary)",
                 }}
               >
                 {user?.business_name || "Administrator"}
               </p>
               <p
                 style={{
-                  fontSize: "12px",
+                  fontSize: "11px",
                   color: "var(--gray-text-muted)",
                   textOverflow: "ellipsis",
                   overflow: "hidden",
@@ -215,33 +328,25 @@ export const DashboardLayout = ({ children }) => {
           </div>
 
           <div
+            onClick={() => setNotificationCenterOpen(!notificationCenterOpen)}
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: "var(--space-3)",
               padding: "6px 12px",
-              backgroundColor: "rgba(15, 23, 42, 0.05)",
+              backgroundColor: "rgba(15, 23, 42, 0.5)",
               borderRadius: "var(--radius-default)",
               border: "1px solid var(--gray-border)",
+              cursor: "pointer",
             }}
           >
             <span style={{ fontSize: "12px", color: "var(--gray-text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
               <Bell size={14} style={{ color: "var(--accent)" }} /> Notifications
             </span>
             <span className="badge badge-danger" style={{ fontSize: "10px", padding: "2px 6px" }}>
-              3 Alerts
+              4 New
             </span>
           </div>
-
-          <button
-            onClick={handleLogout}
-            className="btn btn-secondary btn-pill"
-            style={{ width: "100%", justifyContent: "center", height: "36px" }}
-          >
-            <LogOut size={16} />
-            Logout
-          </button>
         </div>
       </aside>
 
@@ -266,18 +371,32 @@ export const DashboardLayout = ({ children }) => {
         <span style={{ fontWeight: 700, fontSize: "16px", color: "var(--gray-text-primary)" }}>
           Antigravity
         </span>
-        <button
-          onClick={() => setMobileOpen(true)}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            color: "var(--gray-text-primary)",
-            padding: "var(--space-1)",
-          }}
-        >
-          <Menu size={24} />
-        </button>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <button
+            onClick={() => setCommandPaletteOpen(true)}
+            style={{ background: "none", border: "none", color: "#FFFFFF", cursor: "pointer" }}
+          >
+            <Search size={20} />
+          </button>
+          <button
+            onClick={() => setNotificationCenterOpen(true)}
+            style={{ background: "none", border: "none", color: "#FFFFFF", cursor: "pointer", position: "relative" }}
+          >
+            <Bell size={20} />
+          </button>
+          <button
+            onClick={() => setMobileOpen(true)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--gray-text-primary)",
+              padding: "var(--space-1)",
+            }}
+          >
+            <Menu size={24} />
+          </button>
+        </div>
       </header>
 
       {/* 3. Mobile Navigation Drawer Slide-Over */}
@@ -346,6 +465,30 @@ export const DashboardLayout = ({ children }) => {
                   </Link>
                 );
               })}
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  setReportCenterOpen(true);
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-3)",
+                  padding: "12px var(--space-3)",
+                  borderRadius: "var(--radius-default)",
+                  color: "var(--gray-text-muted)",
+                  background: "none",
+                  border: "none",
+                  fontWeight: 500,
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  width: "100%",
+                }}
+              >
+                <FileText size={20} />
+                Report Center
+              </button>
             </nav>
 
             <div
