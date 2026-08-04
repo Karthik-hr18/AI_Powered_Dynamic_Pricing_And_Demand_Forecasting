@@ -14,16 +14,10 @@ export const ProductCard = ({ product, onSelect }) => {
 
   if (!product) return null;
 
-  // Category emoji mapping
-  const getCategoryEmoji = (categoryStr) => {
-    const clean = String(categoryStr || "").toLowerCase();
-    if (clean.includes("dairy")) return "🥛 Dairy";
-    if (clean.includes("bakery")) return "🍞 Bakery";
-    if (clean.includes("beverage")) return "🥤 Beverage";
-    if (clean.includes("snack")) return "🍿 Snacks";
-    if (clean.includes("household")) return "🧹 Household";
-    if (clean.includes("personal")) return "🧴 Personal Care";
-    return `📦 ${categoryStr || "General"}`;
+  // Category label formatter
+  const getCategoryLabel = (categoryStr) => {
+    const clean = String(categoryStr || "").trim();
+    return clean || "General";
   };
 
   // Format currency
@@ -165,7 +159,7 @@ export const ProductCard = ({ product, onSelect }) => {
             borderRadius: "9999px",
           }}
         >
-          {getCategoryEmoji(product.category)}
+          {getCategoryLabel(product.category)}
         </span>
 
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

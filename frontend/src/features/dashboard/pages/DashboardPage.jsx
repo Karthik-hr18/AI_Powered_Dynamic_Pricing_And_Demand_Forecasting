@@ -237,126 +237,164 @@ export const DashboardPage = () => {
 
       {/* Goal Progress Banner & Today's Summary Card */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
-        {/* Goal Progress Banner */}
+      {/* Goal Progress & Activity Feed (2 Column Grid) */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
+        {/* Monthly Target Card */}
         <div
           className="card"
           style={{
             padding: "var(--space-4) var(--space-5)",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
-            background: "linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)",
+            justifyContent: "space-between",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid var(--gray-border)",
+            borderRadius: "var(--radius-card)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-            <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--gray-text-muted)" }}>
-              Monthly Target Progress (${goal_progress?.target_revenue?.toLocaleString() ?? "50,000"})
-            </span>
-            <strong style={{ color: "var(--success)", fontSize: "13px" }}>
-              {formatCurrency(goal_progress?.current_revenue)} ({goal_progress?.progress_pct ?? 100}% Achieved)
-            </strong>
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
+              <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
+                Monthly Target
+              </span>
+              <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
+                Target: ${goal_progress?.target_revenue?.toLocaleString() ?? "50,000"}
+              </span>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "var(--space-2)" }}>
+              <span style={{ fontSize: "22px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
+                {formatCurrency(goal_progress?.current_revenue)}
+              </span>
+              <span style={{ fontSize: "13px", fontWeight: 700, color: "#059669" }}>
+                {goal_progress?.progress_pct ?? 96.6}% Achieved
+              </span>
+            </div>
+
+            <div style={{ width: "100%", height: "8px", backgroundColor: "#F1F5F9", borderRadius: "4px", overflow: "hidden", marginBottom: "8px" }}>
+              <div
+                style={{
+                  width: `${Math.min(100, goal_progress?.progress_pct || 96.6)}%`,
+                  height: "100%",
+                  backgroundColor: "#10B981",
+                  borderRadius: "4px",
+                  transition: "width 0.5s ease-in-out",
+                }}
+              />
+            </div>
           </div>
-          <div style={{ width: "100%", height: "8px", backgroundColor: "rgba(255, 255, 255, 0.1)", borderRadius: "4px", overflow: "hidden" }}>
-            <div
-              style={{
-                width: `${Math.min(100, goal_progress?.progress_pct || 100)}%`,
-                height: "100%",
-                backgroundColor: "var(--success)",
-                borderRadius: "4px",
-                transition: "width 0.5s ease-in-out",
-              }}
-            />
-          </div>
+
+          <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", marginTop: "4px" }}>
+            On track to reach monthly target by end of period.
+          </span>
         </div>
 
-        {/* What's Changed Today Card */}
+        {/* What's Changed Today (Clean Activity Feed) */}
         <div
           className="card"
           style={{
-            padding: "var(--space-3) var(--space-4)",
-            backgroundColor: "rgba(15, 23, 42, 0.6)",
+            padding: "var(--space-4) var(--space-5)",
+            backgroundColor: "#FFFFFF",
             border: "1px solid var(--gray-border)",
+            borderRadius: "var(--radius-card)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent: "space-between",
           }}
         >
-          <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--accent)", marginBottom: "4px" }}>
-            ⚡ What's Changed Today?
+          <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--gray-text-primary)", marginBottom: "var(--space-2)" }}>
+            Today's Activity Feed
           </span>
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", fontSize: "12px" }}>
-            <span style={{ color: "#FFFFFF" }}>• Revenue <strong>+3.2%</strong></span>
-            <span style={{ color: "#EF4444" }}>• <strong>2</strong> anomalies</span>
-            <span style={{ color: "var(--purple)" }}>• <strong>4</strong> price updates</span>
-            <span style={{ color: "#F59E0B" }}>• <strong>1</strong> stockout risk</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--gray-text-primary)", fontWeight: 600 }}>
+                <ArrowUpRight size={13} style={{ color: "#10B981" }} /> Revenue increased +3.2%
+              </span>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>2 mins ago</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px", borderTop: "1px solid #F1F5F9", paddingTop: "6px" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--gray-text-primary)", fontWeight: 600 }}>
+                <Sparkles size={13} style={{ color: "var(--accent)" }} /> 4 pricing recommendations generated
+              </span>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>15 mins ago</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px", borderTop: "1px solid #F1F5F9", paddingTop: "6px" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--gray-text-primary)", fontWeight: 600 }}>
+                <Activity size={13} style={{ color: "#D97706" }} /> Demand spike detected (Milk)
+              </span>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>1 hour ago</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* -------------------------------------------------------------------------- */}
-      {/* 2. Highest Revenue Opportunity Hero Card (Top Priority Callout) */}
+      {/* 2. Highest Revenue Opportunity Hero Card (Reduced height, White Card) */}
       {/* -------------------------------------------------------------------------- */}
       {highest_opportunity && (
         <div
           className="card"
           style={{
-            padding: "var(--space-5)",
-            background: "linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.1) 100%)",
-            borderColor: "rgba(99, 102, 241, 0.4)",
+            padding: "var(--space-4) var(--space-5)",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid var(--gray-border)",
+            borderRadius: "var(--radius-card)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
-            gap: "var(--space-4)",
+            gap: "var(--space-3)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", flex: 1, minWidth: "280px" }}>
             <div
               style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "12px",
-                backgroundColor: "var(--accent)",
+                width: "40px",
+                height: "40px",
+                borderRadius: "10px",
+                backgroundColor: "#EEF2FF",
+                border: "1px solid rgba(79, 70, 229, 0.2)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#FFFFFF",
+                color: "var(--accent)",
                 flexShrink: 0,
               }}
             >
-              <Zap size={24} />
+              <Zap size={20} />
             </div>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
-                <span className="badge badge-purple" style={{ fontSize: "11px" }}>
-                  <Sparkles size={11} /> Highest AI Pricing Opportunity
+                <span style={{ fontSize: "10px", fontWeight: 700, backgroundColor: "#EEF2FF", color: "var(--accent)", padding: "2px 8px", borderRadius: "9999px" }}>
+                  Top Pricing Opportunity
                 </span>
                 <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
                   Confidence: <strong>{highest_opportunity.confidence_score}%</strong>
                 </span>
               </div>
-              <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#FFFFFF" }}>
-                {highest_opportunity.action_label} for {highest_opportunity.product_name} ({highest_opportunity.sku})
+              <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--gray-text-primary)", margin: 0 }}>
+                {highest_opportunity.action_label} for {highest_opportunity.product_name}
               </h3>
-              <p style={{ fontSize: "13px", color: "var(--gray-text-muted)", marginBottom: "6px" }}>
-                Adjust current price from <strong>${highest_opportunity.current_price?.toFixed(2)}</strong> to{" "}
-                <strong style={{ color: "var(--success)" }}>${highest_opportunity.recommended_price?.toFixed(2)}</strong> to capture additional demand.
-              </p>
-              {/* AI Recommendation Reason Explanation */}
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", fontSize: "11px" }}>
-                <span className="badge badge-secondary" style={{ fontSize: "10px" }}>Reason: Demand ↑ 14%</span>
-                <span className="badge badge-secondary" style={{ fontSize: "10px" }}>Competitor price delta +8%</span>
-                <span className="badge badge-success" style={{ fontSize: "10px" }}>Inventory healthy (18d cover)</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "4px" }}>
+                <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
+                  Price Shift: <strong>${highest_opportunity.current_price?.toFixed(2)}</strong> → <strong style={{ color: "#059669" }}>${highest_opportunity.recommended_price?.toFixed(2)}</strong>
+                </span>
+                <span style={{ fontSize: "10px", fontWeight: 600, backgroundColor: "#ECFDF5", color: "#059669", padding: "2px 6px", borderRadius: "4px" }}>
+                  Demand ↑ 14%
+                </span>
               </div>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-5)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
             <div style={{ textAlign: "right" }}>
-              <span style={{ fontSize: "12px", color: "var(--gray-text-muted)", display: "block" }}>
-                Projected Extra Revenue
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>
+                Projected Revenue
               </span>
-              <span style={{ fontSize: "24px", fontWeight: 800, color: "var(--success)" }}>
+              <span style={{ fontSize: "20px", fontWeight: 800, color: "#059669" }}>
                 +{formatCurrency(highest_opportunity.expected_revenue_gain)}
               </span>
             </div>
@@ -365,11 +403,11 @@ export const DashboardPage = () => {
                 const matched = product_table.find((p) => p.sku_display === highest_opportunity.sku);
                 if (matched) setSelectedProductId(matched.id);
               }}
-              className="btn btn-primary"
-              style={{ height: "42px" }}
+              className="btn btn-primary btn-pill"
+              style={{ height: "36px", fontSize: "12px", padding: "0 16px" }}
             >
               View Details
-              <ChevronRight size={16} />
+              <ChevronRight size={14} />
             </button>
           </div>
         </div>
@@ -603,46 +641,96 @@ export const DashboardPage = () => {
       {/* -------------------------------------------------------------------------- */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "var(--space-5)" }}>
         {/* Top Pricing Opportunities */}
-        <div className="card" style={{ padding: "var(--space-5)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-4)" }}>
-            <Sparkles size={18} style={{ color: "var(--success)" }} />
-            <h3 style={{ fontSize: "16px", fontWeight: 700 }}>Top Revenue Opportunities</h3>
+        <div
+          className="card"
+          style={{
+            padding: "var(--space-5)",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid var(--gray-border)",
+            borderRadius: "var(--radius-card)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", marginBottom: "var(--space-4)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+              <TrendingUp size={18} style={{ color: "#059669" }} />
+              <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
+                Top Revenue Opportunities
+              </h3>
+            </div>
+            <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>Actionable Insights</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-            {top_opportunities.map((op, idx) => (
-              <div
-                key={idx}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "var(--space-3)",
-                  backgroundColor: "rgba(15, 23, 42, 0.4)",
-                  borderRadius: "var(--radius-default)",
-                  border: "1px solid var(--gray-border)",
-                }}
-              >
-                <div>
-                  <strong style={{ color: "#FFFFFF", display: "block", fontSize: "14px" }}>
-                    ✓ {op.product_name} ({op.sku})
-                  </strong>
-                  <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
-                    {op.action_label} (Current: ${op.current_price?.toFixed(2)})
-                  </span>
+            {top_opportunities.map((op, idx) => {
+              const matched = product_table.find((p) => p.sku_display === op.sku);
+              return (
+                <div
+                  key={idx}
+                  onClick={() => matched && setSelectedProductId(matched.id)}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "var(--space-3) var(--space-4)",
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: "10px",
+                    border: "1px solid var(--gray-border)",
+                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.02)",
+                    cursor: "pointer",
+                    transition: "all 150ms ease-in-out",
+                  }}
+                  className="op-card-hover"
+                >
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <strong style={{ color: "var(--gray-text-primary)", fontSize: "14px", fontWeight: 700 }}>
+                        {op.product_name}
+                      </strong>
+                    </div>
+                    <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", marginTop: "2px" }}>
+                      {op.sku} • {op.category || "General"}
+                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px" }}>
+                      <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>
+                        ${op.current_price?.toFixed(2)} → <strong style={{ color: "#059669" }}>${op.recommended_price?.toFixed(2)}</strong>
+                      </span>
+                      <span style={{ fontSize: "10px", fontWeight: 600, backgroundColor: "#ECFDF5", color: "#059669", padding: "1px 6px", borderRadius: "4px" }}>
+                        Inventory Healthy
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", textAlign: "right" }}>
+                    <div>
+                      <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>Projected</span>
+                      <span style={{ fontWeight: 800, color: "#059669", fontSize: "15px" }}>
+                        +{formatCurrency(op.expected_revenue_gain)}
+                      </span>
+                    </div>
+                    <ChevronRight size={16} style={{ color: "var(--gray-text-muted)" }} />
+                  </div>
                 </div>
-                <span style={{ fontWeight: 800, color: "var(--success)", fontSize: "15px" }}>
-                  +{formatCurrency(op.expected_revenue_gain)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         {/* Critical Alerts & Risks */}
-        <div className="card" style={{ padding: "var(--space-5)", borderColor: "rgba(239, 68, 68, 0.3)" }}>
+        <div
+          className="card"
+          style={{
+            padding: "var(--space-5)",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid var(--gray-border)",
+            borderRadius: "var(--radius-card)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-4)" }}>
-            <AlertTriangle size={18} style={{ color: "var(--error)" }} />
-            <h3 style={{ fontSize: "16px", fontWeight: 700 }}>Critical Risks & Stockout Alerts</h3>
+            <AlertTriangle size={18} style={{ color: "#DC2626" }} />
+            <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
+              Critical Stockout & Inventory Alerts
+            </h3>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
             {critical_risks.length > 0 ? (
@@ -650,57 +738,128 @@ export const DashboardPage = () => {
                 <div
                   key={idx}
                   style={{
-                    padding: "var(--space-3)",
-                    backgroundColor: "rgba(239, 68, 68, 0.08)",
-                    borderRadius: "var(--radius-default)",
-                    border: "1px solid rgba(239, 68, 68, 0.2)",
+                    padding: "var(--space-3) var(--space-4)",
+                    backgroundColor: "#FEF2F2",
+                    borderRadius: "10px",
+                    borderLeft: "4px solid #DC2626",
+                    border: "1px solid rgba(220, 38, 38, 0.15)",
+                    borderLeftWidth: "4px",
                   }}
                 >
-                  <strong style={{ color: "var(--error)", fontSize: "13px" }}>{risk.title}</strong>
-                  <p style={{ fontSize: "12px", color: "var(--gray-text-muted)", margin: "2px 0 0 0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <strong style={{ color: "#991B1B", fontSize: "13px" }}>{risk.title}</strong>
+                    <span style={{ fontSize: "10px", fontWeight: 700, backgroundColor: "#FEE2E2", color: "#DC2626", padding: "1px 6px", borderRadius: "4px" }}>
+                      Risk
+                    </span>
+                  </div>
+                  <p style={{ fontSize: "12px", color: "#7F1D1D", margin: "4px 0 0 0" }}>
                     {risk.description}
                   </p>
                 </div>
               ))
             ) : (
-              <div style={{ textAlign: "center", color: "var(--gray-text-muted)", padding: "20px" }}>
-                <CheckCircle2 size={24} style={{ color: "var(--success)", marginBottom: "6px" }} />
-                <p>No critical risks or stockouts detected.</p>
+              <div style={{ textAlign: "center", color: "var(--gray-text-muted)", padding: "24px" }}>
+                <CheckCircle2 size={24} style={{ color: "#10B981", marginBottom: "6px" }} />
+                <p style={{ fontSize: "13px", fontWeight: 500 }}>No critical stockout risks detected.</p>
               </div>
             )}
           </div>
         </div>
       </div>
 
+      <style>{`
+        .op-card-hover:hover {
+          background-color: #F8FAFC !important;
+          border-color: #CBD5E1 !important;
+          transform: translateY(-1px);
+        }
+      `}</style>
+
       {/* -------------------------------------------------------------------------- */}
       {/* 7. Top & Low Sellers Comparison */}
       {/* -------------------------------------------------------------------------- */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "var(--space-5)" }}>
         {/* Top Sellers */}
-        <div className="card" style={{ padding: "var(--space-5)" }}>
-          <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "var(--space-3)", color: "var(--success)" }}>
-            🔥 Top Performing Products
-          </h3>
+        <div
+          className="card"
+          style={{
+            padding: "var(--space-5)",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid var(--gray-border)",
+            borderRadius: "var(--radius-card)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-4)" }}>
+            <TrendingUp size={18} style={{ color: "#059669" }} />
+            <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
+              Top Performing Products
+            </h3>
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-            {top_sellers.map((item) => (
-              <div key={item.sku} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                <span>{item.product_name} ({item.sku})</span>
-                <strong>{item.units_sold.toLocaleString()} units ({formatCurrency(item.revenue)})</strong>
+            {top_sellers.map((item, idx) => (
+              <div
+                key={item.sku}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  fontSize: "13px",
+                  padding: "8px 0",
+                  borderBottom: idx < top_sellers.length - 1 ? "1px solid #F1F5F9" : "none",
+                }}
+              >
+                <div>
+                  <span style={{ color: "var(--gray-text-primary)", fontWeight: 600 }}>{item.product_name}</span>
+                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>{item.sku}</span>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <strong style={{ color: "var(--gray-text-primary)", display: "block" }}>{formatCurrency(item.revenue)}</strong>
+                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>{item.units_sold.toLocaleString()} units</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Low Performers */}
-        <div className="card" style={{ padding: "var(--space-5)" }}>
-          <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "var(--space-3)", color: "var(--warning)" }}>
-            ⚠️ Low Performing SKUs (Requires Attention)
-          </h3>
+        <div
+          className="card"
+          style={{
+            padding: "var(--space-5)",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid var(--gray-border)",
+            borderRadius: "var(--radius-card)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-4)" }}>
+            <AlertCircle size={18} style={{ color: "#D97706" }} />
+            <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
+              Low Performing SKUs (Requires Action)
+            </h3>
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-            {low_performers.map((item) => (
-              <div key={item.sku} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                <span>{item.product_name} ({item.sku})</span>
-                <span style={{ color: "var(--gray-text-muted)" }}>{item.units_sold} units ({formatCurrency(item.revenue)})</span>
+            {low_performers.map((item, idx) => (
+              <div
+                key={item.sku}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  fontSize: "13px",
+                  padding: "8px 0",
+                  borderBottom: idx < low_performers.length - 1 ? "1px solid #F1F5F9" : "none",
+                }}
+              >
+                <div>
+                  <span style={{ color: "var(--gray-text-primary)", fontWeight: 600 }}>{item.product_name}</span>
+                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>{item.sku}</span>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <strong style={{ color: "#D97706", display: "block" }}>{formatCurrency(item.revenue)}</strong>
+                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>{item.units_sold} units</span>
+                </div>
               </div>
             ))}
           </div>
