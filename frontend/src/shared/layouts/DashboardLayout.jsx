@@ -537,14 +537,18 @@ export const DashboardLayout = ({ children }) => {
                         borderRadius: "var(--radius-default)",
                         color: "var(--gray-text-primary)",
                         backgroundColor: "transparent",
-                        fontFamily: "inherit",
+                        fontFamily: "var(--font-sans, system-ui, -apple-system, sans-serif)",
                         fontWeight: 500,
-                        fontSize: "14px",
+                        fontSize: "15px",
+                        letterSpacing: "normal",
+                        lineHeight: "1.5",
                         border: "none",
                         cursor: "pointer",
                         textAlign: "left",
                         width: "100%",
                         minHeight: "44px",
+                        WebkitFontSmoothing: "antialiased",
+                        MozOsxFontSmoothing: "grayscale",
                       }}
                     >
                       {item.icon}
@@ -568,8 +572,13 @@ export const DashboardLayout = ({ children }) => {
                         ? "rgba(79, 70, 229, 0.08)"
                         : "transparent",
                       fontWeight: isActive ? 600 : 500,
+                      fontSize: "15px",
+                      letterSpacing: "normal",
+                      lineHeight: "1.5",
                       textDecoration: "none",
                       minHeight: "44px",
+                      WebkitFontSmoothing: "antialiased",
+                      MozOsxFontSmoothing: "grayscale",
                     }}
                   >
                     {item.icon}
