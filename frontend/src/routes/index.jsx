@@ -15,6 +15,8 @@ import { EmailVerificationBanner } from "../shared/components/EmailVerificationB
 import { UploadPage } from "../features/uploads/pages/UploadPage";
 import { ProductsListPage } from "../features/products/pages/ProductsListPage";
 
+import { LandingPage } from "../features/landing/pages/LandingPage";
+
 const LoadingScreen = () => (
   <div
     style={{
@@ -128,8 +130,8 @@ export const AppRoutes = () => {
       />
 
       {/* Fallback Redirections */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
