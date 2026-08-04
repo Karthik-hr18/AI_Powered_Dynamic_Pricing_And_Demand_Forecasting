@@ -469,3 +469,25 @@ h4 {
     transition-duration: 0s !important;
   }
 }
+
+/* Responsive Diagnostics Table & Mobile Accordion Utility */
+@media (min-width: 768px) {
+  .mobile-diagnostics-accordion {
+    display: none !important;
+  }
+  .desktop-diagnostics-table {
+    display: block !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-diagnostics-accordion {
+    display: flex !important;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .desktop-diagnostics-table {
+    display: none !important;
+  }
+}
+

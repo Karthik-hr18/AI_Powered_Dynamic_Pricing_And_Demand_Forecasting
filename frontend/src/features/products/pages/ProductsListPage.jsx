@@ -138,24 +138,20 @@ export const ProductsListPage = () => {
         </div>
       </div>
 
-      {/* Mobile-First Expandable Product Card Accordion List */}
+      {/* Responsive Grid of Executive Product Cards */}
       {isLoading ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
           {[...Array(6)].map((_, idx) => (
             <ProductCardSkeleton key={idx} />
           ))}
         </div>
       ) : items.length > 0 ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
           {items.map((prod) => (
             <ProductCard
               key={prod.id}
               product={prod}
-              isExpanded={expandedProductId === prod.id}
-              onToggleExpand={() =>
-                setExpandedProductId((prev) => (prev === prod.id ? null : prod.id))
-              }
-              onOpenDiagnostics={(id) => setSelectedProductId(id)}
+              onSelect={(id) => setSelectedProductId(id)}
             />
           ))}
         </div>

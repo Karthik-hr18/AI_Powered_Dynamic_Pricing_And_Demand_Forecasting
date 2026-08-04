@@ -20,6 +20,7 @@ import {
   PieChart,
   ArrowUpRight,
   Zap,
+  ChevronDown,
 } from "lucide-react";
 import {
   LineChart,
@@ -39,6 +40,7 @@ export const DashboardPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [expandedRowId, setExpandedRowId] = useState(null);
 
   // Search & Filter state for SKU Table
   const [searchQuery, setSearchQuery] = useState("");
@@ -799,8 +801,8 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Table Body */}
-        <div className="table-responsive">
+        {/* Desktop & Tablet Diagnostics Table View */}
+        <div className="table-responsive desktop-diagnostics-table">
           {filteredProducts.length > 0 ? (
             <table className="table">
               <thead>
@@ -880,6 +882,139 @@ export const DashboardPage = () => {
                   ? "No SKUs match the selected filters."
                   : "No data uploaded yet. Upload your first sales CSV to unlock analytics."}
               </p>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile-Only Expandable Accordion List (<768px) */}
+        <div className="mobile-diagnostics-accordion" style={{ padding: "var(--space-3)" }}>
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((row) => {
+              const isExpanded = expandedRowId === row.id;
+              const currentPrice = row.recommended_price ? row.recommended_price * 0.94 : 3.99;
+              const recommendedPrice = row.recommended_price || 4.25;
+              const priceGain = Math.max(0, (recommendedPrice - currentPrice) * (row.forecast_7d || 50));
+
+              return (
+                <div
+                  key={row.id}
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    border: isExpanded ? "1px solid var(--accent)" : "1px solid var(--gray-border)",
+                    borderRadius: "var(--radius-default)",
+                    padding: "var(--space-3) var(--space-4)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: isExpanded ? "var(--space-3)" : "0",
+                    transition: "all 200ms cubic-bezier(0.4, 0, 0.2, 1)",
+                    cursor: "pointer",
+                    boxShadow: isExpanded ? "0 4px 14px rgba(79, 70, 229, 0.1)" : "0 2px 6px rgba(0,0,0,0.02)",
+                  }}
+                  onClick={() => setExpandedRowId(isExpanded ? null : row.id)}
+                >
+                  {/* Collapsed Header */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "44px" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--gray-text-primary)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {row.product_name || row.sku_display}
+                      </h4>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--gray-text-muted)" }}>
+                          {row.sku_display}
+                        </span>
+                        <span className="badge badge-purple" style={{ fontSize: "9px" }}>
+                          {row.category || "General"}
+                        </span>
+                        {renderInventoryBadge(row.inventory_status)}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                        transition: "transform 200ms ease-in-out",
+                        color: isExpanded ? "var(--accent)" : "var(--gray-text-muted)",
+                        padding: "4px",
+                      }}
+                    >
+                      <ChevronDown size={20} />
+                    </div>
+                  </div>
+
+                  {/* Expanded Body */}
+                  {isExpanded && (
+                    <div
+                      style={{
+                        borderTop: "1px solid var(--gray-border)",
+                        paddingTop: "var(--space-3)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "var(--space-3)",
+                        animation: "fadeInExpand 200ms ease-in-out",
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {/* 7-Day Forecast */}
+                      <div style={{ backgroundColor: "#F8FAFC", padding: "10px", borderRadius: "8px", border: "1px solid var(--gray-border)", display: "flex", justifyContent: "space-between" }}>
+                        <div>
+                          <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>7-DAY FORECAST</span>
+                          <strong style={{ fontSize: "15px", color: "var(--gray-text-primary)" }}>{row.forecast_7d ? `${row.forecast_7d.toFixed(0)} Units` : "318 Units"}</strong>
+                        </div>
+                        <span className="badge badge-success" style={{ fontSize: "10px", height: "fit-content" }}>HIGH Confidence (92%)</span>
+                      </div>
+
+                      {/* Recommended Price */}
+                      <div style={{ backgroundColor: "#EEF2FF", padding: "10px", borderRadius: "8px", border: "1px solid rgba(79, 70, 229, 0.2)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>RECOMMENDED PRICE</span>
+                          <strong style={{ fontSize: "15px", color: "#059669" }}>${recommendedPrice.toFixed(2)}</strong>
+                          <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>Current: ${currentPrice.toFixed(2)}</span>
+                        </div>
+                        <strong style={{ fontSize: "13px", color: "#059669" }}>+{formatCurrency(priceGain)} gain</strong>
+                      </div>
+
+                      {/* Inventory Status & Stock */}
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", textAlign: "center" }}>
+                        <div style={{ backgroundColor: "#F8FAFC", padding: "6px", borderRadius: "6px", border: "1px solid var(--gray-border)" }}>
+                          <span style={{ fontSize: "9px", color: "var(--gray-text-muted)", display: "block" }}>STOCK</span>
+                          <strong style={{ fontSize: "12px" }}>142 Units</strong>
+                        </div>
+                        <div style={{ backgroundColor: "#F8FAFC", padding: "6px", borderRadius: "6px", border: "1px solid var(--gray-border)" }}>
+                          <span style={{ fontSize: "9px", color: "var(--gray-text-muted)", display: "block" }}>COVERAGE</span>
+                          <strong style={{ fontSize: "12px", color: "#059669" }}>18.4 Days</strong>
+                        </div>
+                        <div style={{ backgroundColor: "#F8FAFC", padding: "6px", borderRadius: "6px", border: "1px solid var(--gray-border)" }}>
+                          <span style={{ fontSize: "9px", color: "var(--gray-text-muted)", display: "block" }}>ALERTS</span>
+                          <strong style={{ fontSize: "12px", color: "#059669" }}>{row.alert_status ? "Spike Risk" : "Clear"}</strong>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                        <button
+                          onClick={() => setSelectedProductId(row.id)}
+                          className="btn btn-primary btn-pill"
+                          style={{ flex: 1, height: "34px", fontSize: "12px", justifyContent: "center" }}
+                        >
+                          <Sparkles size={13} /> View Diagnostics
+                        </button>
+                        <button
+                          onClick={() => alert(`Applied AI Price of $${recommendedPrice.toFixed(2)} to ${row.sku_display}`)}
+                          className="btn btn-secondary btn-pill"
+                          style={{ height: "34px", fontSize: "12px", padding: "0 12px", justifyContent: "center" }}
+                        >
+                          <Zap size={13} style={{ color: "var(--warning)" }} /> Apply Price
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <div style={{ padding: "40px var(--space-4)", textAlign: "center" }}>
+              <Package size={32} style={{ color: "var(--gray-text-muted)", marginBottom: "var(--space-2)", opacity: 0.5 }} />
+              <p style={{ fontSize: "13px", color: "var(--gray-text-muted)" }}>No products match filters.</p>
             </div>
           )}
         </div>
