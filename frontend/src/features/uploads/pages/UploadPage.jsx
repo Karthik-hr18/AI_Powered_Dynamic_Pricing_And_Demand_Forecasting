@@ -29,8 +29,8 @@ export const UploadPage = () => {
   const isBlocked = user?.role === "RETAILER" && !isEmailVerified;
 
   // Load uploads history from database
-  const loadHistory = async () => {
-    setLoadingHistory(true);
+  const loadHistory = async (showLoading = true) => {
+    if (showLoading) setLoadingHistory(true);
     try {
       const res = await apiClient.get("uploads/");
       // Sort history by created_at descending
@@ -41,18 +41,25 @@ export const UploadPage = () => {
     } catch (e) {
       console.error("Failed to load uploads history:", e);
     } finally {
-      setLoadingHistory(false);
+      if (showLoading) setLoadingHistory(false);
     }
   };
 
   useEffect(() => {
-    loadHistory();
+    loadHistory(true);
   }, []);
 
-  // Set up polling hook. Automatically refreshes history list on completion
+  // Set up polling hook. Updates active record and history silently without full-page flickering
   const { activeUpload, setActiveUpload, isPolling, startPolling } =
-    useUploadPolling(() => {
-      loadHistory();
+    useUploadPolling((updatedUpload) => {
+      // Update history in-place silently
+      setHistory((prev) =>
+        prev.map((item) =>
+          item.upload_id === updatedUpload.upload_id || item.id === updatedUpload.id
+            ? updatedUpload
+            : item
+        )
+      );
     });
 
   // Client-side file selection handlers

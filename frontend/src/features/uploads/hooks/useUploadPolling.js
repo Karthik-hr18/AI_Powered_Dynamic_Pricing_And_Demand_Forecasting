@@ -20,14 +20,13 @@ export const useUploadPolling = (onComplete) => {
       const upload = res.data;
       setActiveUpload(upload);
 
-      if (onComplete) {
-        onComplete(upload);
-      }
-
       // Check if job completed or failed
       const terminalStatuses = ["COMPLETED", "COMPLETED_WITH_WARNINGS", "FAILED", "REJECTED"];
       if (terminalStatuses.includes(upload.status)) {
         stopPolling();
+        if (onComplete) {
+          onComplete(upload);
+        }
       }
     } catch (e) {
       console.error("Error polling upload status:", e);
