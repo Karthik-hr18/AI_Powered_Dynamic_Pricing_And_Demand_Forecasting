@@ -17,7 +17,7 @@ for _ in range(10):
 if parent_dir and parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, cast
 
 from beanie import init_beanie, PydanticObjectId
 
