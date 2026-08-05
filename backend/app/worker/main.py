@@ -109,41 +109,48 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         df_prod = df_agg[df_agg["product_id"] == str(pid)]
         feature_records = compute_rolling_features(df_prod, history_processed)
 
-        # Upsert preprocessed records
+        # Bulk fetch existing feature records for product
+        existing_processed = await ProcessedSaleDocument.find(
+            ProcessedSaleDocument.retailer_id == upload.retailer_id,
+            ProcessedSaleDocument.product_id == pid
+        ).to_list()
+        existing_map = {p.date: p for p in existing_processed}
+
+        new_feats = []
         for feat in feature_records:
             feat_date = feat["date"]
-            processed_sale = ProcessedSaleDocument(
-                retailer_id=upload.retailer_id,
-                product_id=pid,
-                date=feat_date,
-                quantity_sold=feat["quantity_sold"],
-                selling_price=feat["selling_price"],
-                unit_cost=feat["unit_cost"],
-                discount=feat["discount"],
-                store_id=feat["store_id"],
-                inventory_level=feat["inventory_level"],
-                promotion_flag=feat["promotion_flag"],
-                holiday_flag=feat["holiday_flag"],
-                category=feat["category"],
-                lag_1d_quantity=feat["lag_1d_quantity"],
-                rolling_avg_7d=feat["rolling_avg_7d"],
-                rolling_avg_30d=feat["rolling_avg_30d"],
-                price_change_flag=feat["price_change_flag"],
-                day_of_week=feat["day_of_week"],
-                is_weekend=feat["is_weekend"],
-                feature_engineering_version=feat["feature_engineering_version"]
-            )
-
-            existing = await ProcessedSaleDocument.find_one(
-                ProcessedSaleDocument.retailer_id == upload.retailer_id,
-                ProcessedSaleDocument.product_id == pid,
-                ProcessedSaleDocument.date == feat_date
-            )
-            if existing:
-                processed_sale.id = existing.id
-                await processed_sale.replace()
+            if feat_date in existing_map:
+                ex = existing_map[feat_date]
+                ex.quantity_sold = feat["quantity_sold"]
+                ex.selling_price = feat["selling_price"]
+                ex.lag_1d_quantity = feat["lag_1d_quantity"]
+                ex.rolling_avg_7d = feat["rolling_avg_7d"]
+                ex.rolling_avg_30d = feat["rolling_avg_30d"]
+                await ex.save()
             else:
-                await processed_sale.insert()
+                new_feats.append(ProcessedSaleDocument(
+                    retailer_id=upload.retailer_id,
+                    product_id=pid,
+                    date=feat_date,
+                    quantity_sold=feat["quantity_sold"],
+                    selling_price=feat["selling_price"],
+                    unit_cost=feat["unit_cost"],
+                    discount=feat["discount"],
+                    store_id=feat["store_id"],
+                    inventory_level=feat["inventory_level"],
+                    promotion_flag=feat["promotion_flag"],
+                    holiday_flag=feat["holiday_flag"],
+                    category=feat["category"],
+                    lag_1d_quantity=feat["lag_1d_quantity"],
+                    rolling_avg_7d=feat["rolling_avg_7d"],
+                    rolling_avg_30d=feat["rolling_avg_30d"],
+                    price_change_flag=feat["price_change_flag"],
+                    day_of_week=feat["day_of_week"],
+                    is_weekend=feat["is_weekend"],
+                    feature_engineering_version=feat["feature_engineering_version"]
+                ))
+        if new_feats:
+            await ProcessedSaleDocument.insert_many(new_feats)
 
         # B. Reload fully updated history timeline (for lag/prediction context)
         full_history = await ProcessedSaleDocument.find(
@@ -172,7 +179,7 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         else:
             await forecast_curr.insert()
             
-        await ForecastHistoryDocument.find(
+        await ForecastHistoryDocument.find_many(
             ForecastHistoryDocument.retailer_id == upload.retailer_id,
             ForecastHistoryDocument.product_id == pid,
             ForecastHistoryDocument.superseded_at == None
@@ -199,7 +206,7 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         else:
             await pricing_curr.insert()
             
-        await PricingHistoryDocument.find(
+        await PricingHistoryDocument.find_many(
             PricingHistoryDocument.retailer_id == upload.retailer_id,
             PricingHistoryDocument.product_id == pid,
             PricingHistoryDocument.superseded_at == None
@@ -258,6 +265,7 @@ async def process_single_upload(upload: UploadDocument) -> None:
     rows_ingested = 0
     rows_rejected = 0
     warnings_list = []
+    raw_sale_dicts = []
     
     try:
         with open(filepath, mode="r", encoding="utf-8-sig") as f:
@@ -348,58 +356,93 @@ async def process_single_upload(upload: UploadDocument) -> None:
                     promo_parsed = _parse_bool(promo_raw)
                     hol_parsed = _parse_bool(hol_raw)
 
-                    # 1. Product SKU Auto-Population and mapping lookup
-                    product = await ProductDocument.find_one(
-                        ProductDocument.retailer_id == upload.retailer_id,
-                        ProductDocument.sku == sku_normalized
-                    )
-
-                    if not product:
-                        # Register product SKU on-the-fly
-                        product = ProductDocument(
-                            retailer_id=upload.retailer_id,
-                            sku=sku_normalized,
-                            sku_display=sku_display,
-                            product_name=sku_display, # Fallback to display name
-                            category=cat_parsed,
-                            first_seen_upload_id=upload.id,
-                            last_seen_upload_id=upload.id
-                        )
-                        await product.insert()
-                    else:
-                        # Update product tracking upload link
-                        product.last_seen_upload_id = upload.id
-                        product.updated_at = datetime.utcnow()
-                        if cat_parsed and not product.category:
-                            product.category = cat_parsed
-                        await product.save()
-
-                    # 2. Save immutable RawSaleDocument
-                    raw_sale = RawSaleDocument(
-                        retailer_id=upload.retailer_id,
-                        upload_id=upload.id,
-                        product_id=product.id,
-                        sku=sku_normalized,
-                        date=date_parsed,
-                        quantity_sold=qty_parsed,
-                        selling_price=price_parsed,
-                        category=cat_parsed,
-                        unit_cost=unit_cost_parsed,
-                        discount=discount_parsed,
-                        store_id=store_parsed,
-                        inventory_level=inv_parsed,
-                        promotion_flag=promo_parsed,
-                        holiday_flag=hol_parsed,
-                        row_number_in_file=row_idx,
-                        source_row_raw=row
-                    )
-                    await raw_sale.insert()
+                    # 1. Collect row data for bulk insertion
+                    raw_sale_dicts.append({
+                        "retailer_id": upload.retailer_id,
+                        "upload_id": upload.id,
+                        "sku": sku_normalized,
+                        "sku_display": sku_display,
+                        "date": date_parsed,
+                        "quantity_sold": qty_parsed,
+                        "selling_price": price_parsed,
+                        "category": cat_parsed,
+                        "unit_cost": unit_cost_parsed,
+                        "discount": discount_parsed,
+                        "store_id": store_parsed,
+                        "inventory_level": inv_parsed,
+                        "promotion_flag": promo_parsed,
+                        "holiday_flag": hol_parsed,
+                        "row_number_in_file": row_idx,
+                        "source_row_raw": row
+                    })
                     rows_ingested += 1
 
                 except Exception as row_err:
                     rows_rejected += 1
                     warnings_list.append(RowWarning(row=row_idx, reason=str(row_err)))
                     logger.warning(f"Row validation failed on line {row_idx}: {row_err}")
+
+        # Bulk register products and insert raw sales records for fast processing
+        logger.info(f"Bulk inserting {len(raw_sale_dicts)} raw sale records...")
+        unique_skus = {}
+        for item in raw_sale_dicts:
+            s_norm = item["sku"]
+            if s_norm not in unique_skus:
+                unique_skus[s_norm] = (item["sku_display"], item["category"])
+
+        # Fetch existing products in one query
+        existing_products = await ProductDocument.find(
+            ProductDocument.retailer_id == upload.retailer_id,
+            {"sku": {"$in": list(unique_skus.keys())}}
+        ).to_list()
+        product_map = {p.sku: p for p in existing_products}
+
+        # Bulk create new products
+        new_products = []
+        for s_norm, (s_disp, cat) in unique_skus.items():
+            if s_norm not in product_map:
+                p_doc = ProductDocument(
+                    retailer_id=upload.retailer_id,
+                    sku=s_norm,
+                    sku_display=s_disp,
+                    product_name=s_disp,
+                    category=cat,
+                    first_seen_upload_id=upload.id,
+                    last_seen_upload_id=upload.id
+                )
+                new_products.append(p_doc)
+
+        if new_products:
+            await ProductDocument.insert_many(new_products)
+            for p in new_products:
+                product_map[p.sku] = p
+
+        # Build final RawSaleDocument models and bulk insert
+        raw_docs = []
+        for item in raw_sale_dicts:
+            p_obj = product_map.get(item["sku"])
+            if p_obj:
+                raw_docs.append(RawSaleDocument(
+                    retailer_id=item["retailer_id"],
+                    upload_id=item["upload_id"],
+                    product_id=p_obj.id,
+                    sku=item["sku"],
+                    date=item["date"],
+                    quantity_sold=item["quantity_sold"],
+                    selling_price=item["selling_price"],
+                    category=item["category"],
+                    unit_cost=item["unit_cost"],
+                    discount=item["discount"],
+                    store_id=item["store_id"],
+                    inventory_level=item["inventory_level"],
+                    promotion_flag=item["promotion_flag"],
+                    holiday_flag=item["holiday_flag"],
+                    row_number_in_file=item["row_number_in_file"],
+                    source_row_raw=item["source_row_raw"]
+                ))
+
+        if raw_docs:
+            await RawSaleDocument.insert_many(raw_docs)
 
         # Update final document statistics
         upload.row_count = row_idx - 1 # excluding header row
