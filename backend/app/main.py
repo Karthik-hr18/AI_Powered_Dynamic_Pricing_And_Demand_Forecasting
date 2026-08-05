@@ -64,8 +64,12 @@ async def lifespan(app: FastAPI):
     # 6. Preload ML models in memory cache
     loader = get_artifact_loader()
     loader.load_all()
+    # 7. Start background worker loop automatically inside web service process
+    from app.worker.main import worker_loop
+    worker_task = asyncio.create_task(worker_loop())
     yield
-    # 6. Disconnect on shutdown
+    # 8. Cancel worker task and disconnect on shutdown
+    worker_task.cancel()
     await close_mongo_connection()
 
 app = FastAPI(
