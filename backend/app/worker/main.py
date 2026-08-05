@@ -3,7 +3,7 @@ import csv
 import logging
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Add parent directory containing 'ml' to sys.path
 curr = os.path.abspath(__file__)
@@ -94,7 +94,7 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         return
 
     product_ids = {PydanticObjectId(pid) for pid in df_agg["product_id"]}
-    run_time = datetime.utcnow()
+    run_time = datetime.now(timezone.utc)
     run_id = PydanticObjectId()
 
     logger.info(f"Triggering downstream pipelines for {len(product_ids)} products. Run ID: {run_id}")
@@ -179,11 +179,11 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         else:
             await forecast_curr.insert()
             
-        await ForecastHistoryDocument.find_many(
+        await ForecastHistoryDocument.find(
             ForecastHistoryDocument.retailer_id == upload.retailer_id,
             ForecastHistoryDocument.product_id == pid,
             ForecastHistoryDocument.superseded_at == None
-        ).update({"$set": {"superseded_at": run_time}})
+        ).set({"superseded_at": run_time})
         await forecast_hist.insert()
 
         # D. ML Inference: Pricing Recommendations
@@ -206,11 +206,11 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         else:
             await pricing_curr.insert()
             
-        await PricingHistoryDocument.find_many(
+        await PricingHistoryDocument.find(
             PricingHistoryDocument.retailer_id == upload.retailer_id,
             PricingHistoryDocument.product_id == pid,
             PricingHistoryDocument.superseded_at == None
-        ).update({"$set": {"superseded_at": run_time}})
+        ).set({"superseded_at": run_time})
         await pricing_hist.insert()
 
         # E. ML Inference: Anomaly Detection
@@ -252,14 +252,14 @@ async def process_single_upload(upload: UploadDocument) -> None:
     if not os.path.exists(filepath):
         upload.status = UploadStatus.FAILED
         upload.error_reason = "Dataset CSV file was deleted or cannot be read on storage disk."
-        upload.processing_completed_at = datetime.utcnow()
+        upload.processing_completed_at = datetime.now(timezone.utc)
         await upload.save()
         return
 
     # Update job state
     upload.status = UploadStatus.PROCESSING
     upload.current_stage = "raw_sales_ingestion"
-    upload.processing_started_at = datetime.utcnow()
+    upload.processing_started_at = datetime.now(timezone.utc)
     await upload.save()
 
     rows_ingested = 0
@@ -449,7 +449,7 @@ async def process_single_upload(upload: UploadDocument) -> None:
         upload.rows_ingested = rows_ingested
         upload.rows_rejected = rows_rejected
         upload.row_warnings = warnings_list
-        upload.processing_completed_at = datetime.utcnow()
+        upload.processing_completed_at = datetime.now(timezone.utc)
 
         if rows_ingested == 0:
             upload.status = UploadStatus.FAILED
@@ -479,7 +479,7 @@ async def process_single_upload(upload: UploadDocument) -> None:
         logger.error(f"Failed to process CSV file {upload.upload_id}: {file_err}")
         upload.status = UploadStatus.FAILED
         upload.error_reason = f"Fatal dataset parse error: {str(file_err)}"
-        upload.processing_completed_at = datetime.utcnow()
+        upload.processing_completed_at = datetime.now(timezone.utc)
         await upload.save()
 
 
