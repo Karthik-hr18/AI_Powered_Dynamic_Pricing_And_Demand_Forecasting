@@ -3,9 +3,10 @@ title: ProfitSync Enterprise ML API
 emoji: 🚀
 colorFrom: blue
 colorTo: indigo
-sdk: docker
-app_port: 7860
+sdk: gradio
+sdk_version: 4.19.2
+app_file: app.py
 pinned: false
 license: mit
-short_description: Production FastAPI server for Demand Forecasting, Pricing Optimization, and Anomaly Detection.
+short_description: Production Gradio ML API for Demand Forecasting, Pricing Optimization, and Anomaly Detection.
 ---

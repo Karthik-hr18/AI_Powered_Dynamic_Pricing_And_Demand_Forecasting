@@ -1,13 +1,11 @@
 import logging
 import math
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Request
-from pydantic import BaseModel, Field
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import Ridge
 from xgboost import XGBRegressor
 
 try:
@@ -15,58 +13,30 @@ try:
 except Exception:
     from fbprophet import Prophet
 
+import gradio as gr
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("ProfitSyncML")
-
-app = FastAPI(
-    title="ProfitSync Enterprise ML API Engine",
-    description="Live FastAPI server providing Demand Forecasting, Price Optimization, and Anomaly Detection for ProfitSync SaaS.",
-    version="1.0.0",
-)
-
-
-# =====================================================================
-# REQUEST & RESPONSE SCHEMAS
-# =====================================================================
-
-class SalesHistoryPoint(BaseModel):
-    date: str
-    quantity_sold: float = Field(..., ge=0)
-    selling_price: float = Field(..., ge=0)
-
-
-class InferencePayload(BaseModel):
-    task: str = Field(..., description="Task type: 'forecasting', 'pricing', or 'anomaly'")
-    history: List[SalesHistoryPoint] = Field(default_factory=list)
-    current_price: Optional[float] = Field(default=None, description="Used for pricing task")
-    bound_pct: Optional[float] = Field(default=0.20, description="Used for pricing candidate grid bounds")
 
 
 # =====================================================================
 # TASK 1: HYBRID DEMAND FORECASTING (Prophet + XGBoost)
 # =====================================================================
 
-def run_forecasting_task(history: List[SalesHistoryPoint]) -> Dict[str, Any]:
-    """
-    Hybrid Prophet + XGBoost forecasting logic matching profitsync_model_fixed.ipynb.
-    Produces 7-day and 30-day demand forecasts. Clamps negative predictions to 0.
-    """
+def run_forecasting_task(history: List[Dict[str, Any]]) -> Dict[str, Any]:
     if len(history) < 7:
-        logger.info(f"Insufficient history points for forecasting: {len(history)}")
         return {
             "metrics": {"MAE": 0.0, "RMSE": 0.0, "MAPE": 0.0, "sMAPE": 0.0},
             "forecast_7d": [],
             "forecast_30d": [],
         }
 
-    # Convert history payload to DataFrame
-    df = pd.DataFrame([h.dict() for h in history])
+    df = pd.DataFrame(history)
     df["ds"] = pd.to_datetime(df["date"])
     df["y"] = df["quantity_sold"].astype(float)
     df = df.sort_values("ds").reset_index(drop=True)
 
-    # 1. Fit Prophet model (Multiplicative seasonality as per fix 7)
     n_obs = len(df)
     n_changepoints = min(25, max(1, n_obs - 1))
     
@@ -82,12 +52,10 @@ def run_forecasting_task(history: List[SalesHistoryPoint]) -> Dict[str, Any]:
     )
     prophet_model.fit(df[["ds", "y"]])
 
-    # In-sample prophet forecast & residuals
     in_sample = prophet_model.predict(df[["ds"]])
     df["prophet_yhat"] = in_sample["yhat"]
     df["residual"] = df["y"] - df["prophet_yhat"]
 
-    # 2. Engineer Features for XGBoost residual model
     df["day_of_week"] = df["ds"].dt.dayofweek
     df["month"] = df["ds"].dt.month
     df["quarter"] = df["ds"].dt.quarter
@@ -107,10 +75,8 @@ def run_forecasting_task(history: List[SalesHistoryPoint]) -> Dict[str, Any]:
         "rolling_std_3", "rolling_std_7", "rolling_std_14",
         "selling_price",
     ]
-    # Keep available feature columns
     feature_cols = [c for c in feature_cols if c in df.columns]
 
-    # Train XGBoost on in-sample residuals
     X_train = df[feature_cols].copy().fillna(0)
     y_train = df["residual"].copy().fillna(0)
 
@@ -124,7 +90,6 @@ def run_forecasting_task(history: List[SalesHistoryPoint]) -> Dict[str, Any]:
     )
     xgb_model.fit(X_train, y_train)
 
-    # Compute Evaluation Metrics
     in_sample_resid_pred = xgb_model.predict(X_train)
     final_in_sample = (df["prophet_yhat"] + in_sample_resid_pred).clip(lower=0)
     
@@ -137,7 +102,6 @@ def run_forecasting_task(history: List[SalesHistoryPoint]) -> Dict[str, Any]:
     smape_denom = (np.abs(y_true) + np.abs(y_pred)) / 2.0
     smape = float(np.mean(np.where(smape_denom == 0, 0, np.abs(y_true - y_pred) / smape_denom)) * 100)
 
-    # 3. Generate 7-day & 30-day Future Forecasts
     def generate_horizon_forecast(horizon: int) -> List[Dict[str, Any]]:
         future_dates = prophet_model.make_future_dataframe(periods=horizon, freq="D")
         prophet_fut = prophet_model.predict(future_dates).tail(horizon).copy()
@@ -155,11 +119,9 @@ def run_forecasting_task(history: List[SalesHistoryPoint]) -> Dict[str, Any]:
             row_dict["year"] = cur_date.year
             row_dict["is_weekend"] = int(cur_date.dayofweek in [5, 6])
             
-            # Lags fallback
             for lag in (1, 7, 14):
                 if len(df) >= lag:
                     row_dict[f"lag_{lag}"] = float(df["y"].iloc[-lag])
-            # Rollings fallback
             for window in (3, 7, 14):
                 vals = df["y"].tail(window)
                 row_dict[f"rolling_mean_{window}"] = float(vals.mean()) if len(vals) > 0 else float(df["y"].iloc[-1])
@@ -171,7 +133,6 @@ def run_forecasting_task(history: List[SalesHistoryPoint]) -> Dict[str, Any]:
         X_fut = fut_df[feature_cols].copy().fillna(0)
         xgb_fut_resid = xgb_model.predict(X_fut)
 
-        # Clamped Predictions (Fix 1: no negative values)
         prophet_yhat = prophet_fut["yhat"].values
         prophet_lower = prophet_fut["yhat_lower"].values
         prophet_upper = prophet_fut["yhat_upper"].values
@@ -209,15 +170,7 @@ def run_forecasting_task(history: List[SalesHistoryPoint]) -> Dict[str, Any]:
 # TASK 2: PRICING OPTIMIZATION & ELASTICITY
 # =====================================================================
 
-def run_pricing_task(
-    history: List[SalesHistoryPoint],
-    current_price: Optional[float] = None,
-    bound_pct: float = 0.20
-) -> Dict[str, Any]:
-    """
-    Log-Log Ridge Elasticity simulation matching profitsync_model_fixed.ipynb.
-    Produces recommended price, expected revenue, and 5 candidate price points.
-    """
+def run_pricing_task(history: List[Dict[str, Any]], current_price: Optional[float] = None, bound_pct: float = 0.20) -> Dict[str, Any]:
     if len(history) < 7:
         return {
             "eligibility_status": "insufficient_history",
@@ -230,11 +183,10 @@ def run_pricing_task(
             "candidate_grid": None,
         }
 
-    df = pd.DataFrame([h.dict() for h in history])
+    df = pd.DataFrame(history)
     prices = df["selling_price"].astype(float).values
     quantities = df["quantity_sold"].astype(float).values
 
-    # Check for price variation
     unique_prices = set(np.round(prices, 2))
     if len(unique_prices) <= 1:
         return {
@@ -252,7 +204,6 @@ def run_pricing_task(
     bound_min = round(curr_p * (1.0 - bound_pct), 2)
     bound_max = round(curr_p * (1.0 + bound_pct), 2)
 
-    # Fit Log-Log OLS Regression: log(Q) = alpha + beta * log(P)
     log_p = np.log(np.maximum(prices, 0.01)).reshape(-1, 1)
     log_q = np.log(np.maximum(quantities, 1.0))
 
@@ -260,14 +211,12 @@ def run_pricing_task(
     ridge.fit(log_p, log_q)
     elasticity = float(ridge.coef_[0])
 
-    # Simulate price candidate grid (5 candidates)
     price_grid = np.linspace(bound_min, bound_max, 5)
     base_demand = float(np.mean(quantities[-7:])) if len(quantities) >= 7 else float(np.mean(quantities))
 
     candidate_grid = []
     for p in price_grid:
         p_val = float(p)
-        # Demand estimate via constant elasticity model
         est_demand = max(0.0, base_demand * ((p_val / curr_p) ** elasticity)) if curr_p > 0 else base_demand
         est_rev = round(p_val * est_demand, 2)
         candidate_grid.append({
@@ -276,7 +225,6 @@ def run_pricing_task(
             "estimated_revenue": est_rev,
         })
 
-    # Pick candidate with max expected revenue
     best_candidate = max(candidate_grid, key=lambda x: x["estimated_revenue"])
 
     return {
@@ -295,15 +243,11 @@ def run_pricing_task(
 # TASK 3: ANOMALY DETECTION (Z-Score & Severity)
 # =====================================================================
 
-def run_anomaly_task(history: List[SalesHistoryPoint], threshold_std: float = 2.5, recent_days: int = 7) -> Dict[str, Any]:
-    """
-    Z-Score statistical anomaly detection matching profitsync_model_fixed.ipynb.
-    Flag spikes (> mean + 2.5 std) and drops (< mean - 2.5 std).
-    """
+def run_anomaly_task(history: List[Dict[str, Any]], threshold_std: float = 2.5, recent_days: int = 7) -> Dict[str, Any]:
     if len(history) < 5:
         return {"model_version": "1.0.0", "flagged_anomalies": []}
 
-    df = pd.DataFrame([h.dict() for h in history])
+    df = pd.DataFrame(history)
     df["ds"] = pd.to_datetime(df["date"])
     df = df.sort_values("ds").reset_index(drop=True)
 
@@ -336,12 +280,12 @@ def run_anomaly_task(history: List[SalesHistoryPoint], threshold_std: float = 2.
 
         dt_str = dt_val.isoformat() if hasattr(dt_val, "isoformat") else str(dt_val)
         flagged.append({
-            "date": dt_str,
-            "stage": stage,
-            "anomaly_type": anomaly_type,
-            "severity_score": severity,
-            "explanation": explanation,
-            "acknowledged": False,
+            'date': dt_str,
+            'stage': stage,
+            'anomaly_type': anomaly_type,
+            'severity_score': severity,
+            'explanation': explanation,
+            'acknowledged': False,
         })
 
     return {
@@ -351,47 +295,43 @@ def run_anomaly_task(history: List[SalesHistoryPoint], threshold_std: float = 2.
 
 
 # =====================================================================
-# FASTAPI ENDPOINTS & ROUTING
+# GRADIO API ENDPOINT HANDLER
 # =====================================================================
 
-@app.get("/")
-def root():
-    return {
-        "status": "online",
-        "service": "ProfitSync Enterprise ML API Engine",
-        "version": "1.0.0",
-        "endpoints": ["/predict", "/health"],
-    }
-
-
-@app.get("/health")
-def health():
-    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
-
-
-@app.post("/predict")
-def predict_endpoint(payload: InferencePayload):
+def api_predict(payload: dict) -> dict:
     """
-    Unified ML Inference Endpoint. Routes request based on 'task' field:
-    - task='forecasting' -> Prophet + XGBoost hybrid forecast (7d & 30d)
-    - task='pricing'     -> Log-Log Ridge price elasticity & candidate grid
-    - task='anomaly'     -> Z-score historical & post-upload anomaly detection
+    Gradio API wrapper. Accepts JSON payload from FastAPI backend.
     """
-    task = payload.task.lower().strip()
-    logger.info(f"Received inference request for task: '{task}' with {len(payload.history)} history points")
+    if not isinstance(payload, dict):
+        return {"error": "Invalid payload format. Must be JSON dict."}
+
+    task = str(payload.get("task", "")).lower().strip()
+    history = payload.get("history", [])
+    current_price = payload.get("current_price")
+    bound_pct = payload.get("bound_pct", 0.20)
 
     try:
         if task == "forecasting":
-            return run_forecasting_task(payload.history)
+            return run_forecasting_task(history)
         elif task == "pricing":
-            return run_pricing_task(payload.history, payload.current_price, payload.bound_pct or 0.20)
+            return run_pricing_task(history, current_price, bound_pct)
         elif task == "anomaly":
-            return run_anomaly_task(payload.history)
+            return run_anomaly_task(history)
         else:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid task '{task}'. Allowed tasks: 'forecasting', 'pricing', 'anomaly'.",
-            )
+            return {"error": f"Invalid task '{task}'. Allowed: 'forecasting', 'pricing', 'anomaly'."}
     except Exception as e:
-        logger.error(f"Error during ML inference for task '{task}': {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"ML Inference Error: {str(e)}")
+        logger.error(f"Error executing task '{task}': {str(e)}", exc_info=True)
+        return {"error": f"ML Execution Error: {str(e)}"}
+
+
+# Gradio Interface configured for API calls
+demo = gr.Interface(
+    fn=api_predict,
+    inputs=gr.JSON(label="Inference Payload (dict with task, history, etc.)"),
+    outputs=gr.JSON(label="ML Prediction Output"),
+    title="ProfitSync Enterprise ML API Engine",
+    description="Live Gradio ML Inference Service for ProfitSync SaaS.",
+)
+
+if __name__ == "__main__":
+    demo.launch()
