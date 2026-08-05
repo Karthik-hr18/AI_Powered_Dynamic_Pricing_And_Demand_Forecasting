@@ -1,3 +1,4 @@
+import os
 from pydantic_settings import BaseSettings
 from typing import Optional
 
@@ -18,7 +19,7 @@ class Settings(BaseSettings):
     PRICING_N_CANDIDATES: int = 5
     ANOMALY_SPIKE_THRESHOLD: float = 2.0
     ANOMALY_DROP_THRESHOLD: float = 0.5
-    UPLOAD_STORAGE_DIR: str = "storage/uploads"
+    UPLOAD_STORAGE_DIR: str = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "storage", "uploads")
     HF_API_URL: Optional[str] = None
     HF_API_TOKEN: Optional[str] = None
 
