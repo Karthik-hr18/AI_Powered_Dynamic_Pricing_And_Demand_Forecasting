@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProfitSync Enterprise ML API Engine</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --accent-gradient: linear-gradient(135deg, #38bdf8, #818cf8);
+            --success-color: #4ade80;
+            --border-color: #334155;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 750px;
+            width: 90%;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-gradient);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-top: 0.25rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: rgba(74, 222, 128, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success-color);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+            }
+        }
+
+        .endpoints {
+            margin-top: 2rem;
+        }
+
+        .endpoints h2 {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .endpoint-card {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .method {
+            background-color: #0284c7;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .path {
+            font-family: monospace;
+            color: var(--accent-color);
+            font-size: 0.95rem;
+        }
+
+        .desc {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">🚀</div>
+            <div>
+                <h1>ProfitSync Enterprise ML API</h1>
+                <div class="status-badge">
+                    <span class="pulse"></span>
+                    <span>Engine Online & Operational</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="subtitle">
+            Live Microservice powering Demand Forecasting (Prophet + XGBoost), Price Optimization (Log-Log Elasticity), and Z-score Anomaly Detection for ProfitSync SaaS.
+        </p>
+
+        <div class="endpoints">
+            <h2>Available API Endpoints</h2>
+            
+            <div class="endpoint-card">
+                <div>
+                    <span class="method">POST</span>
+                    <span class="path">/predict</span>
+                </div>
+                <span class="desc">Unified ML Inference Route</span>
+            </div>
+
+            <div class="endpoint-card">
+                <div>
+                    <span class="method" style="background-color: #10b981;">GET</span>
+                    <span class="path">/health</span>
+                </div>
+                <span class="desc">Health Check Ping</span>
+            </div>
+        </div>
+
+        <footer>
+            ProfitSync AI Engine • Version 1.0.0
+        </footer>
+    </div>
+</body>
+</html>
