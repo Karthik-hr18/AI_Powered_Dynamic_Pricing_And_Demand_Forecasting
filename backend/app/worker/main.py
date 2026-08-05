@@ -232,7 +232,8 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
                 existing_a.flagged_anomalies.extend(new_anoms)
                 existing_a.total_flagged_count = len(existing_a.flagged_anomalies)
                 existing_a.has_unreviewed_alerts = any(not a.acknowledged for a in existing_a.flagged_anomalies)
-                existing_a.upload_id = upload.id
+                if upload.id is not None:
+                    existing_a.upload_id = upload.id
                 existing_a.run_timestamp = run_time
                 await existing_a.save()
         else:
@@ -420,7 +421,8 @@ async def process_single_upload(upload: UploadDocument) -> None:
         # Build final RawSaleDocument models and bulk insert
         raw_docs = []
         for item in raw_sale_dicts:
-            p_obj = product_map.get(item["sku"])
+            sku_str = str(item["sku"])
+            p_obj = product_map.get(sku_str)
             if p_obj:
                 raw_docs.append(RawSaleDocument(
                     retailer_id=item["retailer_id"],
@@ -524,7 +526,7 @@ async def main() -> None:
         InventoryCurrentDocument,
         AnomalyCurrentDocument
     ]
-    await init_beanie(database=db, document_models=document_models)
+    await init_beanie(database=cast(Any, db), document_models=document_models)
     
     # Ensure indexes exist
     await create_all_indexes()
