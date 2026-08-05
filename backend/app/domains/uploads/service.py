@@ -34,8 +34,8 @@ async def create_upload_record(
 def validate_csv_headers(filepath: str) -> List[str]:
     """
     Reads the header row of the CSV file on disk.
-    Enforces the presence of the four mandatory fields: date, sku, quantity_sold, selling_price.
-    Uses 'utf-8-sig' to automatically ignore any Byte Order Marks (BOM) in the file.
+    Flexible validation checking for date, product/sku, quantity, and price aliases.
+    Handles real-world SME retail dataset formats seamlessly.
     """
     errors: List[str] = []
     
@@ -53,13 +53,24 @@ def validate_csv_headers(filepath: str) -> List[str]:
             # Case-insensitive, stripped header matching
             headers_norm = [h.strip().lower() for h in headers]
             
-            mandatory = ["date", "sku", "quantity_sold", "selling_price"]
-            for field in mandatory:
-                if field not in headers_norm:
-                    errors.append(f"Missing mandatory column header: '{field}'")
-                    
+            # Flexible column alias sets
+            date_found = any(alias in headers_norm for alias in ["date", "order_date", "transaction_date", "timestamp"])
+            product_found = any(alias in headers_norm for alias in ["sku", "product_id", "item_id", "product_name", "item_name", "product"])
+            qty_found = any(alias in headers_norm for alias in ["quantity_sold", "quantity", "qty", "units_sold", "units"])
+            price_found = any(alias in headers_norm for alias in ["selling_price", "unit_price_inr", "unit_price", "price", "total_sales_inr", "sales"])
+
+            if not date_found:
+                errors.append("Missing date column (expected: 'order_date', 'date', or 'transaction_date')")
+            if not product_found:
+                errors.append("Missing product/SKU column (expected: 'product_id', 'sku', or 'product_name')")
+            if not qty_found:
+                errors.append("Missing quantity column (expected: 'quantity_sold', 'quantity', or 'qty')")
+            if not price_found:
+                errors.append("Missing price/sales column (expected: 'unit_price_inr', 'selling_price', or 'price')")
+
     except Exception as e:
         logger.error(f"Error parsing CSV headers for validation: {e}")
         errors.append(f"Invalid CSV structure or parse error: {str(e)}")
 
     return errors
+
