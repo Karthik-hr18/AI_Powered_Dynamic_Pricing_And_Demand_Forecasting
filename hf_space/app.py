@@ -95,7 +95,7 @@ def run_forecasting_task(history: List[SalesHistoryPoint]) -> Dict[str, Any]:
     df["is_weekend"] = df["ds"].dt.dayofweek.isin([5, 6]).astype(int)
 
     for lag in (1, 7, 14):
-        df[f"lag_{lag}"] = df["y"].shift(lag).fillna(method="bfill").fillna(0)
+        df[f"lag_{lag}"] = df["y"].shift(lag).bfill().fillna(0)
     for window in (3, 7, 14):
         df[f"rolling_mean_{window}"] = df["y"].shift(1).rolling(window, min_periods=1).mean().fillna(0)
         df[f"rolling_std_{window}"] = df["y"].shift(1).rolling(window, min_periods=1).std().fillna(0)
