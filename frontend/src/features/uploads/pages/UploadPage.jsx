@@ -114,7 +114,8 @@ export const UploadPage = () => {
 
       const upload = res.data;
       // Start checking status in real time
-      startPolling(upload.id);
+      startPolling(upload.upload_id || upload.id);
+      loadHistory();
       removeFile();
     } catch (err) {
       console.error("Upload failed", err);
