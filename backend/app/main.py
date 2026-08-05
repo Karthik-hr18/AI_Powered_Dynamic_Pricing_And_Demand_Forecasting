@@ -1,6 +1,9 @@
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 
+# ProfitSync Production Release v1.0.1 - Models verified & deployed
+
+
 from typing import Any, cast
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Response
