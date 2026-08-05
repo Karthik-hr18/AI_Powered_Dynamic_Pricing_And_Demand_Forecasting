@@ -1,0 +1,155 @@
+{
+  "task": "anomaly",
+  "history": [
+    {
+      "date": "2024-12-02",
+      "quantity_sold": 47.0,
+      "selling_price": 1327.38
+    },
+    {
+      "date": "2024-12-03",
+      "quantity_sold": 19.0,
+      "selling_price": 1250.43
+    },
+    {
+      "date": "2024-12-04",
+      "quantity_sold": 105.0,
+      "selling_price": 1348.1
+    },
+    {
+      "date": "2024-12-05",
+      "quantity_sold": 194.0,
+      "selling_price": 1319.3
+    },
+    {
+      "date": "2024-12-06",
+      "quantity_sold": 49.0,
+      "selling_price": 1367.77
+    },
+    {
+      "date": "2024-12-07",
+      "quantity_sold": 72.0,
+      "selling_price": 1959.88
+    },
+    {
+      "date": "2024-12-08",
+      "quantity_sold": 77.0,
+      "selling_price": 1293.41
+    },
+    {
+      "date": "2024-12-09",
+      "quantity_sold": 64.0,
+      "selling_price": 1290.71
+    },
+    {
+      "date": "2024-12-10",
+      "quantity_sold": 56.0,
+      "selling_price": 1331.55
+    },
+    {
+      "date": "2024-12-11",
+      "quantity_sold": 51.0,
+      "selling_price": 1329.58
+    },
+    {
+      "date": "2024-12-12",
+      "quantity_sold": 87.0,
+      "selling_price": 1840.38
+    },
+    {
+      "date": "2024-12-13",
+      "quantity_sold": 76.0,
+      "selling_price": 1351.57
+    },
+    {
+      "date": "2024-12-14",
+      "quantity_sold": 58.0,
+      "selling_price": 1274.16
+    },
+    {
+      "date": "2024-12-15",
+      "quantity_sold": 52.0,
+      "selling_price": 1357.54
+    },
+    {
+      "date": "2024-12-16",
+      "quantity_sold": 31.0,
+      "selling_price": 1269.6
+    },
+    {
+      "date": "2024-12-17",
+      "quantity_sold": 73.0,
+      "selling_price": 1272.37
+    },
+    {
+      "date": "2024-12-18",
+      "quantity_sold": 36.0,
+      "selling_price": 2510.77
+    },
+    {
+      "date": "2024-12-19",
+      "quantity_sold": 52.0,
+      "selling_price": 1296.61
+    },
+    {
+      "date": "2024-12-20",
+      "quantity_sold": 89.0,
+      "selling_price": 1327.89
+    },
+    {
+      "date": "2024-12-21",
+      "quantity_sold": 50.0,
+      "selling_price": 1271.48
+    },
+    {
+      "date": "2024-12-22",
+      "quantity_sold": 21.0,
+      "selling_price": 1310.39
+    },
+    {
+      "date": "2024-12-23",
+      "quantity_sold": 51.0,
+      "selling_price": 3083.75
+    },
+    {
+      "date": "2024-12-24",
+      "quantity_sold": 22.0,
+      "selling_price": 1300.74
+    },
+    {
+      "date": "2024-12-25",
+      "quantity_sold": 37.0,
+      "selling_price": 1271.6
+    },
+    {
+      "date": "2024-12-26",
+      "quantity_sold": 98.0,
+      "selling_price": 1305.56
+    },
+    {
+      "date": "2024-12-27",
+      "quantity_sold": 45.0,
+      "selling_price": 1325.89
+    },
+    {
+      "date": "2024-12-28",
+      "quantity_sold": 68.0,
+      "selling_price": 1335.48
+    },
+    {
+      "date": "2024-12-29",
+      "quantity_sold": 49.0,
+      "selling_price": 1321.33
+    },
+    {
+      "date": "2024-12-30",
+      "quantity_sold": 32.0,
+      "selling_price": 1277.54
+    },
+    {
+      "date": "2024-12-31",
+      "quantity_sold": 66.0,
+      "selling_price": 1323.22
+    }
+  ]
+}

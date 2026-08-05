@@ -13,7 +13,10 @@ try:
 except Exception:
     from fbprophet import Prophet
 
-import gradio as gr
+try:
+    import gradio as gr
+except ImportError:
+    gr = None
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -325,13 +328,14 @@ def api_predict(payload: dict) -> dict:
 
 
 # Gradio Interface configured for API calls
-demo = gr.Interface(
-    fn=api_predict,
-    inputs=gr.JSON(label="Inference Payload (dict with task, history, etc.)"),
-    outputs=gr.JSON(label="ML Prediction Output"),
-    title="ProfitSync Enterprise ML API Engine",
-    description="Live Gradio ML Inference Service for ProfitSync SaaS.",
-)
+if gr:
+    demo = gr.Interface(
+        fn=api_predict,
+        inputs=gr.JSON(label="Inference Payload (dict with task, history, etc.)"),
+        outputs=gr.JSON(label="ML Prediction Output"),
+        title="ProfitSync Enterprise ML API Engine",
+        description="Live Gradio ML Inference Service for ProfitSync SaaS.",
+    )
 
-if __name__ == "__main__":
-    demo.launch()
+    if __name__ == "__main__":
+        demo.launch()
