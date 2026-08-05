@@ -179,11 +179,14 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         else:
             await forecast_curr.insert()
             
-        await ForecastHistoryDocument.find(
+        hist_forecasts = await ForecastHistoryDocument.find(
             ForecastHistoryDocument.retailer_id == upload.retailer_id,
             ForecastHistoryDocument.product_id == pid,
             ForecastHistoryDocument.superseded_at == None
-        ).set({"superseded_at": run_time})
+        ).to_list()
+        for fh in hist_forecasts:
+            fh.superseded_at = run_time
+            await fh.save()
         await forecast_hist.insert()
 
         # D. ML Inference: Pricing Recommendations
@@ -206,11 +209,14 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         else:
             await pricing_curr.insert()
             
-        await PricingHistoryDocument.find(
+        hist_prices = await PricingHistoryDocument.find(
             PricingHistoryDocument.retailer_id == upload.retailer_id,
             PricingHistoryDocument.product_id == pid,
             PricingHistoryDocument.superseded_at == None
-        ).set({"superseded_at": run_time})
+        ).to_list()
+        for ph in hist_prices:
+            ph.superseded_at = run_time
+            await ph.save()
         await pricing_hist.insert()
 
         # E. ML Inference: Anomaly Detection
