@@ -135,7 +135,6 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
                     quantity_sold=feat["quantity_sold"],
                     selling_price=feat["selling_price"],
                     unit_cost=feat["unit_cost"],
-                    discount=feat["discount"],
                     store_id=feat["store_id"],
                     inventory_level=feat["inventory_level"],
                     promotion_flag=feat["promotion_flag"],
