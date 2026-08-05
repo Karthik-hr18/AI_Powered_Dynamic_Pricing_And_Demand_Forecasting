@@ -4,6 +4,7 @@ from app.core.config import settings
 # ProfitSync Production Release v1.0.1 - Models verified & deployed
 
 
+import asyncio
 from typing import Any, cast
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Response
