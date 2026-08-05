@@ -104,7 +104,7 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         history_processed = await ProcessedSaleDocument.find(
             ProcessedSaleDocument.retailer_id == upload.retailer_id,
             ProcessedSaleDocument.product_id == pid
-        ).sort(ProcessedSaleDocument.date).to_list()
+        ).sort("+date").to_list()
 
         df_prod = df_agg[df_agg["product_id"] == str(pid)]
         feature_records = compute_rolling_features(df_prod, history_processed)
@@ -149,7 +149,7 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         full_history = await ProcessedSaleDocument.find(
             ProcessedSaleDocument.retailer_id == upload.retailer_id,
             ProcessedSaleDocument.product_id == pid
-        ).sort(ProcessedSaleDocument.date).to_list()
+        ).sort("+date").to_list()
 
         current_price = full_history[-1].selling_price if full_history else 0.0
 
