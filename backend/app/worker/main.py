@@ -270,25 +270,37 @@ async def process_single_upload(upload: UploadDocument) -> None:
 
             # Create normalized headers mapping lookup (lower-case matches)
             header_map = {h.strip().lower(): h for h in fieldnames}
-            
+
+            # Flexible column alias lookups matching real SME dataset formats
+            def _find_header(aliases: list) -> str:
+                for alias in aliases:
+                    if alias in header_map:
+                        return header_map[alias]
+                return ""
+
+            h_date  = _find_header(["date", "order_date", "transaction_date", "timestamp"])
+            h_sku   = _find_header(["sku", "product_id", "item_id", "product_name", "item_name", "product"])
+            h_qty   = _find_header(["quantity_sold", "quantity", "qty", "units_sold", "units"])
+            h_price = _find_header(["selling_price", "unit_price_inr", "unit_price", "price", "total_sales_inr", "sales"])
+
             # Row index starts at 2 (since row 1 is headers)
             row_idx = 1
             for row in reader:
                 row_idx += 1
                 try:
-                    # Retrieve headers case-insensitively
-                    date_raw = row.get(header_map.get("date", ""))
-                    sku_raw = row.get(header_map.get("sku", ""))
-                    qty_raw = row.get(header_map.get("quantity_sold", ""))
-                    price_raw = row.get(header_map.get("selling_price", ""))
+                    # Retrieve headers case-insensitively using alias lookups
+                    date_raw  = row.get(h_date) if h_date else None
+                    sku_raw   = row.get(h_sku) if h_sku else None
+                    qty_raw   = row.get(h_qty) if h_qty else None
+                    price_raw = row.get(h_price) if h_price else None
 
                     # Mandatory field presence checks
                     if not date_raw or not sku_raw or not qty_raw or not price_raw:
                         missing = []
-                        if not date_raw: missing.append("date")
-                        if not sku_raw: missing.append("sku")
-                        if not qty_raw: missing.append("quantity_sold")
-                        if not price_raw: missing.append("selling_price")
+                        if not date_raw: missing.append("date/order_date")
+                        if not sku_raw: missing.append("sku/product_id")
+                        if not qty_raw: missing.append("quantity_sold/qty")
+                        if not price_raw: missing.append("selling_price/unit_price_inr")
                         raise ValueError(f"Missing mandatory row values: {', '.join(missing)}")
 
                     # Parse values
