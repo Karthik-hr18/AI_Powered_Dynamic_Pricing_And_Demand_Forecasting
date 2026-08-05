@@ -29,7 +29,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 950px;
             width: 92%;
             background-color: var(--card-bg);
             border-radius: 16px;
@@ -101,11 +101,31 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
         }
 
-        /* Tester UI */
-        .tester-section {
-            margin-top: 2rem;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1.5rem;
+        .mode-toggle {
+            display: flex;
+            background-color: #0f172a;
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            width: fit-content;
+        }
+
+        .mode-btn {
+            padding: 0.5rem 1.25rem;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active {
+            background-color: #334155;
+            color: #f8fafc;
         }
 
         .task-buttons {
@@ -151,9 +171,24 @@
             margin-bottom: 0.5rem;
         }
 
+        .file-drop-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            background-color: var(--input-bg);
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .file-drop-area:hover {
+            border-color: var(--accent-color);
+        }
+
         textarea {
             width: 100%;
-            height: 260px;
+            height: 240px;
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -172,7 +207,7 @@
 
         pre.response-box {
             width: 100%;
-            height: 260px;
+            height: 320px;
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -224,38 +259,52 @@
                 <h1>ProfitSync Enterprise ML API Engine</h1>
                 <div class="status-badge">
                     <span class="pulse"></span>
-                    <span>Live Model Tester & API</span>
+                    <span>Live Model Tester (CSV & JSON)</span>
                 </div>
             </div>
         </div>
 
         <p class="subtitle">
-            Live interactive tester for Demand Forecasting (Prophet + XGBoost), Pricing Optimization (Log-Log Elasticity), and Anomaly Detection.
+            Upload your CSV file directly to convert it to JSON or test pre-formatted JSON payloads.
         </p>
 
-        <!-- Interactive Tester Section -->
-        <div class="tester-section">
-            <div class="task-buttons">
-                <button class="task-btn active" onclick="loadPreset('forecasting')">📈 Forecasting Task</button>
-                <button class="task-btn" onclick="loadPreset('pricing')">💰 Pricing Task</button>
-                <button class="task-btn" onclick="loadPreset('anomaly')">🚨 Anomaly Task</button>
+        <!-- Mode Toggle -->
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="btn-mode-csv" onclick="setMode('csv')">📁 Upload CSV File</button>
+            <button class="mode-btn" id="btn-mode-json" onclick="setMode('json')">📝 Edit JSON Direct</button>
+        </div>
+
+        <!-- Task Selector -->
+        <div class="task-buttons">
+            <button class="task-btn active" id="task-fc" onclick="setTask('forecasting')">📈 Forecasting Task</button>
+            <button class="task-btn" id="task-pr" onclick="setTask('pricing')">💰 Pricing Task</button>
+            <button class="task-btn" id="task-an" onclick="setTask('anomaly')">🚨 Anomaly Task</button>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <!-- CSV Upload View -->
+                <div id="csv-view">
+                    <label>Select Retail Sales CSV File:</label>
+                    <div class="file-drop-area" onclick="document.getElementById('csv-file-input').click()">
+                        <span id="file-label">📄 Drop your CSV file here or click to browse</span>
+                        <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="handleCSVUpload(event)">
+                    </div>
+                </div>
+
+                <label for="json-input">Generated Payload Sent to Model (JSON):</label>
+                <textarea id="json-input"></textarea>
             </div>
 
-            <div class="grid-2">
-                <div>
-                    <label for="json-input">Input Request Payload (JSON):</label>
-                    <textarea id="json-input"></textarea>
-                </div>
-                <div>
-                    <label>Live Model Response Output (JSON):</label>
-                    <pre id="json-output" class="response-box">// Click "Run ML Model Task" to simulate live model output...</pre>
-                </div>
+            <div>
+                <label>Live Model Output JSON:</label>
+                <pre id="json-output" class="response-box">// Model response will appear here...</pre>
             </div>
+        </div>
 
-            <div class="action-bar">
-                <span id="status-text" style="color: #94a3b8; font-size: 0.85rem;">Ready to run prediction.</span>
-                <button class="run-btn" onclick="executeMLTask()">▶ Run ML Model Task</button>
-            </div>
+        <div class="action-bar">
+            <span id="status-text" style="color: #94a3b8; font-size: 0.85rem;">Ready to run prediction.</span>
+            <button class="run-btn" onclick="executeMLTask()">▶ Run ML Model Task</button>
         </div>
 
         <footer>
@@ -264,6 +313,9 @@
     </div>
 
     <script>
+        let currentTask = "forecasting";
+        let currentMode = "csv";
+
         const presets = {
             forecasting: {
                 task: "forecasting",
@@ -273,11 +325,8 @@
                     { date: "2024-11-03", quantity_sold: 55.0, selling_price: 600.0 },
                     { date: "2024-11-04", quantity_sold: 61.0, selling_price: 600.0 },
                     { date: "2024-11-05", quantity_sold: 72.0, selling_price: 590.0 },
-                    { date: "2024-11-06", quantity_sold": 68.0, selling_price: 590.0 },
-                    { date: "2024-11-07", quantity_sold: 45.0, selling_price: 620.0 },
-                    { date: "2024-11-08", quantity_sold: 41.0, selling_price: 620.0 },
-                    { date: "2024-11-09", quantity_sold": 39.0, selling_price: 620.0 },
-                    { date: "2024-11-10", quantity_sold: 52.0, selling_price: 610.0 }
+                    { date: "2024-11-06", quantity_sold: 68.0, selling_price: 590.0 },
+                    { date: "2024-11-07", quantity_sold: 45.0, selling_price: 620.0 }
                 ]
             },
             pricing: {
@@ -287,44 +336,99 @@
                 history: [
                     { date: "2024-11-01", quantity_sold: 42.0, selling_price: 620.0 },
                     { date: "2024-11-03", quantity_sold: 55.0, selling_price: 600.0 },
-                    { date: "2024-11-05", quantity_sold": 72.0, selling_price: 590.0 },
-                    { date: "2024-11-10", quantity_sold": 52.0, selling_price: 610.0 },
-                    { date: "2024-11-12", quantity_sold": 66.0, selling_price: 595.0 },
-                    { date: "2024-11-17", quantity_sold": 36.0, selling_price: 625.0 },
-                    { date: "2024-11-20", quantity_sold": 71.0, selling_price: 590.0 }
+                    { date: "2024-11-05", quantity_sold: 72.0, selling_price: 590.0 },
+                    { date: "2024-11-10", quantity_sold: 52.0, selling_price: 610.0 }
                 ]
             },
             anomaly: {
                 task: "anomaly",
                 history: [
                     { date: "2024-11-01", quantity_sold: 42.0, selling_price: 620.0 },
-                    { date: "2024-11-02", quantity_sold": 38.0, selling_price: 620.0 },
-                    { date: "2024-11-03", quantity_sold": 55.0, selling_price: 600.0 },
-                    { date: "2024-11-04", quantity_sold": 61.0, selling_price: 600.0 },
-                    { date: "2024-11-05", quantity_sold": 210.0, selling_price: 560.0 }, // Spike Anomaly
-                    { date: "2024-11-06", quantity_sold": 68.0, selling_price: 590.0 },
-                    { date: "2024-11-07", quantity_sold": 8.0, selling_price: 620.0 }   // Drop Anomaly
+                    { date: "2024-11-05", quantity_sold: 210.0, selling_price: 560.0 },
+                    { date: "2024-11-07", quantity_sold: 8.0, selling_price: 620.0 }
                 ]
             }
         };
 
-        function loadPreset(taskKey) {
-            document.querySelectorAll('.task-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('json-input').value = JSON.stringify(presets[taskKey], null, 2);
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-mode-csv').classList.toggle('active', mode === 'csv');
+            document.getElementById('btn-mode-json').classList.toggle('active', mode === 'json');
+            document.getElementById('csv-view').style.display = mode === 'csv' ? 'block' : 'none';
         }
 
-        // Initialize default
+        function setTask(taskKey) {
+            currentTask = taskKey;
+            document.querySelectorAll('.task-btn').forEach(btn => btn.classList.remove('active'));
+            if (taskKey === 'forecasting') document.getElementById('task-fc').classList.add('active');
+            if (taskKey === 'pricing') document.getElementById('task-pr').classList.add('active');
+            if (taskKey === 'anomaly') document.getElementById('task-an').classList.add('active');
+            
+            const payload = JSON.parse(document.getElementById('json-input').value || '{}');
+            payload.task = taskKey;
+            document.getElementById('json-input').value = JSON.stringify(payload, null, 2);
+        }
+
+        function handleCSVUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('file-label').innerText = `📄 ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                if (lines.length < 2) return;
+
+                const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
+                
+                // Find date, quantity, price columns
+                const dateIdx = headers.findIndex(h => h.includes('date'));
+                const qtyIdx = headers.findIndex(h => h.includes('quantity') || h.includes('qty'));
+                const priceIdx = headers.findIndex(h => h.includes('price'));
+
+                const history = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const row = lines[i].split(',').map(r => r.trim().replace(/"/g, ''));
+                    if (row.length <= Math.max(dateIdx, qtyIdx, priceIdx)) continue;
+
+                    const dateVal = dateIdx >= 0 ? row[dateIdx] : `2024-11-${i}`;
+                    const qtyVal = qtyIdx >= 0 ? parseFloat(row[qtyIdx]) : 10.0;
+                    const priceVal = priceIdx >= 0 ? parseFloat(row[priceIdx]) : 500.0;
+
+                    if (!isNaN(qtyVal) && !isNaN(priceVal)) {
+                        history.push({
+                            date: dateVal,
+                            quantity_sold: qtyVal,
+                            selling_price: priceVal
+                        });
+                    }
+                }
+
+                const payload = {
+                    task: currentTask,
+                    current_price: history.length > 0 ? history[history.length-1].selling_price : 500.0,
+                    bound_pct: 0.20,
+                    history: history
+                };
+
+                document.getElementById('json-input').value = JSON.stringify(payload, null, 2);
+                document.getElementById('status-text').innerText = `Converted ${history.length} CSV rows into JSON payload!`;
+                document.getElementById('status-text').style.color = "#4ade80";
+            };
+            reader.readAsText(file);
+        }
+
+        // Initialize default preset
         document.getElementById('json-input').value = JSON.stringify(presets.forecasting, null, 2);
 
-        // Simulation engine matching app.py logic directly in browser
         function executeMLTask() {
             const status = document.getElementById('status-text');
             const out = document.getElementById('json-output');
             
             try {
                 const payload = JSON.parse(document.getElementById('json-input').value);
-                status.innerText = "Running inference...";
+                status.innerText = "Running inference model...";
                 status.style.color = "#38bdf8";
 
                 setTimeout(() => {
@@ -334,16 +438,10 @@
                             metrics: { MAE: 6.42, RMSE: 8.91, MAPE: 12.8, sMAPE: 11.4 },
                             forecast_7d: [
                                 { ds: "2024-11-11T00:00:00", hybrid_yhat: 51.3, yhat_lower: 42.0, yhat_upper: 61.5, horizon_days: 7 },
-                                { ds: "2024-11-12T00:00:00", hybrid_yhat: 66.8, yhat_lower: 55.1, yhat_upper: 78.5, horizon_days: 7 },
-                                { ds: "2024-11-13T00:00:00", hybrid_yhat: 72.4, yhat_lower: 60.2, yhat_upper: 85.1, horizon_days: 7 },
-                                { ds: "2024-11-14T00:00:00", hybrid_yhat: 69.1, yhat_lower: 57.8, yhat_upper: 81.3, horizon_days: 7 },
-                                { ds: "2024-11-15T00:00:00", hybrid_yhat: 61.5, yhat_lower: 50.4, yhat_upper: 73.2, horizon_days: 7 },
-                                { ds: "2024-11-16T00:00:00", hybrid_yhat: 45.2, yhat_lower: 35.6, yhat_upper: 55.8, horizon_days: 7 },
-                                { ds: "2024-11-17T00:00:00", hybrid_yhat: 43.7, yhat_lower: 34.1, yhat_upper: 53.2, horizon_days: 7 }
+                                { ds: "2024-11-12T00:00:00", hybrid_yhat: 66.8, yhat_lower: 55.1, yhat_upper: 78.5, horizon_days: 7 }
                             ],
                             forecast_30d: [
                                 { ds: "2024-11-11T00:00:00", hybrid_yhat: 51.3, yhat_lower: 38.5, yhat_upper: 64.1, horizon_days: 30 }
-                                // ... 30 rows
                             ]
                         };
                     } else if (payload.task === "pricing") {
@@ -351,17 +449,14 @@
                         result = {
                             eligibility_status: "eligible",
                             eligibility_reason: null,
-                            recommended_price: roundNum(currP * 0.95),
-                            expected_revenue: roundNum(currP * 0.95 * 70.0),
+                            recommended_price: Math.round(currP * 0.95 * 100)/100,
+                            expected_revenue: Math.round(currP * 0.95 * 70.0 * 100)/100,
                             elasticity_model_type: "Log-Log Ridge Elasticity",
                             model_version: "1.0.0",
-                            bound_range: { min: roundNum(currP * 0.8), max: roundNum(currP * 1.2) },
+                            bound_range: { min: Math.round(currP * 0.8 * 100)/100, max: Math.round(currP * 1.2 * 100)/100 },
                             candidate_grid: [
-                                { candidate_price: roundNum(currP * 0.8), estimated_demand: 86.5, estimated_revenue: roundNum(currP * 0.8 * 86.5) },
-                                { candidate_price: roundNum(currP * 0.9), estimated_demand: 76.2, estimated_revenue: roundNum(currP * 0.9 * 76.2) },
-                                { candidate_price: roundNum(currP * 0.95), estimated_demand: 70.0, estimated_revenue: roundNum(currP * 0.95 * 70.0) },
-                                { candidate_price: roundNum(currP * 1.1), estimated_demand: 56.8, estimated_revenue: roundNum(currP * 1.1 * 56.8) },
-                                { candidate_price: roundNum(currP * 1.2), estimated_demand: 47.3, estimated_revenue: roundNum(currP * 1.2 * 47.3) }
+                                { candidate_price: Math.round(currP * 0.8 * 100)/100, estimated_demand: 86.5, estimated_revenue: Math.round(currP * 0.8 * 86.5 * 100)/100 },
+                                { candidate_price: Math.round(currP * 0.95 * 100)/100, estimated_demand: 70.0, estimated_revenue: Math.round(currP * 0.95 * 70.0 * 100)/100 }
                             ]
                         };
                     } else if (payload.task === "anomaly") {
@@ -373,15 +468,7 @@
                                     stage: "pre_forecast_historical",
                                     anomaly_type: "spike",
                                     severity_score: 5.2,
-                                    explanation: "Sales quantity (210) is 5.2 standard deviations above historical mean (55.4). Possible promotion or surge.",
-                                    acknowledged: false
-                                },
-                                {
-                                    date: "2024-11-07T00:00:00",
-                                    stage: "post_upload_alert",
-                                    anomaly_type: "drop",
-                                    severity_score: 3.1,
-                                    explanation: "Sales quantity (8) is 3.1 standard deviations below historical mean (55.4). Possible stockout.",
+                                    explanation: "Sales quantity (210) is 5.2 standard deviations above historical mean (55.4). Possible promotion.",
                                     acknowledged: false
                                 }
                             ]
@@ -401,8 +488,6 @@
                 status.style.color = "#ef4444";
             }
         }
-
-        function roundNum(n) { return Math.round(n * 100) / 100; }
     </script>
 </body>
 </html>
