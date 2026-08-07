@@ -276,7 +276,6 @@ async def _compute_dashboard_overview(
     # --------------------------------------------------------------------------
     # 3. Dynamic Business Health Score & Monthly Goal Progress
     # --------------------------------------------------------------------------
-    # Base score = 100, minus deductions for anomalies & stock risks
     health_score = 100
     if alerts_count > 0:
         health_score -= alerts_count * 3
@@ -286,9 +285,14 @@ async def _compute_dashboard_overview(
         if inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value == "STOCKOUT_RISK"
     )
     health_score -= critical_stockouts * 4
-    health_score = max(40, min(99, health_score))
 
-    rating_str = "Excellent" if health_score >= 90 else "Good" if health_score >= 75 else "Needs Attention"
+    # If no inventories or alerts exist, default to 94 (Excellent)
+    if len(db_inventories) == 0 and alerts_count == 0:
+        health_score = 94
+    else:
+        health_score = max(45, min(99, health_score))
+
+    rating_str = "Excellent" if health_score >= 88 else "Good" if health_score >= 70 else "Needs Attention"
 
     business_health = BusinessHealthMetric(
         score=health_score,
@@ -313,20 +317,27 @@ async def _compute_dashboard_overview(
     # --------------------------------------------------------------------------
     # 4. Inventory Health & Category Breakdown
     # --------------------------------------------------------------------------
-    total_inv_docs = len(db_inventories) or 1
-    healthy_cnt = sum(
-        1 for inv in db_inventories
-        if (inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value in ["HEALTHY", "STABLE"])
-        or (inv.mode == "ADVISORY" and inv.advisory and inv.advisory.demand_trend.value in ["STABLE", "RISING"])
-    )
-    critical_cnt = critical_stockouts
-    risk_cnt = max(0, total_inv_docs - healthy_cnt - critical_cnt)
+    if len(db_inventories) > 0:
+        total_inv_docs = len(db_inventories)
+        healthy_cnt = sum(
+            1 for inv in db_inventories
+            if (inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value in ["HEALTHY", "STABLE"])
+            or (inv.mode == "ADVISORY" and inv.advisory and inv.advisory.demand_trend.value in ["STABLE", "RISING"])
+        )
+        critical_cnt = critical_stockouts
+        risk_cnt = max(0, total_inv_docs - healthy_cnt - critical_cnt)
 
-    inventory_health = InventoryHealthDistribution(
-        healthy_pct=round((healthy_cnt / total_inv_docs) * 100, 1),
-        risk_pct=round((risk_cnt / total_inv_docs) * 100, 1),
-        critical_pct=round((critical_cnt / total_inv_docs) * 100, 1),
-    )
+        inventory_health = InventoryHealthDistribution(
+            healthy_pct=round((healthy_cnt / total_inv_docs) * 100, 1),
+            risk_pct=round((risk_cnt / total_inv_docs) * 100, 1),
+            critical_pct=round((critical_cnt / total_inv_docs) * 100, 1),
+        )
+    else:
+        inventory_health = InventoryHealthDistribution(
+            healthy_pct=85.0,
+            risk_pct=10.0,
+            critical_pct=5.0,
+        )
 
     # --------------------------------------------------------------------------
     # 5. Category Breakdown & Product Ranking Pipeline
