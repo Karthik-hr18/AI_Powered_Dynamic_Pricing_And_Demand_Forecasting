@@ -5,7 +5,7 @@ import os
 import sys
 import time
 import traceback
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 # ---------------------------------------------------------------------------
 # Locate the project root containing the `ml/` package directory so that ML
@@ -542,17 +542,11 @@ async def process_single_upload(upload: UploadDocument) -> None:
     """
     logger.info(f"[WORKER] Claimed upload job: {upload.upload_id}")
 
-    filepath = upload.file_path or os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
+    filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
     if not os.path.exists(filepath):
-        alt_filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
-        if os.path.exists(alt_filepath):
-            filepath = alt_filepath
-            upload.file_path = filepath
-            await upload.save()
-        else:
-            logger.error(f"[WORKER] CSV not found at: {filepath} or {alt_filepath}")
-            await _fail_upload(upload, "file_check", f"CSV file missing from storage. Please re-upload the CSV dataset file.")
-            return
+        logger.error(f"[WORKER] CSV file missing from storage: {filepath}")
+        await _fail_upload(upload, "file_check", "CSV file missing from storage. Please re-upload the CSV dataset file.")
+        return
 
     # Transition to PROCESSING
     upload.status = UploadStatus.PROCESSING
@@ -810,9 +804,27 @@ async def worker_loop() -> None:
     logger.info(f"[WORKER] Entering polling loop. interval={settings.WORKER_POLL_INTERVAL_SECONDS}s")
     while True:
         try:
-            upload = await UploadDocument.find_one(
-                {"status": {"$in": [UploadStatus.UPLOADED.value, UploadStatus.PROCESSING.value]}}
-            )
+            # 1. Automatically recover/fail stale PROCESSING uploads older than 3 minutes (e.g. from server restarts)
+            now_utc = datetime.now(timezone.utc)
+            stale_cutoff = now_utc - timedelta(minutes=3)
+
+            stale_uploads = await UploadDocument.find(
+                UploadDocument.status == UploadStatus.PROCESSING,
+                UploadDocument.processing_started_at != None,
+                UploadDocument.processing_started_at < stale_cutoff
+            ).to_list()
+
+            for stale in stale_uploads:
+                logger.warning(f"[WORKER] Timing out stale processing job: {stale.upload_id}")
+                stale.status = UploadStatus.FAILED
+                stale.stage_errors = ["Upload processing timed out due to server restart."]
+                await stale.save()
+
+            # 2. Fetch oldest pending upload job (FIFO order)
+            upload = await UploadDocument.find(
+                {"status": {"$in": [UploadStatus.UPLOADED.value, "PENDING"]}}
+            ).sort("+created_at").first_or_none()
+
             if upload:
                 await process_single_upload(upload)
         except Exception as loop_err:
