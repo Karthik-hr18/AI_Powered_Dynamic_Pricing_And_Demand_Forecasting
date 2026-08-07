@@ -185,44 +185,41 @@ async def get_product_summary_data(
     # 1. First fetch product and validate ownership
     product = await get_product_by_id(retailer_id, product_id)
 
-    # 2. Parallel query all pipeline current tables + 30d sales sparkline
-    start_date = datetime.now(timezone.utc) - timedelta(days=30)
+    # 2. Parallel query all pipeline current tables + 30d sales sparkline with dual product_id/sku lookup
+    match_query = {"retailer_id": retailer_id, "$or": [{"product_id": product_id}, {"sku": product.sku}]}
 
-    forecast_task = ForecastCurrentDocument.find_one(
-        ForecastCurrentDocument.retailer_id == retailer_id,
-        ForecastCurrentDocument.product_id == product_id,
-    )
-    pricing_task = PricingCurrentDocument.find_one(
-        PricingCurrentDocument.retailer_id == retailer_id,
-        PricingCurrentDocument.product_id == product_id,
-    )
-    inventory_task = InventoryCurrentDocument.find_one(
-        InventoryCurrentDocument.retailer_id == retailer_id,
-        InventoryCurrentDocument.product_id == product_id,
-    )
-    anomaly_task = AnomalyCurrentDocument.find_one(
-        AnomalyCurrentDocument.retailer_id == retailer_id,
-        AnomalyCurrentDocument.product_id == product_id,
-    )
-    sales_task = ProcessedSaleDocument.find(
-        ProcessedSaleDocument.retailer_id == retailer_id,
-        ProcessedSaleDocument.product_id == product_id,
-    ).sort("-date").limit(30).to_list()
+    forecast_task = ForecastCurrentDocument.find_one(match_query)
+    pricing_task = PricingCurrentDocument.find_one(match_query)
+    inventory_task = InventoryCurrentDocument.find_one(match_query)
+    anomaly_task = AnomalyCurrentDocument.find_one(match_query)
+    sales_task = ProcessedSaleDocument.find(match_query).sort("-date").limit(30).to_list()
 
     forecast, pricing, inventory, anomaly, sales_desc = await asyncio.gather(
         forecast_task, pricing_task, inventory_task, anomaly_task, sales_task
     )
 
+    db = get_database()
     sales_records = list(reversed(sales_desc))
 
-    # 3. Format sales timeline into SparklinePoints
-    sparkline = [
-        SparklinePoint(
-            date=record.date,
-            quantity_sold=record.quantity_sold,
-            selling_price=float(record.selling_price or 0.0),
-        )
-        for record in sales_records
-    ]
+    if not sales_records:
+        raw_sales_desc = await db["raw_sales"].find(match_query).sort("date", -1).limit(30).to_list()
+        sales_records_raw = list(reversed(raw_sales_desc))
+        sparkline = [
+            SparklinePoint(
+                date=r.get("date") or datetime.now(timezone.utc),
+                quantity_sold=int(r.get("quantity_sold") or 0),
+                selling_price=float(r.get("unit_price") or r.get("selling_price") or 0.0),
+            )
+            for r in sales_records_raw
+        ]
+    else:
+        sparkline = [
+            SparklinePoint(
+                date=record.date,
+                quantity_sold=record.quantity_sold,
+                selling_price=float(record.selling_price or 0.0),
+            )
+            for record in sales_records
+        ]
 
     return product, forecast, pricing, inventory, anomaly, sparkline

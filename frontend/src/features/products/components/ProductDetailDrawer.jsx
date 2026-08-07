@@ -220,7 +220,9 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                       </defs>
                       <XAxis
                         dataKey="shortDate"
-                        hide={true}
+                        hide={false}
+                        tick={{ fontSize: 10, fill: "var(--gray-text-muted)" }}
+                        interval="preserveStartEnd"
                       />
                       <Tooltip
                         contentStyle={{
@@ -243,8 +245,8 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div style={{ display: "flex", height: "100%", alignItems: "center", justifyContent: "center", color: "var(--gray-text-muted)", fontSize: "13px" }}>
-                    No sales history record.
+                  <div className="badge badge-info" style={{ width: "100%", padding: "var(--space-3)", textTransform: "none" }}>
+                    <span>No trailing 30-day sales history available for this SKU.</span>
                   </div>
                 )}
               </div>
@@ -311,7 +313,7 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                   </div>
 
                   {/* Future Predictive Demand AreaChart */}
-                  <div style={{ width: "100%", height: "150px", marginTop: "var(--space-2)" }}>
+                  <div style={{ width: "100%", height: "170px", marginTop: "var(--space-2)" }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart
                         data={activeForecastPredictions.map((pt, idx) => ({
@@ -319,7 +321,7 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                           dateStr: new Date(pt.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
                           predicted_quantity: pt.predicted_quantity,
                         }))}
-                        margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
+                        margin={{ top: 5, right: 10, left: 10, bottom: 20 }}
                       >
                         <defs>
                           <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
@@ -327,6 +329,12 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                             <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                           </linearGradient>
                         </defs>
+                        <XAxis
+                          dataKey="dateStr"
+                          hide={false}
+                          tick={{ fontSize: 10, fill: "var(--gray-text-muted)" }}
+                          interval="preserveStartEnd"
+                        />
                         <Tooltip
                           contentStyle={{
                             backgroundColor: "var(--gray-surface)",
