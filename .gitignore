@@ -53,6 +53,8 @@ logs/
 backend/scratch/
 backend/storage/
 docs/indian_sme_retail_dataset.csv
+hf_space/
+ENTERPRISE_DESIGN_SYSTEM.md
 
 # ML Artifacts
 backend/artifacts/**/*.pkl
