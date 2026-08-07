@@ -103,7 +103,7 @@ def compute_rolling_features(
 
     # Group by product to process individual timelines
     for prod_id, prod_group in combined_df.groupby("product_id"):
-        prod_group = prod_group.sort_values("date").set_index("date")
+        prod_group = prod_group.sort_values("date").set_index("date").copy()
 
         # 2. Build continuous daily calendar range
         min_date = prod_group.index.min()
@@ -111,7 +111,7 @@ def compute_rolling_features(
         all_dates = pd.date_range(start=min_date, end=max_date, freq="D")
 
         # Reindex to continuous timeline
-        prod_continuous = prod_group.reindex(all_dates)
+        prod_continuous = prod_group.reindex(all_dates).copy()
         
         # 3. Propagate and fill variables
         prod_continuous["quantity_sold"] = prod_continuous["quantity_sold"].fillna(0.0)

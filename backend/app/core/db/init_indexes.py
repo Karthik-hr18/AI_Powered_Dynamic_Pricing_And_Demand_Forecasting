@@ -101,6 +101,7 @@ _RAW_SALES_INDEXES: List[IndexModel] = [
         [("retailer_id", ASCENDING), ("date", ASCENDING)],
         name="idx_retailer_date",
     ),
+    IndexModel([("created_at", ASCENDING)], name="idx_raw_sales_ttl_90d", expireAfterSeconds=7776000),
 ]
 
 _PROCESSED_SALES_INDEXES: List[IndexModel] = [

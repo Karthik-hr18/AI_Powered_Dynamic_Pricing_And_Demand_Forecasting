@@ -119,6 +119,11 @@ async def cors_handler_middleware(request, call_next):
         response.headers["Access-Control-Allow-Methods"] = "*"
         response.headers["Access-Control-Allow-Headers"] = "*"
 
+    # Enterprise security response headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+
     return response
 
 # Register routers

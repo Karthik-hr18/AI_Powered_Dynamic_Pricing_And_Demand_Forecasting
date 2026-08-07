@@ -103,12 +103,13 @@ def recommend_price(
         max_bound = round(effective_price * (1 + bound_pct), 2)
         bound_range = BoundRange(min=min_bound, max=max_bound)
 
-        multipliers = [0.90, 0.95, 1.0, 1.05, 1.10]
-        candidates = sorted(list(set(max(min_bound, min(max_bound, round(effective_price * m, 2))) for m in multipliers)))
+        n_cand = getattr(settings, "PRICING_N_CANDIDATES", 5)
+        step_multipliers = [round(1.0 - bound_pct + (2.0 * bound_pct * i / (n_cand - 1)), 3) for i in range(n_cand)]
+        candidates = sorted(list(set(max(min_bound, min(max_bound, round(effective_price * m, 2))) for m in step_multipliers)))
         
-        while len(candidates) < 5:
+        while len(candidates) < n_cand:
             candidates.append(round(candidates[-1] + 0.50, 2))
-        candidates = sorted(candidates[:5])
+        candidates = sorted(candidates[:n_cand])
 
         last_7_sales = history_sorted[-7:] if len(history_sorted) >= 7 else history_sorted
         base_demand = (sum(item.quantity_sold for item in last_7_sales) / len(last_7_sales)) if last_7_sales else 5.0
