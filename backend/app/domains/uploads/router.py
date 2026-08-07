@@ -42,6 +42,8 @@ async def upload_sales_csv(
         )
 
     # 2. Insert PENDING tracking document in MongoDB
+    if current_user.id is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User account is incomplete.")
     upload_doc = await create_upload_record(
         retailer_id=current_user.id,
         filename=file.filename,
@@ -128,7 +130,7 @@ async def list_uploads(
     uploads = await UploadDocument.find(
         query
     ).sort(
-        -UploadDocument.created_at
+        "-created_at"
     ).skip(
         offset
     ).limit(

@@ -43,10 +43,16 @@ lerna-debug.log*
 *.sln
 *.sw?
 .DS_Store
+Thumbs.db
 
 # Logs
 *.log
 logs/
+
+# Scratch & Local Storage Uploads
+backend/scratch/
+backend/storage/
+docs/indian_sme_retail_dataset.csv
 
 # ML Artifacts
 backend/artifacts/**/*.pkl

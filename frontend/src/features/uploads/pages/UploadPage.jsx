@@ -60,7 +60,21 @@ export const UploadPage = () => {
             : item
         )
       );
+      loadHistory(false);
     });
+
+  // Auto-start polling if an active processing job exists in history
+  useEffect(() => {
+    if (history.length > 0 && !isPolling) {
+      const activeJob = history.find((h) =>
+        ["PROCESSING", "VALIDATING", "UPLOADED"].includes(h.status)
+      );
+      if (activeJob) {
+        setActiveUpload(activeJob);
+        startPolling(activeJob.upload_id || activeJob.id);
+      }
+    }
+  }, [history, isPolling]);
 
   // Client-side file selection handlers
   const handleFileChange = (selectedFile) => {
@@ -531,9 +545,9 @@ export const UploadPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {history.map((item) => (
+                  {history.map((item, idx) => (
                     <tr
-                      key={item.id}
+                      key={item.id || item.upload_id || `upl-${idx}`}
                       onClick={() => setActiveUpload(item)}
                       style={{ cursor: "pointer" }}
                     >

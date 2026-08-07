@@ -18,17 +18,17 @@ def aggregate_raw_sales_daily(raw_sales: List[Any]) -> pd.DataFrame:
     rows = []
     for doc in raw_sales:
         rows.append({
-            "product_id": str(doc.product_id),
-            "date": pd.to_datetime(doc.date).normalize(),
-            "quantity_sold": doc.quantity_sold,
-            "selling_price": doc.selling_price,
-            "unit_cost": doc.unit_cost if doc.unit_cost is not None else np.nan,
-            "discount": doc.discount if doc.discount is not None else 0.0,
-            "store_id": doc.store_id,
-            "inventory_level": doc.inventory_level if doc.inventory_level is not None else np.nan,
-            "promotion_flag": 1 if doc.promotion_flag else 0,
-            "holiday_flag": 1 if doc.holiday_flag else 0,
-            "category": doc.category
+            "product_id": str(getattr(doc, "product_id", "")),
+            "date": pd.to_datetime(getattr(doc, "date", datetime.now())).normalize(),
+            "quantity_sold": getattr(doc, "quantity_sold", 0),
+            "selling_price": getattr(doc, "selling_price", 0.0),
+            "unit_cost": getattr(doc, "unit_cost", np.nan) if getattr(doc, "unit_cost", None) is not None else np.nan,
+            "discount": getattr(doc, "discount", 0.0) if getattr(doc, "discount", None) is not None else 0.0,
+            "store_id": getattr(doc, "store_id", None),
+            "inventory_level": getattr(doc, "inventory_level", np.nan) if getattr(doc, "inventory_level", None) is not None else np.nan,
+            "promotion_flag": 1 if getattr(doc, "promotion_flag", False) else 0,
+            "holiday_flag": 1 if getattr(doc, "holiday_flag", False) else 0,
+            "category": getattr(doc, "category", None)
         })
     
     df = pd.DataFrame(rows)
@@ -79,17 +79,17 @@ def compute_rolling_features(
     if historical_processed:
         for doc in historical_processed:
             hist_rows.append({
-                "product_id": str(doc.product_id),
-                "date": pd.to_datetime(doc.date).normalize(),
-                "quantity_sold": doc.quantity_sold,
-                "selling_price": doc.selling_price,
-                "unit_cost": doc.unit_cost if doc.unit_cost is not None else np.nan,
-                "discount": doc.discount if doc.discount is not None else 0.0,
-                "store_id": doc.store_id,
-                "inventory_level": doc.inventory_level if doc.inventory_level is not None else np.nan,
-                "promotion_flag": doc.promotion_flag,
-                "holiday_flag": doc.holiday_flag,
-                "category": doc.category
+                "product_id": str(getattr(doc, "product_id", "")),
+                "date": pd.to_datetime(getattr(doc, "date", datetime.now())).normalize(),
+                "quantity_sold": getattr(doc, "quantity_sold", 0),
+                "selling_price": getattr(doc, "selling_price", 0.0),
+                "unit_cost": getattr(doc, "unit_cost", np.nan) if getattr(doc, "unit_cost", None) is not None else np.nan,
+                "discount": getattr(doc, "discount", 0.0) if getattr(doc, "discount", None) is not None else 0.0,
+                "store_id": getattr(doc, "store_id", None),
+                "inventory_level": getattr(doc, "inventory_level", np.nan) if getattr(doc, "inventory_level", None) is not None else np.nan,
+                "promotion_flag": getattr(doc, "promotion_flag", False),
+                "holiday_flag": getattr(doc, "holiday_flag", False),
+                "category": getattr(doc, "category", None)
             })
 
     if hist_rows:

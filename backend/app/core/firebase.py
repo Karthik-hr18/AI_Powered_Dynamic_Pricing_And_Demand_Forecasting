@@ -94,7 +94,7 @@ def verify_firebase_token(id_token: str) -> Dict[str, Any]:
         raise ValueError("Firebase Admin SDK is not initialized and a valid mock token was not provided.")
 
     try:
-        decoded_token = auth.verify_id_token(id_token)
+        decoded_token = auth.verify_id_token(id_token, clock_skew_seconds=10)
         return decoded_token
     except Exception as e:
         logger.warning(f"Firebase token verification failed: {e}")

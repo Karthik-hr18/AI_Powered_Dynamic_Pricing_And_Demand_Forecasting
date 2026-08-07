@@ -7,7 +7,7 @@ of the frozen System Design).
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from beanie import Document, PydanticObjectId
@@ -42,7 +42,7 @@ class RawSaleDocument(Document):
     holiday_flag: Optional[bool] = None
     row_number_in_file: int
     source_row_raw: Dict[str, Any]
-    ingested_at: datetime = Field(default_factory=datetime.utcnow)
+    ingested_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Settings:
         name = CollectionNames.RAW_SALES
@@ -65,6 +65,7 @@ class ProcessedSaleDocument(Document):
     quantity_sold: int = Field(ge=0)
     selling_price: Optional[float] = None
     unit_cost: Optional[float] = None
+    discount: Optional[float] = None
     category: Optional[str] = None
     store_id: Optional[str] = None
     inventory_level: Optional[int] = None
@@ -78,7 +79,7 @@ class ProcessedSaleDocument(Document):
     price_change_flag: Optional[bool] = None
     source_upload_ids: List[PydanticObjectId] = Field(default_factory=list)
     feature_engineering_version: str
-    processed_at: datetime = Field(default_factory=datetime.utcnow)
+    processed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Settings:
         name = CollectionNames.PROCESSED_SALES

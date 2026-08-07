@@ -146,10 +146,10 @@ export const ProductsListPage = () => {
           ))}
         </div>
       ) : items.length > 0 ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
-          {items.map((prod) => (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
+          {items.map((prod, idx) => (
             <ProductCard
-              key={prod.id}
+              key={prod.id || prod.sku || `prod-${prod.sku_display || idx}`}
               product={prod}
               onSelect={(id) => setSelectedProductId(id)}
             />

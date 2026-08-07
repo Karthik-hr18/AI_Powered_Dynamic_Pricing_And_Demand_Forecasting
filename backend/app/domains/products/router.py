@@ -87,8 +87,37 @@ async def get_product_summary(
         retailer_id=user.id, product_id=productId
     )
 
+    current_price = pricing.current_price if pricing else None
+    rec_price = pricing.recommended_price if pricing else None
+    f_7d = sum(pt.predicted_quantity for pt in forecast.horizon_7d.predictions) if (forecast and forecast.horizon_7d and forecast.horizon_7d.predictions) else 0.0
+    stock = inventory.true_risk.current_inventory_level if (inventory and inventory.true_risk) else 0
+    inv_status = inventory.true_risk.classification.value if (inventory and inventory.true_risk) else (inventory.mode.value if inventory else "HEALTHY")
+    
+    sales_30d = sum(int(s.quantity_sold) for s in sparkline)
+    revenue_30d = sum(float(s.quantity_sold * s.selling_price) for s in sparkline)
+
+    prod_response = ProductResponse(
+        id=product.id,
+        retailer_id=product.retailer_id,
+        sku=product.sku,
+        sku_display=product.sku_display,
+        product_name=product.product_name,
+        category=product.category,
+        brand=product.brand,
+        is_active=product.is_active,
+        created_at=product.created_at,
+        updated_at=product.updated_at,
+        current_price=round(current_price, 2) if current_price is not None else None,
+        recommended_price=round(rec_price, 2) if rec_price is not None else None,
+        sales_30d=sales_30d,
+        revenue_30d=round(revenue_30d, 2),
+        forecast_7d=float(f_7d),
+        stock_level=int(stock),
+        inventory_status=inv_status,
+    )
+
     return ProductSummaryResponse(
-        product=product,
+        product=prod_response,
         forecast=forecast,
         pricing=pricing,
         inventory=inventory,

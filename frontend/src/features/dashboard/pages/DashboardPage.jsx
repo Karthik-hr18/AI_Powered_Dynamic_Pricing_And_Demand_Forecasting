@@ -322,7 +322,7 @@ export const DashboardPage = () => {
       </div>
 
       {/* Goal Progress & Activity Feed (2 Column Grid) */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
         {/* Monthly Target Card */}
         <div
           className="card"
@@ -872,7 +872,7 @@ export const DashboardPage = () => {
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
             {top_sellers.map((item, idx) => (
               <div
-                key={item.sku}
+                key={item.sku || `top-${idx}`}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -883,8 +883,8 @@ export const DashboardPage = () => {
                 }}
               >
                 <div>
-                  <span style={{ color: "var(--gray-text-primary)", fontWeight: 600 }}>{item.product_name}</span>
-                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>{item.sku}</span>
+                  <span style={{ color: "var(--gray-text-primary)", fontWeight: 600 }}>{item.product_name || item.sku || `Product #${idx + 1}`}</span>
+                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>{item.sku || "N/A"}</span>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <strong style={{ color: "var(--gray-text-primary)", display: "block" }}>{formatCurrency(item.revenue)}</strong>
@@ -915,7 +915,7 @@ export const DashboardPage = () => {
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
             {low_performers.map((item, idx) => (
               <div
-                key={item.sku}
+                key={item.sku || `low-${idx}`}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -926,8 +926,8 @@ export const DashboardPage = () => {
                 }}
               >
                 <div>
-                  <span style={{ color: "var(--gray-text-primary)", fontWeight: 600 }}>{item.product_name}</span>
-                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>{item.sku}</span>
+                  <span style={{ color: "var(--gray-text-primary)", fontWeight: 600 }}>{item.product_name || item.sku || `Product #${idx + 1}`}</span>
+                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>{item.sku || "N/A"}</span>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <strong style={{ color: "#D97706", display: "block" }}>{formatCurrency(item.revenue)}</strong>
@@ -1046,8 +1046,8 @@ export const DashboardPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginatedProducts.map((row) => (
-                  <tr key={row.id} className="diagnostics-table-row">
+                {paginatedProducts.map((row, idx) => (
+                  <tr key={row.id || row.sku || row.sku_display || `row-${idx}`} className="diagnostics-table-row">
                     <td style={{ padding: "12px 16px", fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--gray-text-muted)", borderBottom: "1px solid #F1F5F9" }}>
                       {row.sku_display}
                     </td>
@@ -1108,15 +1108,15 @@ export const DashboardPage = () => {
         {/* Mobile-Only Expandable Accordion List (<768px) */}
         <div className="mobile-diagnostics-accordion" style={{ padding: "var(--space-3)" }}>
           {filteredProducts.length > 0 ? (
-            paginatedProducts.map((row) => {
-              const isExpanded = expandedRowId === row.id;
+            paginatedProducts.map((row, idx) => {
+              const isExpanded = expandedRowId === (row.id || row.sku);
               const recommendedPrice = row.recommended_price || 4.25;
               const currentPrice = row.recommended_price ? row.recommended_price * 0.94 : 3.99;
               const priceGain = Math.max(0, (recommendedPrice - currentPrice) * (row.forecast_7d || 50));
 
               return (
                 <div
-                  key={row.id}
+                  key={row.id || row.sku || row.sku_display || `mobile-row-${idx}`}
                   style={{
                     backgroundColor: "#FFFFFF",
                     border: isExpanded ? "1px solid var(--accent)" : "1px solid var(--gray-border)",

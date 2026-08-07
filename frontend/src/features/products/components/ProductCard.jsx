@@ -124,10 +124,23 @@ export const ProductCard = ({ product, onSelect }) => {
     }
   };
 
-  const currentPrice = product.recommended_price ? product.recommended_price * 0.94 : 3.99;
-  const recommendedPrice = product.recommended_price || 4.25;
-  const isIncrease = recommendedPrice > currentPrice;
-  const priceGain = Math.max(0, (recommendedPrice - currentPrice) * (product.forecast_7d || 50));
+  const currentPrice = product.current_price ?? (product.recommended_price ? product.recommended_price * 0.94 : 0);
+  const recommendedPrice = product.recommended_price ?? currentPrice;
+  const isIncrease = recommendedPrice > currentPrice + 0.01;
+  const isDecrease = recommendedPrice < currentPrice - 0.01;
+  const pctChange = currentPrice > 0 ? Math.round(((recommendedPrice - currentPrice) / currentPrice) * 100) : 0;
+
+  const sales30d = product.sales_30d || 0;
+  const revenue30d = product.revenue_30d || (sales30d * currentPrice);
+  const forecast7d = product.forecast_7d || 0;
+  const stockLevel = product.stock_level || 0;
+  const priceGain = Math.max(0, (recommendedPrice - currentPrice) * (forecast7d || (sales30d / 4)));
+
+  const recText = isIncrease
+    ? `Increase price by ${Math.max(1, pctChange)}%`
+    : isDecrease
+    ? `Lower price by ${Math.max(1, Math.abs(pctChange))}%`
+    : "Maintain current price";
 
   return (
     <div
@@ -278,11 +291,11 @@ export const ProductCard = ({ product, onSelect }) => {
       >
         <div>
           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>SALES (30D)</span>
-          <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>{(product.forecast_7d ? product.forecast_7d * 4 : 350).toLocaleString()} Units</strong>
+          <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>{sales30d.toLocaleString()} Units</strong>
         </div>
         <div>
           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>REVENUE</span>
-          <strong style={{ fontSize: "13px", color: "#059669" }}>{formatCurrency((product.forecast_7d ? product.forecast_7d * 4 : 350) * currentPrice)}</strong>
+          <strong style={{ fontSize: "13px", color: "#059669" }}>{formatCurrency(revenue30d)}</strong>
         </div>
         <div>
           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>PRICE</span>
@@ -290,7 +303,7 @@ export const ProductCard = ({ product, onSelect }) => {
         </div>
         <div>
           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>STOCK</span>
-          <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>142 Units</strong>
+          <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>{stockLevel.toLocaleString()} Units</strong>
         </div>
       </div>
 
@@ -299,21 +312,21 @@ export const ProductCard = ({ product, onSelect }) => {
         style={{
           padding: "8px 12px",
           borderRadius: "8px",
-          backgroundColor: isIncrease ? "#EEF2FF" : "#FEF3C7",
-          border: isIncrease ? "1px solid rgba(79, 70, 229, 0.3)" : "1px solid rgba(217, 119, 6, 0.3)",
+          backgroundColor: isIncrease ? "#EEF2FF" : isDecrease ? "#FEF2F2" : "#F8FAFC",
+          border: isIncrease ? "1px solid rgba(79, 70, 229, 0.3)" : isDecrease ? "1px solid rgba(220, 38, 38, 0.3)" : "1px solid var(--gray-border)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <Sparkles size={12} style={{ color: isIncrease ? "var(--accent)" : "var(--warning)" }} />
+          <Sparkles size={12} style={{ color: isIncrease ? "var(--accent)" : isDecrease ? "#DC2626" : "var(--gray-text-muted)" }} />
           <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
-            {isIncrease ? "Increase price by 6%" : "Maintain current price"}
+            {recText}
           </span>
         </div>
-        <span style={{ fontSize: "11px", fontWeight: 800, color: "#059669" }}>
-          +{formatCurrency(priceGain)} gain
+        <span style={{ fontSize: "11px", fontWeight: 800, color: isIncrease ? "#059669" : "var(--gray-text-muted)" }}>
+          {priceGain > 0 ? `+${formatCurrency(priceGain)} gain` : "Optimal"}
         </span>
       </div>
 
@@ -322,7 +335,7 @@ export const ProductCard = ({ product, onSelect }) => {
         <div>
           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>7D FORECAST</span>
           <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
-            {product.forecast_7d ? `${product.forecast_7d.toFixed(0)} Units` : "318 Units"}
+            {forecast7d > 0 ? `${forecast7d.toFixed(0)} Units` : "0 Units"}
           </span>
         </div>
         {renderStatusBadge(product.inventory_status)}

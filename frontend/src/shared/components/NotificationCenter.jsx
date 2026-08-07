@@ -126,9 +126,9 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
 
         {/* Notification List */}
         <div style={{ maxHeight: "320px", overflowY: "auto" }}>
-          {filteredNotifs.map((item) => (
+          {filteredNotifs.map((item, idx) => (
             <div
-              key={item.id}
+              key={item.id || item._id || item.upload_id || `notif-${idx}`}
               onClick={() => {
                 onClose();
                 navigate(item.link);

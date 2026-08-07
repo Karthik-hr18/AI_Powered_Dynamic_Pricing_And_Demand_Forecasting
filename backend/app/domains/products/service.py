@@ -1,17 +1,18 @@
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Tuple
 
 from beanie import PydanticObjectId
 from fastapi import HTTPException, status
 
+from app.core.db.connection import get_database
 from app.domains.products.models import ProductDocument
 from app.domains.forecasting.models import ForecastCurrentDocument
 from app.domains.pricing.models import PricingCurrentDocument
 from app.domains.inventory.models import InventoryCurrentDocument
 from app.domains.anomaly.models import AnomalyCurrentDocument
 from app.domains.sales_data.models import ProcessedSaleDocument
-from app.domains.products.schemas import SparklinePoint
+from app.domains.products.schemas import ProductResponse, SparklinePoint
 
 
 async def list_products(
@@ -20,15 +21,19 @@ async def list_products(
     limit: int = 20,
     search: Optional[str] = None,
     category: Optional[str] = None,
-) -> Tuple[List[ProductDocument], int]:
+) -> Tuple[List[ProductResponse], int]:
     """
     List all active products for a retailer with optional search and category filters.
+    Enriches products with current pricing, forecast, inventory, and 30-day sales metrics.
     """
     # Enforce positive integers
     page = max(1, page)
     limit = max(1, limit)
 
-    query_filter = {
+    page = max(1, page)
+    limit = max(1, limit)
+
+    query_filter: Dict[str, Any] = {
         "retailer_id": retailer_id,
         "is_active": True,
     }
@@ -46,7 +51,104 @@ async def list_products(
     query = ProductDocument.find(query_filter)
     total_count = await query.count()
 
-    items = await query.sort(-ProductDocument.created_at).skip((page - 1) * limit).limit(limit).to_list()
+    products = await query.sort("-created_at").skip((page - 1) * limit).limit(limit).to_list()
+    if not products:
+        return [], total_count
+
+    pids = [p.id for p in products]
+    skus = [p.sku for p in products]
+    db = get_database()
+
+    pricing_task = PricingCurrentDocument.find({"retailer_id": retailer_id, "$or": [{"product_id": {"$in": pids}}, {"sku": {"$in": skus}}]}).to_list()
+    forecast_task = ForecastCurrentDocument.find({"retailer_id": retailer_id, "$or": [{"product_id": {"$in": pids}}, {"sku": {"$in": skus}}]}).to_list()
+    inventory_task = InventoryCurrentDocument.find({"retailer_id": retailer_id, "$or": [{"product_id": {"$in": pids}}, {"sku": {"$in": skus}}]}).to_list()
+
+    sales_pipeline = [
+        {
+            "$match": {
+                "retailer_id": retailer_id,
+                "$or": [{"product_id": {"$in": pids}}, {"sku": {"$in": skus}}]
+            }
+        },
+        {
+            "$group": {
+                "_id": {"$ifNull": ["$sku", "$product_id"]},
+                "sales_30d": {"$sum": "$quantity_sold"},
+                "revenue_30d": {"$sum": {"$multiply": ["$quantity_sold", "$selling_price"]}},
+                "avg_price": {"$avg": "$selling_price"}
+            }
+        }
+    ]
+    sales_task = db["processed_sales"].aggregate(sales_pipeline).to_list()
+    raw_sales_task = db["raw_sales"].aggregate(sales_pipeline).to_list()
+
+    pricing_list, forecast_list, inventory_list, sales_agg, raw_sales_agg = await asyncio.gather(
+        pricing_task, forecast_task, inventory_task, sales_task, raw_sales_task
+    )
+
+    pricing_map: Dict[Any, Any] = {}
+    for pr in pricing_list:
+        pricing_map[pr.product_id] = pr
+        if hasattr(pr, "sku") and pr.sku:
+            pricing_map[pr.sku] = pr
+
+    forecast_map: Dict[Any, Any] = {}
+    for fc in forecast_list:
+        forecast_map[fc.product_id] = fc
+        if hasattr(fc, "sku") and fc.sku:
+            forecast_map[fc.sku] = fc
+
+    inventory_map: Dict[Any, Any] = {}
+    for inv in inventory_list:
+        inventory_map[inv.product_id] = inv
+        if hasattr(inv, "sku") and inv.sku:
+            inventory_map[inv.sku] = inv
+
+    sales_map: Dict[Any, Any] = {str(s["_id"]): s for s in sales_agg}
+    raw_sales_map: Dict[Any, Any] = {str(r["_id"]): r for r in raw_sales_agg}
+
+    items: List[ProductResponse] = []
+    for p in products:
+        pr = pricing_map.get(p.id) or pricing_map.get(p.sku)
+        fc = forecast_map.get(p.id) or forecast_map.get(p.sku)
+        inv = inventory_map.get(p.id) or inventory_map.get(p.sku)
+        sl = sales_map.get(str(p.id)) or sales_map.get(p.sku, {})
+        r_sl = raw_sales_map.get(str(p.id)) or raw_sales_map.get(p.sku, {})
+
+        current_price = (pr.current_price if pr else None) or sl.get("avg_price") or r_sl.get("avg_price") or p.current_price or 0.0
+        rec_price = pr.recommended_price if pr else None
+
+        sales_30d = sl.get("sales_30d") or r_sl.get("sales_30d") or 0
+        revenue_30d = sl.get("revenue_30d") or r_sl.get("revenue_30d") or 0.0
+
+        f_7d = 0.0
+        if fc and fc.horizon_7d and fc.horizon_7d.predictions:
+            f_7d = sum(pt.predicted_quantity for pt in fc.horizon_7d.predictions)
+
+        stock = inv.true_risk.current_inventory_level if (inv and inv.true_risk) else 0
+        inv_status = inv.true_risk.classification.value if (inv and inv.true_risk) else (inv.mode.value if inv else "HEALTHY")
+
+        item = ProductResponse(
+            id=p.id,
+            retailer_id=p.retailer_id,
+            sku=p.sku,
+            sku_display=p.sku_display,
+            product_name=p.product_name,
+            category=p.category,
+            brand=p.brand,
+            is_active=p.is_active,
+            created_at=p.created_at,
+            updated_at=p.updated_at,
+            current_price=round(current_price, 2) if current_price is not None else None,
+            recommended_price=round(rec_price, 2) if rec_price is not None else None,
+            sales_30d=sales_30d,
+            revenue_30d=round(revenue_30d, 2),
+            forecast_7d=float(f_7d),
+            stock_level=stock,
+            inventory_status=inv_status,
+        )
+        items.append(item)
+
     return items, total_count
 
 
@@ -84,7 +186,7 @@ async def get_product_summary_data(
     product = await get_product_by_id(retailer_id, product_id)
 
     # 2. Parallel query all pipeline current tables + 30d sales sparkline
-    start_date = datetime.utcnow() - timedelta(days=30)
+    start_date = datetime.now(timezone.utc) - timedelta(days=30)
 
     forecast_task = ForecastCurrentDocument.find_one(
         ForecastCurrentDocument.retailer_id == retailer_id,
@@ -105,19 +207,20 @@ async def get_product_summary_data(
     sales_task = ProcessedSaleDocument.find(
         ProcessedSaleDocument.retailer_id == retailer_id,
         ProcessedSaleDocument.product_id == product_id,
-        ProcessedSaleDocument.date >= start_date,
-    ).sort(ProcessedSaleDocument.date).to_list()
+    ).sort("-date").limit(30).to_list()
 
-    forecast, pricing, inventory, anomaly, sales_records = await asyncio.gather(
+    forecast, pricing, inventory, anomaly, sales_desc = await asyncio.gather(
         forecast_task, pricing_task, inventory_task, anomaly_task, sales_task
     )
+
+    sales_records = list(reversed(sales_desc))
 
     # 3. Format sales timeline into SparklinePoints
     sparkline = [
         SparklinePoint(
             date=record.date,
             quantity_sold=record.quantity_sold,
-            selling_price=record.selling_price,
+            selling_price=float(record.selling_price or 0.0),
         )
         for record in sales_records
     ]

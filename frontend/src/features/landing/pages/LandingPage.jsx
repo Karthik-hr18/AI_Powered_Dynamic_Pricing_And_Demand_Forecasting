@@ -19,15 +19,25 @@ import {
   Globe,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 
 import { useAuth } from "../../../shared/hooks/useAuth";
 
 export const LandingPage = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (e) {
+      console.error("Logout failed", e);
+    }
+  };
 
   // Scroll listener for sticky glassmorphism navbar
   useEffect(() => {
@@ -144,15 +154,41 @@ export const LandingPage = () => {
 
         <div style={{ borderTop: "1px solid #E2E8F0", marginTop: "12px", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
           {isAuthenticated ? (
-            <Link
-              to="/dashboard"
-              onClick={() => setMobileNavOpen(false)}
-              className="btn btn-primary btn-pill"
-              style={{ width: "100%", justifyContent: "center", height: "46px", fontSize: "15px" }}
-            >
-              Go to Dashboard
-              <ArrowRight size={16} />
-            </Link>
+            <>
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileNavOpen(false)}
+                className="btn btn-primary btn-pill"
+                style={{ width: "100%", justifyContent: "center", height: "46px", fontSize: "15px" }}
+              >
+                Go to Dashboard
+                <ArrowRight size={16} />
+              </Link>
+              <button
+                onClick={() => {
+                  setMobileNavOpen(false);
+                  handleLogout();
+                }}
+                className="btn btn-secondary btn-pill"
+                style={{
+                  width: "100%",
+                  justifyContent: "center",
+                  height: "46px",
+                  fontSize: "15px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  border: "1px solid #E2E8F0",
+                  backgroundColor: "#F8FAFC",
+                  color: "#475569",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            </>
           ) : (
             <>
               <Link
@@ -208,10 +244,35 @@ export const LandingPage = () => {
           {/* Desktop CTA buttons */}
           <div className="nav-actions">
             {isAuthenticated ? (
-              <Link to="/dashboard" className="btn btn-primary btn-pill nav-cta-btn">
-                Go to Dashboard
-                <ArrowRight size={14} />
-              </Link>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <Link to="/dashboard" className="btn btn-primary btn-pill nav-cta-btn">
+                  Go to Dashboard
+                  <ArrowRight size={14} />
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 16px",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    borderRadius: "9999px",
+                    border: "1px solid var(--gray-border)",
+                    backgroundColor: "#FFFFFF",
+                    color: "var(--gray-text-primary)",
+                    cursor: "pointer",
+                    transition: "all 150ms ease",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#F8FAFC"; e.currentTarget.style.borderColor = "#CBD5E1"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#FFFFFF"; e.currentTarget.style.borderColor = "var(--gray-border)"; }}
+                >
+                  <LogOut size={14} />
+                  Logout
+                </button>
+              </div>
             ) : (
               <>
                 <Link to="/login" className="nav-link-login">Sign In</Link>

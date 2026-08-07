@@ -67,6 +67,8 @@ class UploadDocument(Document):
     validation_errors: List[str] = Field(default_factory=list)
     row_warnings: List[RowWarning] = Field(default_factory=list)
     error_reason: Optional[str] = None
+    failed_stage: Optional[str] = None
+    error_traceback: Optional[str] = None
     rows_ingested: Optional[int] = None
     rows_rejected: int = 0
     processing_started_at: Optional[datetime] = None

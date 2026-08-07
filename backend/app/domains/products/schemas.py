@@ -24,6 +24,15 @@ class ProductResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+    # Summary analytics metrics for card view
+    current_price: Optional[float] = None
+    recommended_price: Optional[float] = None
+    sales_30d: int = 0
+    revenue_30d: float = 0.0
+    forecast_7d: float = 0.0
+    stock_level: int = 0
+    inventory_status: str = "HEALTHY"
+
 
 class SparklinePoint(BaseModel):
     """Daily sales aggregation data point for historical trends."""
