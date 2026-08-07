@@ -542,6 +542,7 @@ async def process_single_upload(upload: UploadDocument) -> None:
     """
     logger.info(f"[WORKER] Claimed upload job: {upload.upload_id}")
 
+    os.makedirs(settings.UPLOAD_STORAGE_DIR, exist_ok=True)
     filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
     if not os.path.exists(filepath):
         logger.error(f"[WORKER] CSV file missing from storage: {filepath}")
