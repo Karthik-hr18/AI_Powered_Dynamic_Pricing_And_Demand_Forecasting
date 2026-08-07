@@ -120,8 +120,7 @@ async def _compute_dashboard_overview(
     ]).to_list(length=1)  # type: ignore[union-attr, attr-defined]
 
     kpi_alerts_coro = AnomalyCurrentDocument.find(
-        AnomalyCurrentDocument.retailer_id == retailer_id,
-        AnomalyCurrentDocument.has_unreviewed_alerts == True,
+        {"retailer_id": retailer_id, "has_unreviewed_alerts": True}
     ).count()
 
     fc_coll = ForecastCurrentDocument.get_pymongo_collection()
@@ -420,14 +419,14 @@ async def _compute_dashboard_overview(
     critical_risks: List[Dict[str, Any]] = []
 
     for anom in db_anomalies:
-        if anom.alerts:
+        if anom.flagged_anomalies:
             p_doc = product_dict.get(anom.product_id)
             sku_label = p_doc.product_name if p_doc else "Product"
-            for alert in anom.alerts:
-                if not alert.reviewed:
+            for alert in anom.flagged_anomalies:
+                if not alert.acknowledged:
                     critical_risks.append({
-                        "title": f"{alert.anomaly_type.value} Alert — {sku_label}",
-                        "description": alert.description,
+                        "title": f"⚠ Anomaly Alert — {sku_label}",
+                        "description": alert.explanation,
                         "severity": str(alert.severity_score),
                     })
 
@@ -475,60 +474,67 @@ async def _compute_dashboard_overview(
         )
 
     # --------------------------------------------------------------------------
-    # 8. Build 7-Day Forecast vs Actual Timeline (Strict Trailing 7 Active Sales Days)
+    # 8. Build 7-Day Forecast vs Actual Timeline (Pure Database Aggregation)
     # --------------------------------------------------------------------------
     latest_sale = await ProcessedSaleDocument.find(
         ProcessedSaleDocument.retailer_id == retailer_id
     ).sort("-date").first_or_none()
 
     anchor_date = latest_sale.date.date() if latest_sale else now.date()
+    start_date = anchor_date - timedelta(days=6)
+
+    start_datetime = datetime(start_date.year, start_date.month, start_date.day, 0, 0, 0, tzinfo=timezone.utc)
+    end_datetime = datetime(anchor_date.year, anchor_date.month, anchor_date.day, 23, 59, 59, 999999, tzinfo=timezone.utc)
+
+    # MongoDB aggregation for actual daily sales grouped by date
+    sales_coll = ProcessedSaleDocument.get_pymongo_collection()
+    pipeline = [
+        {
+            "$match": {
+                "retailer_id": retailer_id,
+                "date": {"$gte": start_datetime, "$lte": end_datetime},
+            }
+        },
+        {
+            "$group": {
+                "_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$date"}},
+                "actual_units": {"$sum": "$quantity_sold"},
+            }
+        },
+    ]
+    actual_results = await sales_coll.aggregate(pipeline).to_list(length=100)  # type: ignore[union-attr, attr-defined]
+    actual_map: Dict[str, float] = {item["_id"]: float(item["actual_units"]) for item in actual_results}
+
+    # Aggregate ML forecasted quantities per target date across products
+    forecast_map_daily: Dict[str, float] = {}
+    for doc in db_forecasts:
+        predictions = []
+        if doc.horizon_7d and doc.horizon_7d.predictions:
+            predictions.extend(doc.horizon_7d.predictions)
+        elif doc.horizon_30d and doc.horizon_30d.predictions:
+            predictions.extend(doc.horizon_30d.predictions)
+
+        for pred in predictions:
+            pred_dt = pred.date if isinstance(pred.date, datetime) else datetime.fromisoformat(str(pred.date))
+            day_str = pred_dt.strftime("%Y-%m-%d")
+            forecast_map_daily[day_str] = forecast_map_daily.get(day_str, 0.0) + pred.predicted_quantity
 
     forecast_vs_actual: List[ForecastVsActualPoint] = []
-    # Build 7-day window from anchor_date - 6 days to anchor_date (7 active actual sales days)
-    for i in range(-6, 1):
-        target_date = anchor_date + timedelta(days=i)
-        target_datetime_start = datetime(target_date.year, target_date.month, target_date.day, 0, 0, 0)
-        target_datetime_end = datetime(target_date.year, target_date.month, target_date.day, 23, 59, 59)
+    for i in range(7):
+        target_date = start_date + timedelta(days=i)
+        target_str = target_date.strftime("%Y-%m-%d")
+        target_dt = datetime(target_date.year, target_date.month, target_date.day, 0, 0, 0, tzinfo=timezone.utc)
 
-        actuals = await ProcessedSaleDocument.find(
-            ProcessedSaleDocument.retailer_id == retailer_id,
-            ProcessedSaleDocument.date >= target_datetime_start,
-            ProcessedSaleDocument.date <= target_datetime_end,
-        ).to_list()
-
-        actual_units = sum(float(r.quantity_sold) for r in actuals)
-
-        forecasted_units = 0.0
-        for doc in db_forecasts:
-            predictions = []
-            if doc.horizon_7d and doc.horizon_7d.predictions:
-                predictions.extend(doc.horizon_7d.predictions)
-            elif doc.horizon_30d and doc.horizon_30d.predictions:
-                predictions.extend(doc.horizon_30d.predictions)
-
-            for pred in predictions:
-                p_d = pred.date.date() if isinstance(pred.date, datetime) else datetime.fromisoformat(str(pred.date)).date()
-                if p_d == target_date:
-                    forecasted_units += pred.predicted_quantity
-                    break
+        actual_val = actual_map.get(target_str)
+        fc_val = forecast_map_daily.get(target_str)
 
         forecast_vs_actual.append(
             ForecastVsActualPoint(
-                date=target_datetime_start,
-                actual_units=actual_units,
-                forecasted_units=round(forecasted_units, 2),
+                date=target_dt,
+                actual_units=round(actual_val, 2) if actual_val is not None else None,
+                forecasted_units=round(fc_val, 2) if fc_val is not None else None,
             )
         )
-
-    # Smooth zero forecast points on historical days using average daily forecast velocity
-    total_fc_sum = sum(p.forecasted_units for p in forecast_vs_actual if p.forecasted_units > 0)
-    fc_count = sum(1 for p in forecast_vs_actual if p.forecasted_units > 0)
-    avg_daily_fc = (total_fc_sum / fc_count) if fc_count > 0 else 0.0
-
-    if avg_daily_fc > 0:
-        for pt in forecast_vs_actual:
-            if pt.forecasted_units == 0.0 and pt.actual_units > 0:
-                pt.forecasted_units = round(pt.actual_units * random.uniform(0.94, 1.06), 2)
 
     # --------------------------------------------------------------------------
     # 9. Build Product Table Overview Grid

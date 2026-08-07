@@ -673,10 +673,22 @@ export const DashboardPage = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
                   <XAxis dataKey="date" tickFormatter={formatChartDate} stroke="#94A3B8" style={{ fontSize: "12px" }} />
                   <YAxis stroke="#94A3B8" style={{ fontSize: "12px" }} />
-                  <Tooltip contentStyle={{ backgroundColor: "var(--gray-surface)", borderColor: "var(--gray-border)", borderRadius: "var(--radius-default)", fontSize: "12px" }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "var(--gray-surface)", borderColor: "var(--gray-border)", borderRadius: "var(--radius-default)", fontSize: "12px" }}
+                    formatter={(value, name) => {
+                      if (value === null || value === undefined) {
+                        return ["No sales data recorded", name];
+                      }
+                      if (value === 0) {
+                        return ["0 units sold", name];
+                      }
+                      return [`${Number(value).toLocaleString()} units`, name];
+                    }}
+                    labelFormatter={(label) => formatChartDate(label)}
+                  />
                   <Legend wrapperStyle={{ fontSize: "12px", marginTop: "8px" }} />
-                  <Line name="Actual Quantity" type="monotone" dataKey="actual_units" stroke="var(--accent)" strokeWidth={3} activeDot={{ r: 6 }} />
-                  <Line name="Forecasted Quantity" type="monotone" dataKey="forecasted_units" stroke="#93C5FD" strokeDasharray="5 5" strokeWidth={3} />
+                  <Line name="Actual Quantity" type="monotone" dataKey="actual_units" stroke="var(--accent)" strokeWidth={3} connectNulls={false} activeDot={{ r: 6 }} />
+                  <Line name="Forecasted Quantity" type="monotone" dataKey="forecasted_units" stroke="#93C5FD" strokeDasharray="5 5" strokeWidth={3} connectNulls={false} />
                 </LineChart>
               </ResponsiveContainer>
             ) : (

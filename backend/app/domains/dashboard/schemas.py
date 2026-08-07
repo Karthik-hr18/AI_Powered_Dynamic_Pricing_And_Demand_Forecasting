@@ -77,8 +77,8 @@ class InventoryHealthDistribution(BaseModel):
 class ForecastVsActualPoint(BaseModel):
     """A daily data point comparing actual sales to past forecasted quantities."""
     date: datetime
-    actual_units: float
-    forecasted_units: float
+    actual_units: Optional[float] = Field(default=None)
+    forecasted_units: Optional[float] = Field(default=None)
 
 
 class DashboardProductRow(BaseModel):
