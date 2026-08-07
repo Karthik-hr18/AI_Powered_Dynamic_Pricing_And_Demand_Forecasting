@@ -55,6 +55,7 @@ backend/storage/
 docs/indian_sme_retail_dataset.csv
 hf_space/
 ENTERPRISE_DESIGN_SYSTEM.md
+testing/
 
 # ML Artifacts
 backend/artifacts/**/*.pkl
