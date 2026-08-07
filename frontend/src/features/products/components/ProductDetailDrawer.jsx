@@ -32,11 +32,13 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
   });
 
   const formatCurrency = (val) => {
+    const rounded = Math.round(Number(val) || 0);
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
-      maximumFractionDigits: 2,
-    }).format(val || 0);
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
+    }).format(rounded);
   };
 
   // Handle Escape key dismissal
@@ -394,7 +396,7 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                         }}
                       >
                         <span>{formatCurrency(cand.candidate_price)}</span>
-                        <span>{cand.estimated_demand.toFixed(1)} units</span>
+                        <span>{Math.round(cand.estimated_demand)} units</span>
                         <span style={{ color: isRecommended ? "var(--success)" : "inherit" }}>
                           {formatCurrency(cand.estimated_revenue)}
                         </span>

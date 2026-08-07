@@ -22,11 +22,13 @@ export const ProductCard = ({ product, onSelect }) => {
 
   // Format currency (Indian Rupees)
   const formatCurrency = (val) => {
+    const rounded = Math.round(Number(val) || 0);
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
-      maximumFractionDigits: 2,
-    }).format(val || 0);
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
+    }).format(rounded);
   };
 
   // Inventory badge styling
