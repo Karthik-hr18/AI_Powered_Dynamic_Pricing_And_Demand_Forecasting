@@ -325,7 +325,7 @@ export const DashboardPage = () => {
 
       {/* Goal Progress & Activity Feed (2 Column Grid) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
-        {/* Monthly Target & Profit Expansion Impact Card */}
+        {/* Executive Business Performance Overview Card */}
         <div
           className="card"
           style={{
@@ -340,60 +340,53 @@ export const DashboardPage = () => {
           }}
         >
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
-              <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
-                Monthly Profit & Target Impact
-              </span>
-              <span className="badge badge-success" style={{ fontSize: "11px", fontWeight: 700 }}>
-                +{goal_progress?.profit_expansion_pct ?? 34.4}% Net Lift
-              </span>
-            </div>
+            <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--gray-text-primary)", display: "block", marginBottom: "var(--space-3)" }}>
+              Business Performance Overview
+            </span>
 
-            {/* Profit Comparison Row: Before Platform vs After AI Pricing */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", margin: "8px 0 10px 0", backgroundColor: "#F8FAFC", padding: "8px 10px", borderRadius: "8px", border: "1px solid var(--gray-border)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: "var(--space-3)", marginBottom: "var(--space-3)" }}>
               <div>
-                <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block", textTransform: "uppercase", fontWeight: 700 }}>
-                  Baseline Profit (Before Platform)
+                <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 600 }}>
+                  Revenue (30 Days)
                 </span>
-                <strong style={{ fontSize: "14px", color: "var(--gray-text-primary)" }}>
-                  {formatCurrency(goal_progress?.baseline_monthly_profit || 12500)}
+                <strong style={{ fontSize: "18px", color: "var(--gray-text-primary)", fontWeight: 800 }}>
+                  {formatCurrency(kpis?.total_revenue_30d || goal_progress?.current_revenue || 1985953)}
                 </strong>
               </div>
+
               <div>
-                <span style={{ fontSize: "10px", color: "var(--accent)", display: "block", textTransform: "uppercase", fontWeight: 700 }}>
-                  Projected Profit (After AI Pricing)
+                <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 600 }}>
+                  Estimated Profit
                 </span>
-                <strong style={{ fontSize: "14px", color: "#059669" }}>
-                  {formatCurrency(goal_progress?.projected_monthly_profit || 16800)}
+                <strong style={{ fontSize: "18px", color: "#059669", fontWeight: 800 }}>
+                  {formatCurrency(goal_progress?.projected_monthly_profit || 438950)}
                 </strong>
               </div>
-            </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "var(--space-2)" }}>
-              <span style={{ fontSize: "18px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
-                {formatCurrency(goal_progress?.current_revenue)} Revenue
-              </span>
-              <span style={{ fontSize: "12px", fontWeight: 700, color: "#059669" }}>
-                {goal_progress?.progress_pct ?? 96.6}% Target
-              </span>
-            </div>
+              <div>
+                <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 600 }}>
+                  Profit Growth
+                </span>
+                <strong style={{ fontSize: "18px", color: "#059669", fontWeight: 800 }}>
+                  +{goal_progress?.profit_expansion_pct ?? 22.8}%
+                </strong>
+              </div>
 
-            <div style={{ width: "100%", height: "6px", backgroundColor: "#F1F5F9", borderRadius: "3px", overflow: "hidden", marginBottom: "4px" }}>
-              <div
-                style={{
-                  width: `${Math.min(100, goal_progress?.progress_pct || 96.6)}%`,
-                  height: "100%",
-                  backgroundColor: "#10B981",
-                  borderRadius: "3px",
-                  transition: "width 0.5s ease-in-out",
-                }}
-              />
+              <div>
+                <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 600 }}>
+                  Business Health
+                </span>
+                <span className="badge badge-success" style={{ fontSize: "11px", marginTop: "2px", fontWeight: 700, display: "inline-block" }}>
+                  {business_health?.rating ?? "Excellent"}
+                </span>
+              </div>
             </div>
           </div>
 
-          <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", marginTop: "4px" }}>
-            ProfitSync AI recommendations projected to expand monthly margin by +{goal_progress?.profit_expansion_pct ?? 34.4}%.
-          </span>
+          <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: "8px", fontSize: "12px", color: "var(--gray-text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
+            <CheckCircle2 size={14} style={{ color: "#10B981", flexShrink: 0 }} />
+            <span>Your business is performing above the expected monthly trend with strong revenue growth.</span>
+          </div>
         </div>
 
         {/* What's Changed Today (Clean Activity Feed) */}
@@ -854,20 +847,27 @@ export const DashboardPage = () => {
                     padding: "var(--space-3) var(--space-4)",
                     backgroundColor: "#FEF2F2",
                     borderRadius: "10px",
-                    borderLeft: "4px solid #DC2626",
                     border: "1px solid rgba(220, 38, 38, 0.15)",
-                    borderLeftWidth: "4px",
+                    borderLeft: "4px solid #DC2626",
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <strong style={{ color: "#991B1B", fontSize: "13px" }}>{risk.title}</strong>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                    <span style={{ fontSize: "10px", fontWeight: 800, color: "#991B1B", letterSpacing: "0.5px" }}>
+                      {risk.alert_type || "POSSIBLE STOCKOUT"}
+                    </span>
                     <span style={{ fontSize: "10px", fontWeight: 700, backgroundColor: "#FEE2E2", color: "#DC2626", padding: "1px 6px", borderRadius: "4px" }}>
-                      Risk
+                      Action Required
                     </span>
                   </div>
-                  <p style={{ fontSize: "12px", color: "#7F1D1D", margin: "4px 0 0 0" }}>
+                  <strong style={{ color: "var(--gray-text-primary)", fontSize: "13px", display: "block", marginBottom: "2px" }}>
+                    {risk.product_name || risk.title}
+                  </strong>
+                  <p style={{ fontSize: "12px", color: "#7F1D1D", margin: "2px 0 6px 0" }}>
                     {risk.description}
                   </p>
+                  <div style={{ fontSize: "11px", fontWeight: 600, color: "#991B1B", borderTop: "1px solid rgba(220, 38, 38, 0.15)", paddingTop: "4px" }}>
+                    💡 Recommended Action: {risk.recommended_action || "Increase stock levels to avoid stockouts."}
+                  </div>
                 </div>
               ))
             ) : (

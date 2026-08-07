@@ -414,29 +414,50 @@ async def _compute_dashboard_overview(
         )
 
     # --------------------------------------------------------------------------
-    # 6. Critical Risk Alerts Extraction
+    # 6. Critical Risk Alerts Extraction (Business Language Translation)
     # --------------------------------------------------------------------------
     critical_risks: List[Dict[str, Any]] = []
 
     for anom in db_anomalies:
         if anom.flagged_anomalies:
             p_doc = product_dict.get(anom.product_id)
-            sku_label = p_doc.product_name if p_doc else "Product"
+            p_name = p_doc.product_name if p_doc else "Product"
             for alert in anom.flagged_anomalies:
                 if not alert.acknowledged:
+                    anom_str = str(getattr(alert.anomaly_type, 'value', alert.anomaly_type)).upper()
+                    if "HIGH" in anom_str or "SPIKE" in anom_str:
+                        alert_type = "HIGH DEMAND"
+                        explanation = "Sales are significantly higher than normal over recent days."
+                        action = "Increase stock levels to avoid stockouts."
+                    elif "LOW" in anom_str or "DROP" in anom_str:
+                        alert_type = "SALES DROP"
+                        explanation = "Sales have declined noticeably compared to recent weeks."
+                        action = "Review pricing strategy or consider promotional offers."
+                    else:
+                        alert_type = "DEMAND SPIKE"
+                        explanation = "Unexpected increase in sales detected."
+                        action = "Monitor inventory levels closely."
+
                     critical_risks.append({
-                        "title": f"⚠ Anomaly Alert — {sku_label}",
-                        "description": alert.explanation,
+                        "alert_type": alert_type,
+                        "product_name": p_name,
+                        "title": f"{alert_type} — {p_name}",
+                        "description": explanation,
+                        "recommended_action": action,
                         "severity": str(alert.severity_score),
                     })
 
     for inv in db_inventories:
         if inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value == "STOCKOUT_RISK":
             p_doc = product_dict.get(inv.product_id)
-            sku_label = p_doc.product_name if p_doc else "Product"
+            p_name = p_doc.product_name if p_doc else "Product"
+            days = max(1, int(inv.true_risk.days_of_cover))
             critical_risks.append({
-                "title": f"⚠ Stockout Alert — {sku_label}",
-                "description": f"Estimated stock depleted in {inv.true_risk.days_of_cover:.0f} days based on demand velocity.",
+                "alert_type": "POSSIBLE STOCKOUT",
+                "product_name": p_name,
+                "title": f"POSSIBLE STOCKOUT — {p_name}",
+                "description": f"Current demand may exhaust available inventory within {days} days.",
+                "recommended_action": "Review inventory levels and place a reorder soon.",
                 "severity": "CRITICAL",
             })
 

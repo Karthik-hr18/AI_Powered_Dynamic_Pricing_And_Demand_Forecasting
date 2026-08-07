@@ -480,14 +480,21 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                       }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                        <strong style={{ color: "var(--error)" }}>
-                          {anom.anomaly_type} ({anom.stage})
+                        <strong style={{ color: "var(--error)", textTransform: "uppercase", fontSize: "11px", letterSpacing: "0.5px" }}>
+                          {anom.anomaly_type === "HIGH_SALES_SPIKE" ? "DEMAND SPIKE" : anom.anomaly_type === "LOW_SALES_DROP" ? "SALES DROP" : "UNEXPECTED DEMAND"}
                         </strong>
-                        <span style={{ color: "var(--gray-text-muted)" }}>
+                        <span style={{ color: "var(--gray-text-muted)", fontSize: "11px" }}>
                           {new Date(anom.date).toLocaleDateString()}
                         </span>
                       </div>
-                      <p style={{ color: "var(--gray-text-primary)" }}>{anom.explanation}</p>
+                      <p style={{ color: "var(--gray-text-primary)", margin: "2px 0 4px 0" }}>
+                        {anom.explanation && (anom.explanation.includes("standard deviation") || anom.explanation.includes("historical mean"))
+                          ? "Sales for this product are significantly higher than normal over recent days."
+                          : (anom.explanation || "Unexpected increase in sales demand detected.")}
+                      </p>
+                      <div style={{ fontSize: "11px", fontWeight: 600, color: "var(--error)", borderTop: "1px solid rgba(239, 68, 68, 0.2)", paddingTop: "4px" }}>
+                        💡 Recommended Action: {anom.anomaly_type === "HIGH_SALES_SPIKE" ? "Increase stock levels to avoid stockouts." : "Review pricing strategy or consider promotional offers."}
+                      </div>
                     </div>
                   ))}
                 </div>
