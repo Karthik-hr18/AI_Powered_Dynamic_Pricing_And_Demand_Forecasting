@@ -795,6 +795,14 @@ async def process_single_upload(upload: UploadDocument) -> None:
     await upload.save()
     logger.info(f"[WORKER] Upload {upload.upload_id} → {upload.status}")
 
+    # Clean up temporary staging CSV file after successful ingestion
+    if filepath and os.path.exists(filepath):
+        try:
+            os.remove(filepath)
+            logger.info(f"[WORKER] Cleaned up temporary staging CSV file: {filepath}")
+        except Exception as remove_err:
+            logger.warning(f"[WORKER] Staging file cleanup warning: {remove_err}")
+
 
 # ---------------------------------------------------------------------------
 # Worker polling loop
@@ -809,11 +817,14 @@ async def worker_loop() -> None:
             now_utc = datetime.now(timezone.utc)
             stale_cutoff = now_utc - timedelta(minutes=3)
 
-            stale_uploads = await UploadDocument.find(
-                UploadDocument.status == UploadStatus.PROCESSING,
-                UploadDocument.processing_started_at != None,
-                UploadDocument.processing_started_at < stale_cutoff
+            proc_uploads = await UploadDocument.find(
+                UploadDocument.status == UploadStatus.PROCESSING
             ).to_list()
+
+            stale_uploads = [
+                u for u in proc_uploads
+                if u.processing_started_at is not None and u.processing_started_at < stale_cutoff
+            ]
 
             for stale in stale_uploads:
                 logger.warning(f"[WORKER] Timing out stale processing job: {stale.upload_id}")
