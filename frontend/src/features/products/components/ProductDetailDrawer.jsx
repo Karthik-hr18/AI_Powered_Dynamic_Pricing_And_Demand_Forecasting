@@ -218,12 +218,7 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                           <stop offset="95%" stopColor="var(--accent)" stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <XAxis
-                        dataKey="shortDate"
-                        hide={false}
-                        tick={{ fontSize: 10, fill: "var(--gray-text-muted)" }}
-                        interval="preserveStartEnd"
-                      />
+                      <XAxis hide={true} />
                       <Tooltip
                         contentStyle={{
                           backgroundColor: "var(--gray-surface)",
@@ -308,20 +303,20 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                       Total {forecastHorizon === "7d" ? "7-Day" : "30-Day"} Projected Demand:
                     </span>
                     <strong>
-                      {activeForecastPredictions.reduce((acc, item) => acc + item.predicted_quantity, 0).toFixed(0)} units
+                      {Math.ceil(activeForecastPredictions.reduce((acc, item) => acc + Math.ceil(item.predicted_quantity), 0))} units
                     </strong>
                   </div>
 
                   {/* Future Predictive Demand AreaChart */}
-                  <div style={{ width: "100%", height: "170px", marginTop: "var(--space-2)" }}>
+                  <div style={{ width: "100%", height: "150px", marginTop: "var(--space-2)" }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart
                         data={activeForecastPredictions.map((pt, idx) => ({
                           day: `Day ${idx + 1}`,
                           dateStr: new Date(pt.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-                          predicted_quantity: pt.predicted_quantity,
+                          predicted_quantity: Math.ceil(pt.predicted_quantity),
                         }))}
-                        margin={{ top: 5, right: 10, left: 10, bottom: 20 }}
+                        margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
                       >
                         <defs>
                           <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
@@ -329,12 +324,7 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                             <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                           </linearGradient>
                         </defs>
-                        <XAxis
-                          dataKey="dateStr"
-                          hide={false}
-                          tick={{ fontSize: 10, fill: "var(--gray-text-muted)" }}
-                          interval="preserveStartEnd"
-                        />
+                        <XAxis hide={true} />
                         <Tooltip
                           contentStyle={{
                             backgroundColor: "var(--gray-surface)",
@@ -342,7 +332,7 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                             borderRadius: "var(--radius-default)",
                             fontSize: "12px",
                           }}
-                          formatter={(value) => [`${Number(value).toFixed(1)} units`, "Predicted Demand"]}
+                          formatter={(value) => [`${Math.ceil(value)} units`, "Predicted Demand"]}
                           labelFormatter={(label, payload) => payload?.[0]?.payload?.dateStr || label}
                         />
                         <Area

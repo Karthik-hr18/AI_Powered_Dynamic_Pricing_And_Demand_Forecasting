@@ -26,6 +26,9 @@ class GoalProgressMetric(BaseModel):
     target_revenue: float = Field(default=50000.0)
     current_revenue: float = Field(default=0.0)
     progress_pct: float = Field(default=0.0)
+    baseline_monthly_profit: float = Field(default=0.0)
+    projected_monthly_profit: float = Field(default=0.0)
+    profit_expansion_pct: float = Field(default=0.0)
 
 
 class HighestOpportunity(BaseModel):

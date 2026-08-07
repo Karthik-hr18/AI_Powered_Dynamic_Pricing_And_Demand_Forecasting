@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import logging
 import os
 import uuid
@@ -51,9 +52,12 @@ async def upload_sales_csv(
         mapping=schema_mapping_used
     )
 
+    logger.info(f"[PROD_LOG] UPLOAD STARTED | upload_id={upload_doc.upload_id} | cwd={os.getcwd()} | upload_storage_dir={settings.UPLOAD_STORAGE_DIR} | storage_dir_exists={os.path.exists(settings.UPLOAD_STORAGE_DIR)}")
+
     # 3. Stream write file contents to disk in chunks to handle memory safely
     os.makedirs(settings.UPLOAD_STORAGE_DIR, exist_ok=True)
     filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload_doc.upload_id}.csv")
+    abs_path = os.path.abspath(filepath)
     
     file_size = 0
     try:
@@ -73,7 +77,7 @@ async def upload_sales_csv(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"File system write failure during upload: {e}")
+        logger.error(f"[PROD_LOG] File system write failure during upload: {e}")
         await upload_doc.delete()
         if os.path.exists(filepath):
             os.remove(filepath)
@@ -85,6 +89,8 @@ async def upload_sales_csv(
     # Update actual saved size
     upload_doc.file_size_bytes = file_size
     await upload_doc.save()
+
+    logger.info(f"[PROD_LOG] CSV SAVED | upload_id={upload_doc.upload_id} | absolute_path={abs_path} | bytes_written={file_size} | csv_exists={os.path.exists(filepath)}")
 
     # 4. Perform immediate CSV header validations (fail-fast checks)
     validation_errors = validate_csv_headers(filepath)

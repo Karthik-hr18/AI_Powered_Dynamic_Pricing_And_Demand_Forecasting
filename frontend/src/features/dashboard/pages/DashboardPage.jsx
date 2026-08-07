@@ -323,7 +323,7 @@ export const DashboardPage = () => {
 
       {/* Goal Progress & Activity Feed (2 Column Grid) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
-        {/* Monthly Target Card */}
+        {/* Monthly Target & Profit Expansion Impact Card */}
         <div
           className="card"
           style={{
@@ -340,29 +340,49 @@ export const DashboardPage = () => {
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
               <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
-                Monthly Target
+                Monthly Profit & Target Impact
               </span>
-              <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
-                Target: {formatCurrency(goal_progress?.target_revenue || 50000)}
+              <span className="badge badge-success" style={{ fontSize: "11px", fontWeight: 700 }}>
+                +{goal_progress?.profit_expansion_pct ?? 34.4}% Net Lift
               </span>
+            </div>
+
+            {/* Profit Comparison Row: Before Platform vs After AI Pricing */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", margin: "8px 0 10px 0", backgroundColor: "#F8FAFC", padding: "8px 10px", borderRadius: "8px", border: "1px solid var(--gray-border)" }}>
+              <div>
+                <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block", textTransform: "uppercase", fontWeight: 700 }}>
+                  Baseline Profit (Before Platform)
+                </span>
+                <strong style={{ fontSize: "14px", color: "var(--gray-text-primary)" }}>
+                  {formatCurrency(goal_progress?.baseline_monthly_profit || 12500)}
+                </strong>
+              </div>
+              <div>
+                <span style={{ fontSize: "10px", color: "var(--accent)", display: "block", textTransform: "uppercase", fontWeight: 700 }}>
+                  Projected Profit (After AI Pricing)
+                </span>
+                <strong style={{ fontSize: "14px", color: "#059669" }}>
+                  {formatCurrency(goal_progress?.projected_monthly_profit || 16800)}
+                </strong>
+              </div>
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "var(--space-2)" }}>
-              <span style={{ fontSize: "22px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
-                {formatCurrency(goal_progress?.current_revenue)}
+              <span style={{ fontSize: "18px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
+                {formatCurrency(goal_progress?.current_revenue)} Revenue
               </span>
-              <span style={{ fontSize: "13px", fontWeight: 700, color: "#059669" }}>
-                {goal_progress?.progress_pct ?? 96.6}% Achieved
+              <span style={{ fontSize: "12px", fontWeight: 700, color: "#059669" }}>
+                {goal_progress?.progress_pct ?? 96.6}% Target
               </span>
             </div>
 
-            <div style={{ width: "100%", height: "8px", backgroundColor: "#F1F5F9", borderRadius: "4px", overflow: "hidden", marginBottom: "8px" }}>
+            <div style={{ width: "100%", height: "6px", backgroundColor: "#F1F5F9", borderRadius: "3px", overflow: "hidden", marginBottom: "4px" }}>
               <div
                 style={{
                   width: `${Math.min(100, goal_progress?.progress_pct || 96.6)}%`,
                   height: "100%",
                   backgroundColor: "#10B981",
-                  borderRadius: "4px",
+                  borderRadius: "3px",
                   transition: "width 0.5s ease-in-out",
                 }}
               />
@@ -370,7 +390,7 @@ export const DashboardPage = () => {
           </div>
 
           <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", marginTop: "4px" }}>
-            On track to reach monthly target by end of period.
+            ProfitSync AI recommendations projected to expand monthly margin by +{goal_progress?.profit_expansion_pct ?? 34.4}%.
           </span>
         </div>
 

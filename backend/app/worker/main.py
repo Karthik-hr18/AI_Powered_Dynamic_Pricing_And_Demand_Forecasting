@@ -540,14 +540,19 @@ async def process_single_upload(upload: UploadDocument) -> None:
     Phase 3: Every stage is guarded — FAILED is always set with structured
              metadata if anything goes wrong.
     """
-    logger.info(f"[WORKER] Claimed upload job: {upload.upload_id}")
-
     os.makedirs(settings.UPLOAD_STORAGE_DIR, exist_ok=True)
     filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
+    abs_path = os.path.abspath(filepath)
+    dir_contents = os.listdir(settings.UPLOAD_STORAGE_DIR) if os.path.exists(settings.UPLOAD_STORAGE_DIR) else []
+
+    logger.info(f"[PROD_LOG] WORKER CLAIMED JOB | upload_id={upload.upload_id} | cwd={os.getcwd()} | absolute_path={abs_path} | csv_exists={os.path.exists(filepath)} | dir_contents={dir_contents}")
+
     if not os.path.exists(filepath):
-        logger.error(f"[WORKER] CSV file missing from storage: {filepath}")
+        logger.error(f"[PROD_LOG] AFTER OPENING CSV: FAILURE | upload_id={upload.upload_id} | cwd={os.getcwd()} | absolute_path={abs_path} | dir_contents={dir_contents}")
         await _fail_upload(upload, "file_check", "CSV file missing from storage. Please re-upload the CSV dataset file.")
         return
+
+    logger.info(f"[PROD_LOG] AFTER OPENING CSV: SUCCESS | upload_id={upload.upload_id} | absolute_path={abs_path}")
 
     # Transition to PROCESSING
     upload.status = UploadStatus.PROCESSING
