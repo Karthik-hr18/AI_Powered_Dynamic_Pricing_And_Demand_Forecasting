@@ -542,11 +542,17 @@ async def process_single_upload(upload: UploadDocument) -> None:
     """
     logger.info(f"[WORKER] Claimed upload job: {upload.upload_id}")
 
-    filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
+    filepath = upload.file_path or os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
     if not os.path.exists(filepath):
-        logger.error(f"[WORKER] CSV not found at: {filepath}")
-        await _fail_upload(upload, "file_check", f"CSV file missing from storage: {filepath}")
-        return
+        alt_filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
+        if os.path.exists(alt_filepath):
+            filepath = alt_filepath
+            upload.file_path = filepath
+            await upload.save()
+        else:
+            logger.error(f"[WORKER] CSV not found at: {filepath} or {alt_filepath}")
+            await _fail_upload(upload, "file_check", f"CSV file missing from storage. Please re-upload the CSV dataset file.")
+            return
 
     # Transition to PROCESSING
     upload.status = UploadStatus.PROCESSING
