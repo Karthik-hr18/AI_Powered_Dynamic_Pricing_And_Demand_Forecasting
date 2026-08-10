@@ -17,6 +17,7 @@ import {
   FileSpreadsheet,
   Clock,
   TrendingUp,
+  Circle,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -117,9 +118,10 @@ export const AdminOverviewPage = () => {
                   ? "badge-warning"
                   : "badge-danger"
               }`}
-              style={{ fontSize: "11px", fontWeight: 700 }}
+              style={{ fontSize: "11px", fontWeight: 700, display: "flex", alignItems: "center", gap: "4px" }}
             >
-              ● Platform {platform_health_status}
+              <Circle size={7} fill="currentColor" />
+              Platform {platform_health_status}
             </span>
           </div>
           <h1 style={{ fontSize: "24px", fontWeight: 800, color: "var(--gray-text-primary)", margin: 0 }}>
@@ -296,8 +298,8 @@ export const AdminOverviewPage = () => {
               <Database size={18} style={{ color: "var(--purple)" }} />
               <h3 style={{ fontSize: "16px", fontWeight: 700, margin: 0 }}>Data Processing Breakdown</h3>
             </div>
-            <Link to="/admin/data-operations" style={{ fontSize: "12px", color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>
-              View Ingestion Monitor →
+            <Link to="/admin/data-operations" style={{ fontSize: "12px", color: "var(--accent)", textDecoration: "none", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "4px" }}>
+              View Ingestion Monitor <ArrowRight size={13} />
             </Link>
           </div>
 
@@ -349,8 +351,8 @@ export const AdminOverviewPage = () => {
             <Clock size={18} style={{ color: "var(--accent)" }} />
             <h3 style={{ fontSize: "16px", fontWeight: 700, margin: 0 }}>Recent Platform Activity</h3>
           </div>
-          <Link to="/admin/activity-log" style={{ fontSize: "12px", color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>
-            Full Audit Log →
+          <Link to="/admin/activity-log" style={{ fontSize: "12px", color: "var(--accent)", textDecoration: "none", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "4px" }}>
+            Full Audit Log <ArrowRight size={13} />
           </Link>
         </div>
 

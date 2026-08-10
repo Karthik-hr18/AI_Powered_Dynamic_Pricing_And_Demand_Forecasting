@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { AlertTriangle, CheckCircle2, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, X, ShieldCheck } from "lucide-react";
 
 export const ConfirmStatusModal = ({
   isOpen,
@@ -133,7 +133,10 @@ export const ConfirmStatusModal = ({
               color: "var(--gray-text-muted)",
             }}
           >
-            ⚡ <strong>Audit Trail:</strong> This administrative change will be logged in the immutable Platform Activity Log with your admin timestamp.
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+              <ShieldCheck size={14} style={{ flexShrink: 0, color: "var(--accent)", marginTop: "1px" }} />
+              <span><strong>Audit Trail:</strong> This administrative change will be logged in the immutable Platform Activity Log with your admin timestamp.</span>
+            </div>
           </div>
         </div>
 

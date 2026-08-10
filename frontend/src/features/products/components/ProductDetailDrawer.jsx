@@ -8,6 +8,7 @@ import {
   Clock,
   Sparkles,
   RefreshCw,
+  Zap,
 } from "lucide-react";
 import {
   AreaChart,
@@ -527,8 +528,9 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                             ? `Sales dropped significantly below expected trend on ${dateFormatted}.`
                             : `Unexpected demand variation detected on ${dateFormatted}.`}
                         </p>
-                        <div style={{ fontSize: "11px", fontWeight: 600, color: "var(--error)", borderTop: "1px solid rgba(239, 68, 68, 0.2)", paddingTop: "4px" }}>
-                          💡 Recommended Action: {anom.anomaly_type === "HIGH_SALES_SPIKE" ? "Increase stock levels to avoid stockouts." : "Review pricing strategy or consider promotional offers."}
+                        <div style={{ fontSize: "11px", fontWeight: 600, color: "var(--error)", borderTop: "1px solid rgba(239, 68, 68, 0.2)", paddingTop: "4px", display: "flex", alignItems: "flex-start", gap: "5px" }}>
+                          <Zap size={12} style={{ flexShrink: 0, marginTop: "1px" }} />
+                          Recommended Action: {anom.anomaly_type === "HIGH_SALES_SPIKE" ? "Increase stock levels to avoid stockouts." : "Review pricing strategy or consider promotional offers."}
                         </div>
                       </div>
                     );

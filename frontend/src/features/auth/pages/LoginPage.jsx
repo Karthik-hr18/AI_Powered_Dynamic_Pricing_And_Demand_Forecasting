@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, LogIn, AlertCircle } from "lucide-react";
+import { Mail, Lock, LogIn, AlertCircle, ArrowLeft, Store, ShieldCheck } from "lucide-react";
 import { useAuth } from "../../../shared/hooks/useAuth";
 
 export const LoginPage = () => {
@@ -13,7 +13,7 @@ export const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
-    
+
     if (!email || !password) {
       setErrorMsg("Please enter both email and password.");
       return;
@@ -25,6 +25,16 @@ export const LoginPage = () => {
     } catch (err) {
       setErrorMsg(err.message || "Failed to log in. Please check credentials.");
     }
+  };
+
+  const fillRetailer = () => {
+    setEmail("karthikhrvidyanidhi676@gmail.com");
+    setPassword("11111111");
+  };
+
+  const fillAdmin = () => {
+    setEmail("karthikhr676@gmail.com");
+    setPassword("Karthik@123");
   };
 
   return (
@@ -50,31 +60,19 @@ export const LoginPage = () => {
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(99,102,241,0.15)"; e.currentTarget.style.color = "#A5B4FC"; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(99,102,241,0.07)"; e.currentTarget.style.color = "rgba(165,180,252,0.8)"; }}
       >
-        ← Back to Home
+        <ArrowLeft size={13} />
+        Back to Home
       </Link>
 
-      {/* Page Title Header */}
-      <h3
-        style={{
-          fontSize: "24px",
-          fontWeight: 700,
-          marginBottom: "var(--space-1)",
-          color: "#FFFFFF",
-        }}
-      >
+      {/* Page Title */}
+      <h3 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "var(--space-1)", color: "#FFFFFF" }}>
         Welcome Back
       </h3>
-      <p
-        style={{
-          fontSize: "14px",
-          color: "var(--gray-text-muted)",
-          marginBottom: "var(--space-5)",
-        }}
-      >
+      <p style={{ fontSize: "14px", color: "var(--gray-text-muted)", marginBottom: "var(--space-5)" }}>
         Sign in to manage dynamic pricing and demand forecasts.
       </p>
 
-      {/* Global Alert Notification */}
+      {/* Error Banner */}
       {errorMsg && (
         <div
           className="badge badge-danger"
@@ -100,17 +98,7 @@ export const LoginPage = () => {
         <div className="form-group">
           <label className="form-label" style={{ color: "#E2E8F0" }}>Email Address</label>
           <div style={{ position: "relative" }}>
-            <span
-              style={{
-                position: "absolute",
-                left: "14px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "var(--gray-text-muted)",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
+            <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--gray-text-muted)", display: "flex", alignItems: "center" }}>
               <Mail size={18} />
             </span>
             <input
@@ -119,12 +107,7 @@ export const LoginPage = () => {
               placeholder="retailer@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{
-                paddingLeft: "42px",
-                backgroundColor: "rgba(15, 23, 42, 0.6)",
-                borderColor: "rgba(99, 102, 241, 0.2)",
-                color: "#FFFFFF",
-              }}
+              style={{ paddingLeft: "42px", backgroundColor: "rgba(15, 23, 42, 0.6)", borderColor: "rgba(99, 102, 241, 0.2)", color: "#FFFFFF" }}
               required
               disabled={loading}
             />
@@ -134,17 +117,7 @@ export const LoginPage = () => {
         <div className="form-group">
           <label className="form-label" style={{ color: "#E2E8F0" }}>Password</label>
           <div style={{ position: "relative" }}>
-            <span
-              style={{
-                position: "absolute",
-                left: "14px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "var(--gray-text-muted)",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
+            <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--gray-text-muted)", display: "flex", alignItems: "center" }}>
               <Lock size={18} />
             </span>
             <input
@@ -153,12 +126,7 @@ export const LoginPage = () => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{
-                paddingLeft: "42px",
-                backgroundColor: "rgba(15, 23, 42, 0.6)",
-                borderColor: "rgba(99, 102, 241, 0.2)",
-                color: "#FFFFFF",
-              }}
+              style={{ paddingLeft: "42px", backgroundColor: "rgba(15, 23, 42, 0.6)", borderColor: "rgba(99, 102, 241, 0.2)", color: "#FFFFFF" }}
               required
               disabled={loading}
             />
@@ -175,191 +143,67 @@ export const LoginPage = () => {
           {loading ? "Signing in..." : "Sign In"}
         </button>
 
-        {/* Demo Credential Cards */}
-        <div style={{ marginTop: "var(--space-2)" }}>
+        {/* Demo Access Chips */}
+        <div>
           {/* Divider */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              marginBottom: "var(--space-3)",
-            }}
-          >
-            <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(99,102,241,0.2)" }} />
-            <span
-              style={{
-                fontSize: "11px",
-                color: "rgba(165,180,252,0.55)",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Quick Demo Access
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+            <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(99,102,241,0.18)" }} />
+            <span style={{ fontSize: "10px", color: "rgba(165,180,252,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", whiteSpace: "nowrap" }}>
+              Try a demo account
             </span>
-            <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(99,102,241,0.2)" }} />
+            <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(99,102,241,0.18)" }} />
           </div>
 
-          {/* Cards Row */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-            {/* Retailer Card */}
+          {/* Two Chips */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
             <button
               type="button"
-              onClick={() => {
-                setEmail("karthikhrvidyanidhi676@gmail.com");
-                setPassword("11111111");
-              }}
+              onClick={fillRetailer}
               style={{
-                background: "rgba(34, 197, 94, 0.06)",
-                border: "1px solid rgba(34, 197, 94, 0.25)",
-                borderRadius: "10px",
-                padding: "12px 14px",
-                cursor: "pointer",
-                textAlign: "left",
-                transition: "all 0.2s ease",
                 display: "flex",
-                flexDirection: "column",
-                gap: "6px",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "7px",
+                padding: "9px 14px",
+                borderRadius: "8px",
+                border: "1px solid rgba(34, 197, 94, 0.22)",
+                backgroundColor: "rgba(34, 197, 94, 0.05)",
+                cursor: "pointer",
+                transition: "all 0.18s ease",
+                color: "rgba(134, 239, 172, 0.85)",
+                fontSize: "12px",
+                fontWeight: 600,
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(34,197,94,0.12)";
-                e.currentTarget.style.borderColor = "rgba(34,197,94,0.45)";
-                e.currentTarget.style.transform = "translateY(-1px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(34,197,94,0.06)";
-                e.currentTarget.style.borderColor = "rgba(34,197,94,0.25)";
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(34,197,94,0.1)"; e.currentTarget.style.borderColor = "rgba(34,197,94,0.4)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(34,197,94,0.05)"; e.currentTarget.style.borderColor = "rgba(34,197,94,0.22)"; }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-                <span style={{ fontSize: "15px" }}>🏪</span>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    color: "rgba(74, 222, 128, 0.9)",
-                  }}
-                >
-                  Retailer
-                </span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    color: "rgba(226,232,240,0.65)",
-                    fontFamily: "var(--font-mono, monospace)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    maxWidth: "100%",
-                  }}
-                >
-                  karthikhrvidyanidhi676
-                  <br />@gmail.com
-                </span>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    color: "rgba(226,232,240,0.5)",
-                    fontFamily: "var(--font-mono, monospace)",
-                  }}
-                >
-                  Pass: 11111111
-                </span>
-              </div>
-              <div
-                style={{
-                  fontSize: "10px",
-                  color: "rgba(74,222,128,0.7)",
-                  fontWeight: 600,
-                  marginTop: "2px",
-                }}
-              >
-                ↗ Click to auto-fill
-              </div>
+              <Store size={14} />
+              Retailer
             </button>
 
-            {/* Admin Card */}
             <button
               type="button"
-              onClick={() => {
-                setEmail("karthikhr676@gmail.com");
-                setPassword("Karthik@123");
-              }}
+              onClick={fillAdmin}
               style={{
-                background: "rgba(139, 92, 246, 0.06)",
-                border: "1px solid rgba(139, 92, 246, 0.25)",
-                borderRadius: "10px",
-                padding: "12px 14px",
-                cursor: "pointer",
-                textAlign: "left",
-                transition: "all 0.2s ease",
                 display: "flex",
-                flexDirection: "column",
-                gap: "6px",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "7px",
+                padding: "9px 14px",
+                borderRadius: "8px",
+                border: "1px solid rgba(139, 92, 246, 0.22)",
+                backgroundColor: "rgba(139, 92, 246, 0.05)",
+                cursor: "pointer",
+                transition: "all 0.18s ease",
+                color: "rgba(196, 181, 253, 0.85)",
+                fontSize: "12px",
+                fontWeight: 600,
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(139,92,246,0.12)";
-                e.currentTarget.style.borderColor = "rgba(139,92,246,0.45)";
-                e.currentTarget.style.transform = "translateY(-1px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(139,92,246,0.06)";
-                e.currentTarget.style.borderColor = "rgba(139,92,246,0.25)";
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(139,92,246,0.1)"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(139,92,246,0.05)"; e.currentTarget.style.borderColor = "rgba(139,92,246,0.22)"; }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-                <span style={{ fontSize: "15px" }}>🛡️</span>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    color: "rgba(196, 181, 253, 0.9)",
-                  }}
-                >
-                  Administrator
-                </span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    color: "rgba(226,232,240,0.65)",
-                    fontFamily: "var(--font-mono, monospace)",
-                  }}
-                >
-                  karthikhr676
-                  <br />@gmail.com
-                </span>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    color: "rgba(226,232,240,0.5)",
-                    fontFamily: "var(--font-mono, monospace)",
-                  }}
-                >
-                  Pass: Karthik@123
-                </span>
-              </div>
-              <div
-                style={{
-                  fontSize: "10px",
-                  color: "rgba(196,181,253,0.7)",
-                  fontWeight: 600,
-                  marginTop: "2px",
-                }}
-              >
-                ↗ Click to auto-fill
-              </div>
+              <ShieldCheck size={14} />
+              Admin
             </button>
           </div>
         </div>
@@ -368,12 +212,7 @@ export const LoginPage = () => {
         <div style={{ textAlign: "center" }}>
           <Link
             to="/forgot-password"
-            style={{
-              fontSize: "13px",
-              color: "var(--gray-text-muted)",
-              textDecoration: "none",
-              transition: "color 0.2s",
-            }}
+            style={{ fontSize: "13px", color: "var(--gray-text-muted)", textDecoration: "none", transition: "color 0.2s" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#A5B4FC")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--gray-text-muted)")}
           >
@@ -382,18 +221,11 @@ export const LoginPage = () => {
         </div>
       </form>
 
-      {/* Navigation Redirect Pathway */}
+      {/* Register Redirect */}
       <div style={{ textAlign: "center", marginTop: "var(--space-5)" }}>
         <span style={{ fontSize: "14px", color: "var(--gray-text-muted)" }}>
           Don't have an account?{" "}
-          <Link
-            to="/register"
-            style={{
-              color: "var(--accent)",
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
+          <Link to="/register" style={{ color: "var(--accent)", fontWeight: 600, textDecoration: "none" }}>
             Register Here
           </Link>
         </span>

@@ -73,7 +73,7 @@ export const EnterprisePagination = ({
         >
           {pageSizeOptions.map((opt) => (
             <option key={opt} value={opt}>
-              {opt} ▼
+              {opt} per page
             </option>
           ))}
         </select>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, UserPlus, AlertCircle, Building } from "lucide-react";
+import { Mail, Lock, UserPlus, AlertCircle, Building, ArrowLeft } from "lucide-react";
 import { useAuth } from "../../../shared/hooks/useAuth";
 
 export const RegisterPage = () => {
@@ -57,7 +57,8 @@ export const RegisterPage = () => {
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(99,102,241,0.15)"; e.currentTarget.style.color = "#A5B4FC"; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(99,102,241,0.07)"; e.currentTarget.style.color = "rgba(165,180,252,0.8)"; }}
       >
-        ← Back to Home
+        <ArrowLeft size={13} />
+        Back to Home
       </Link>
 
       {/* Page Title Header */}

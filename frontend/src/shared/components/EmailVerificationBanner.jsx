@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MailCheck, RefreshCw, LogOut, ShieldCheck, X } from "lucide-react";
+import { MailCheck, RefreshCw, LogOut, ShieldCheck, X, CheckCircle2 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
 /**
@@ -198,9 +198,13 @@ export const EmailVerificationBanner = () => {
                 fontSize: "13px",
                 color: "#34D399",
                 fontWeight: 500,
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
               }}
             >
-              ✓ Verification email sent! Check your inbox.
+              <CheckCircle2 size={14} />
+              Verification email sent! Check your inbox.
             </p>
           )}
           {resendStatus === "error" && (

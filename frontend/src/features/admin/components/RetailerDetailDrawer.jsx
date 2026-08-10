@@ -17,6 +17,7 @@ import {
   UserX,
   Copy,
   ExternalLink,
+  Circle,
 } from "lucide-react";
 import { apiClient } from "../../../shared/apiClient";
 import { formatInteger, formatRupee } from "../../../shared/utils/formatters";
@@ -179,9 +180,10 @@ export const RetailerDetailDrawer = ({
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
                     <span
                       className={`badge ${retailer.is_active ? "badge-success" : "badge-danger"}`}
-                      style={{ fontSize: "12px", fontWeight: 700 }}
+                      style={{ fontSize: "12px", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "5px" }}
                     >
-                      {retailer.is_active ? "● Active Account" : "○ Disabled Account"}
+                      <Circle size={7} fill="currentColor" />
+                      {retailer.is_active ? "Active Account" : "Disabled Account"}
                     </span>
                     {retailer.is_email_verified && (
                       <span className="badge badge-info" style={{ fontSize: "11px" }}>

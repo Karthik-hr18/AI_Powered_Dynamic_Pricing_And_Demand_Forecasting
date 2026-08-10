@@ -647,7 +647,7 @@ export const DashboardPage = () => {
               <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>Current Price</span>
               <strong style={{ fontSize: "15px", color: "var(--gray-text-primary)" }}>{formatCurrency(highest_opportunity.current_price)}</strong>
             </div>
-            <span style={{ color: "var(--accent)", fontWeight: 700, fontSize: "16px" }}>→</span>
+            <ArrowRight size={16} style={{ color: "var(--accent)", flexShrink: 0 }} />
             <div>
               <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block" }}>Recommended Price</span>
               <strong style={{ fontSize: "15px", color: "#059669" }}>{formatCurrency(highest_opportunity.recommended_price)}</strong>
@@ -662,7 +662,7 @@ export const DashboardPage = () => {
             </div>
             <div style={{ backgroundColor: "#F1F5F9", padding: "10px", borderRadius: "8px", border: "1px solid var(--gray-border)" }}>
               <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 600 }}>Demand Forecast</span>
-              <strong style={{ fontSize: "15px", color: "var(--gray-text-primary)" }}>↑ 14% Velocity</strong>
+              <strong style={{ fontSize: "15px", color: "var(--gray-text-primary)", display: "flex", alignItems: "center", gap: "4px" }}><TrendingUp size={14} style={{ color: "var(--success)" }} /> 14% Velocity</strong>
             </div>
           </div>
 
@@ -985,7 +985,7 @@ export const DashboardPage = () => {
                     </span>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px" }}>
                       <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>
-                        {formatCurrency(op.current_price)} → <strong style={{ color: "#059669" }}>{formatCurrency(op.recommended_price)}</strong>
+                        {formatCurrency(op.current_price)} <ArrowRight size={12} style={{ display: "inline", verticalAlign: "middle", margin: "0 2px" }} /> <strong style={{ color: "#059669" }}>{formatCurrency(op.recommended_price)}</strong>
                       </span>
                       <span style={{ fontSize: "10px", fontWeight: 600, backgroundColor: "#ECFDF5", color: "#059669", padding: "1px 6px", borderRadius: "4px" }}>
                         Inventory Healthy
@@ -1052,8 +1052,9 @@ export const DashboardPage = () => {
                   <p style={{ fontSize: "12px", color: "#7F1D1D", margin: "2px 0 6px 0" }}>
                     {risk.description}
                   </p>
-                  <div style={{ fontSize: "11px", fontWeight: 600, color: "#991B1B", borderTop: "1px solid rgba(220, 38, 38, 0.15)", paddingTop: "4px" }}>
-                    💡 Recommended Action: {risk.recommended_action || "Increase stock levels to avoid stockouts."}
+                  <div style={{ fontSize: "11px", fontWeight: 600, color: "#991B1B", borderTop: "1px solid rgba(220, 38, 38, 0.15)", paddingTop: "4px", display: "flex", alignItems: "flex-start", gap: "5px" }}>
+                    <Zap size={12} style={{ flexShrink: 0, marginTop: "1px" }} />
+                    Recommended Action: {risk.recommended_action || "Increase stock levels to avoid stockouts."}
                   </div>
                 </div>
               ))
