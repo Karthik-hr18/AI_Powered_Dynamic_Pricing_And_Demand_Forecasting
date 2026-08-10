@@ -11,6 +11,7 @@ import {
 
 import { auth } from "../firebase/config";
 import { apiClient } from "../apiClient";
+import { getErrorMessage } from "../utils/errorHandler";
 
 const AuthContext = createContext(null);
 
@@ -112,7 +113,7 @@ export const AuthProvider = ({ children }) => {
       try { return await executeMockLogin(email); }
       catch (e) {
         setLoading(false);
-        const msg = e.response?.data?.detail || e.message || "Failed local mock login";
+        const msg = getErrorMessage(e, "Failed local mock login");
         setError(msg); throw new Error(msg);
       }
     }
@@ -130,10 +131,10 @@ export const AuthProvider = ({ children }) => {
       if (isNetworkError) {
         console.warn("Firebase Auth network error. Falling back to local mock authentication.");
         try { return await executeMockLogin(email); }
-        catch (mockErr) { setLoading(false); setError(mockErr.message); throw mockErr; }
+        catch (mockErr) { setLoading(false); const m = getErrorMessage(mockErr); setError(m); throw new Error(m); }
       }
       setLoading(false);
-      const msg = e.response?.data?.detail || e.message || "Failed to log in";
+      const msg = getErrorMessage(e, "Failed to log in. Please check your credentials.");
       setError(msg); throw new Error(msg);
     }
   };
@@ -153,7 +154,7 @@ export const AuthProvider = ({ children }) => {
       try { return await executeMockRegister(email, role, businessName); }
       catch (e) {
         setLoading(false);
-        const msg = e.response?.data?.detail || e.message || "Failed local mock registration";
+        const msg = getErrorMessage(e, "Failed local mock registration");
         setError(msg); throw new Error(msg);
       }
     }
@@ -183,10 +184,10 @@ export const AuthProvider = ({ children }) => {
       if (isNetworkError) {
         console.warn("Firebase Auth network error. Falling back to local mock registration.");
         try { return await executeMockRegister(email, role, businessName); }
-        catch (mockErr) { setLoading(false); setError(mockErr.message); throw mockErr; }
+        catch (mockErr) { setLoading(false); const m = getErrorMessage(mockErr); setError(m); throw new Error(m); }
       }
       setLoading(false);
-      const msg = e.response?.data?.detail || e.message || "Failed to register account";
+      const msg = getErrorMessage(e, "Failed to register account. Please try again.");
       setError(msg); throw new Error(msg);
     }
   };
@@ -197,7 +198,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await sendEmailVerification(auth.currentUser);
     } catch (e) {
-      throw new Error(e.message || "Failed to resend verification email.");
+      throw new Error(getErrorMessage(e, "Failed to resend verification email."));
     }
   };
 
@@ -218,7 +219,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await sendPasswordResetEmail(auth, email);
     } catch (e) {
-      throw new Error(e.message || "Failed to send password reset email.");
+      throw new Error(getErrorMessage(e, "Failed to send password reset email."));
     }
   };
 

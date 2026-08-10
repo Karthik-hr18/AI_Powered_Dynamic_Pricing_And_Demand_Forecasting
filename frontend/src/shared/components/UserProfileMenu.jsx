@@ -2,10 +2,12 @@ import React from "react";
 import { User, Settings, Bell, Key, CreditCard, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../hooks/useToast";
 
 export const UserProfileMenu = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
 
   if (!isOpen) return null;
 
@@ -20,11 +22,11 @@ export const UserProfileMenu = ({ isOpen, onClose }) => {
   };
 
   const menuItems = [
-    { label: "Profile", icon: <User size={15} />, action: () => alert("Business Profile Settings") },
-    { label: "Settings", icon: <Settings size={15} />, action: () => alert("Account Settings") },
-    { label: "Notifications", icon: <Bell size={15} />, action: () => alert("Notification Preferences") },
-    { label: "API Keys", icon: <Key size={15} />, action: () => alert("API Keys & Developer Tools") },
-    { label: "Billing", icon: <CreditCard size={15} />, action: () => alert("Billing & Subscription") },
+    { label: "Profile", icon: <User size={15} />, action: () => { onClose(); toast.info("Profile", "Business profile settings will be configurable in your next store update."); } },
+    { label: "Settings", icon: <Settings size={15} />, action: () => { onClose(); toast.info("Settings", "Account settings will be configurable in your next store update."); } },
+    { label: "Notifications", icon: <Bell size={15} />, action: () => { onClose(); toast.info("Notifications", "Notification preferences will be configurable in your next store update."); } },
+    { label: "API Keys", icon: <Key size={15} />, action: () => { onClose(); toast.info("API Keys", "Developer API keys will be configurable in your next store update."); } },
+    { label: "Billing", icon: <CreditCard size={15} />, action: () => { onClose(); toast.info("Billing", "Subscription and billing management will be available in your next store update."); } },
   ];
 
   return (

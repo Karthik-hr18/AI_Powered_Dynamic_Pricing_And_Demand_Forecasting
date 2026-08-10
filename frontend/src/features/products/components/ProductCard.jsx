@@ -9,7 +9,10 @@ import {
   ShoppingBag,
 } from "lucide-react";
 
+import { useToast } from "../../../shared/hooks/useToast";
+
 export const ProductCard = ({ product, onSelect }) => {
+  const toast = useToast();
   const [menuOpen, setMenuOpen] = useState(false);
 
   if (!product) return null;
@@ -231,7 +234,7 @@ export const ProductCard = ({ product, onSelect }) => {
           <div
             onClick={() => {
               setMenuOpen(false);
-              alert(`Applied AI price of ${formatCurrency(recommendedPrice)} to ${product.sku_display}`);
+              toast.success("Price Updated", `Applied AI price of ${formatCurrency(recommendedPrice)} to ${product.sku_display}.`);
             }}
             style={{ padding: "6px 10px", fontSize: "12px", color: "#059669", cursor: "pointer", borderRadius: "4px" }}
             className="command-item-hover"

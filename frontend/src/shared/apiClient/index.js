@@ -38,7 +38,9 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle authorization lapses globally
+import { getErrorMessage } from "../utils/errorHandler";
+
+// Response interceptor to handle authorization lapses globally and attach user-safe messages
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -52,6 +54,9 @@ apiClient.interceptors.response.use(
         await auth.signOut();
       }
     }
+
+    // Attach user-friendly parsed message
+    error.userMessage = getErrorMessage(error);
     return Promise.reject(error);
   }
 );

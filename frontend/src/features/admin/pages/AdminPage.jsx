@@ -13,9 +13,12 @@ import {
 } from "lucide-react";
 
 import { apiClient } from "../../../shared/apiClient";
+import { useToast } from "../../../shared/hooks/useToast";
+import { getErrorMessage } from "../../../shared/utils/errorHandler";
 
 export const AdminPage = () => {
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   // 1. Fetch retailer accounts list
   const { data: retailers = [], isLoading, error } = useQuery({
@@ -37,10 +40,11 @@ export const AdminPage = () => {
     onSuccess: () => {
       // Invalidate query to trigger cache refresh
       queryClient.invalidateQueries({ queryKey: ["adminRetailers"] });
+      toast.success("Status Updated", "Retailer account status has been updated successfully.");
     },
     onError: (err) => {
       console.error("Failed to update status", err);
-      alert(err.response?.data?.detail || "Failed to update retailer status.");
+      toast.error("Status Update Failed", getErrorMessage(err, "Failed to update retailer status."));
     },
   });
 

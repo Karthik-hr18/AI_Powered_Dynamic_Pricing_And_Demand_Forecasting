@@ -127,12 +127,47 @@ async def cors_handler_middleware(request, call_next):
     return response
 
 # Register routers
-app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
-app.include_router(uploads_router, prefix="/api/v1/uploads", tags=["uploads"])
-app.include_router(products_router, prefix="/api/v1/products", tags=["products"])
-app.include_router(dashboard_router, prefix="/api/v1/dashboard", tags=["dashboard"])
-app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
-app.include_router(reports_router, prefix="/api/v1/reports", tags=["reports"])
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from app.core.errors import create_error_response, ErrorCode, generate_reference_id
+import logging
+
+logger = logging.getLogger("app.main")
+
+# Exception handlers for uniform error envelopes across all endpoints
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc: StarletteHTTPException):
+    return create_error_response(
+        status_code=exc.status_code,
+        message=str(exc.detail) if exc.detail else None,
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc: RequestValidationError):
+    # Extract clean, human-readable validation error summaries
+    details = []
+    for err in exc.errors():
+        field = " -> ".join(str(loc) for loc in err.get("loc", []) if loc != "body")
+        msg = err.get("msg", "Invalid value")
+        details.append(f"{field}: {msg}" if field else msg)
+    
+    return create_error_response(
+        status_code=422,
+        code=ErrorCode.VALIDATION_ERROR,
+        message="The provided information contains validation errors. Please review and correct the fields.",
+        details=details[:5],
+    )
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request, exc: Exception):
+    ref_id = generate_reference_id()
+    logger.exception(f"Unhandled server error [Ref: {ref_id}] on {request.method} {request.url.path}: {exc}")
+    return create_error_response(
+        status_code=500,
+        code=ErrorCode.UNKNOWN_ERROR,
+        message="We could not complete your request. Please try again.",
+        reference_id=ref_id,
+    )
 
 @app.get("/")
 def read_root():

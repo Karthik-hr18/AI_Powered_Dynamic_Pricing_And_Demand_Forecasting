@@ -13,6 +13,8 @@ import { apiClient } from "../../../shared/apiClient";
 import { ProductDetailDrawer } from "../components/ProductDetailDrawer";
 import { ProductCard, ProductCardSkeleton } from "../components/ProductCard";
 import { EnterprisePagination } from "../../../shared/components/EnterprisePagination";
+import { getErrorMessage } from "../../../shared/utils/errorHandler";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 
 export const ProductsListPage = () => {
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -23,7 +25,7 @@ export const ProductsListPage = () => {
   const limit = 15;
 
   // Fetch paginated products from API
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["productsList", page, search, category],
     queryFn: async () => {
       const categoryParam = category === "ALL" ? "" : category;
@@ -50,9 +52,52 @@ export const ProductsListPage = () => {
   };
 
   if (error) {
+    const errorMsg = getErrorMessage(error, "Unable to load product catalog. Please check your connection.");
     return (
-      <div className="badge badge-danger" style={{ width: "100%", padding: "var(--space-4)" }}>
-        Failed to load product catalogue. Please check your backend connection.
+      <div
+        role="alert"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "48px 24px",
+          backgroundColor: "#FFFFFF",
+          border: "1px solid var(--gray-border)",
+          borderRadius: "var(--radius-card)",
+          textAlign: "center",
+          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+        }}
+      >
+        <div
+          style={{
+            width: "48px",
+            height: "48px",
+            borderRadius: "12px",
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "16px",
+          }}
+        >
+          <AlertTriangle size={24} style={{ color: "#EF4444" }} />
+        </div>
+        <h3 style={{ fontSize: "18px", fontWeight: 700, margin: "0 0 6px 0", color: "var(--gray-text-primary)" }}>
+          Unable to Load Products
+        </h3>
+        <p style={{ fontSize: "14px", color: "var(--gray-text-muted)", maxWidth: "420px", margin: "0 0 20px 0", lineHeight: 1.5 }}>
+          {errorMsg}
+        </p>
+        <button
+          onClick={() => refetch()}
+          disabled={isRefetching}
+          className="btn btn-primary"
+          style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px" }}
+        >
+          <RefreshCw size={14} className={isRefetching ? "spin-clockwise" : ""} />
+          {isRefetching ? "Retrying..." : "Retry"}
+        </button>
       </div>
     );
   }

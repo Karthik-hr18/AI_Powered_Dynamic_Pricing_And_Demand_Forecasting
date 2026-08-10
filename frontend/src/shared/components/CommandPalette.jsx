@@ -13,21 +13,19 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+import { useToast } from "../hooks/useToast";
+
 export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [query, setQuery] = useState("");
 
   // Keyboard shortcut listener (Ctrl+K or Cmd+K)
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         e.preventDefault();
-        if (isOpen) {
-          onClose();
-        } else {
-          // Trigger open
-          window.dispatchEvent(new CustomEvent("open-command-palette"));
-        }
+        onClose(); // toggle logic can be parent-driven
       }
       if (e.key === "Escape" && isOpen) {
         onClose();
@@ -41,50 +39,50 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
 
   const actions = [
     {
-      id: "nav-dash",
+      id: "nav-dashboard",
       label: "Go to Dashboard",
       category: "Navigation",
-      icon: <LayoutDashboard size={16} />,
+      icon: <LayoutDashboard size={16} style={{ color: "var(--accent)" }} />,
       perform: () => {
-        navigate("/dashboard");
         onClose();
+        navigate("/dashboard");
       },
     },
     {
       id: "nav-products",
-      label: "Browse Products",
+      label: "View Products & SKU Catalog",
       category: "Navigation",
-      icon: <ShoppingBag size={16} />,
+      icon: <ShoppingBag size={16} style={{ color: "#3B82F6" }} />,
       perform: () => {
-        navigate("/products");
         onClose();
+        navigate("/products");
       },
     },
     {
       id: "nav-uploads",
-      label: "Upload Sales Data",
+      label: "Upload Daily Sales CSV",
       category: "Navigation",
-      icon: <UploadCloud size={16} />,
+      icon: <UploadCloud size={16} style={{ color: "#8B5CF6" }} />,
       perform: () => {
-        navigate("/uploads");
         onClose();
+        navigate("/uploads");
       },
     },
     {
       id: "nav-admin",
-      label: "Administration",
+      label: "Admin & System Diagnostics",
       category: "Navigation",
-      icon: <ShieldCheck size={16} />,
+      icon: <ShieldCheck size={16} style={{ color: "#EF4444" }} />,
       perform: () => {
-        navigate("/admin");
         onClose();
+        navigate("/admin");
       },
     },
     {
       id: "act-report",
-      label: "Open Report Center (PDF Export)",
+      label: "Export Executive PDF Report",
       category: "Actions",
-      icon: <FileText size={16} style={{ color: "var(--accent)" }} />,
+      icon: <FileText size={16} style={{ color: "#F59E0B" }} />,
       perform: () => {
         onClose();
         onOpenReportCenter();
@@ -97,7 +95,7 @@ export const CommandPalette = ({ isOpen, onClose, onOpenReportCenter }) => {
       icon: <RefreshCw size={16} style={{ color: "#10B981" }} />,
       perform: () => {
         onClose();
-        alert("Running AI Analysis...");
+        toast.info("AI Analysis Started", "Analyzing sales data and updating demand forecasts.");
       },
     },
   ];

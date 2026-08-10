@@ -14,10 +14,13 @@ import {
 import { apiClient } from "../../../shared/apiClient";
 import { useUploadPolling } from "../hooks/useUploadPolling";
 import { useAuth } from "../../../shared/hooks/useAuth";
+import { useToast } from "../../../shared/hooks/useToast";
+import { getErrorMessage } from "../../../shared/utils/errorHandler";
 import { ShieldAlert, MailCheck } from "lucide-react";
 
 export const UploadPage = () => {
   const { user, isEmailVerified } = useAuth();
+  const toast = useToast();
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [schemaMapping, setSchemaMapping] = useState("standard");
@@ -51,12 +54,12 @@ export const UploadPage = () => {
 
   // Set up polling hook. Updates active record and history silently without full-page flickering
   const { activeUpload, setActiveUpload, isPolling, startPolling } =
-    useUploadPolling((updatedUpload) => {
+    useUploadPolling((updated) => {
       // Update history in-place silently
       setHistory((prev) =>
         prev.map((item) =>
-          item.upload_id === updatedUpload.upload_id || item.id === updatedUpload.id
-            ? updatedUpload
+          (item.upload_id || item.id) === (updated.upload_id || updated.id)
+            ? updated
             : item
         )
       );
@@ -84,7 +87,7 @@ export const UploadPage = () => {
     const isCsv =
       selectedFile.name.endsWith(".csv") || selectedFile.type === "text/csv";
     if (!isCsv) {
-      alert("Invalid format: Only CSV spreadsheets are accepted.");
+      toast.error("Invalid File Format", "Only CSV spreadsheets (.csv) are supported.");
       return;
     }
 
@@ -134,13 +137,15 @@ export const UploadPage = () => {
       });
 
       const upload = res.data;
+      toast.info("Upload Received", "Your sales data has been queued for background analysis.");
       // Start checking status in real time
       startPolling(upload.upload_id || upload.id);
       loadHistory();
       removeFile();
     } catch (err) {
       console.error("Upload failed", err);
-      alert(err.response?.data?.detail || "Failed to upload file.");
+      const safeMsg = getErrorMessage(err, "We couldn't process this CSV. Please check the required columns and try again.");
+      toast.error("Upload Failed", safeMsg);
     }
   };
 

@@ -83,7 +83,7 @@ async def upload_sales_csv(
             os.remove(filepath)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to write file to local disk: {str(e)}"
+            detail="Failed to save uploaded file. Please try again."
         )
 
     # Update actual saved size

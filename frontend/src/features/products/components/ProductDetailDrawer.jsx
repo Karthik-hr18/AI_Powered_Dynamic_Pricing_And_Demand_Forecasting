@@ -7,6 +7,7 @@ import {
   Coins,
   Clock,
   Sparkles,
+  RefreshCw,
 } from "lucide-react";
 import {
   AreaChart,
@@ -17,12 +18,13 @@ import {
 } from "recharts";
 
 import { apiClient } from "../../../shared/apiClient";
+import { getErrorMessage } from "../../../shared/utils/errorHandler";
 
 export const ProductDetailDrawer = ({ productId, onClose }) => {
   const [forecastHorizon, setForecastHorizon] = useState("7d");
 
   // Fetch product summary details
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["productSummary", productId],
     queryFn: async () => {
       const res = await apiClient.get(`products/${productId}/summary`);
@@ -194,9 +196,38 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
             <div className="skeleton-card" style={{ height: "160px" }} />
           </div>
         ) : error ? (
-          <div className="badge badge-danger" style={{ width: "100%", padding: "var(--space-3)", textTransform: "none" }}>
-            <AlertTriangle size={16} />
-            <span>Failed to load product details summary.</span>
+          <div
+            role="alert"
+            style={{
+              padding: "24px",
+              backgroundColor: "rgba(239, 68, 68, 0.05)",
+              border: "1px solid rgba(239, 68, 68, 0.2)",
+              borderRadius: "var(--radius-card)",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <AlertTriangle size={24} style={{ color: "#EF4444" }} />
+            <div>
+              <h5 style={{ fontSize: "14px", fontWeight: 700, margin: "0 0 4px 0", color: "var(--gray-text-primary)" }}>
+                Unable to Load Product Details
+              </h5>
+              <p style={{ fontSize: "12px", color: "var(--gray-text-muted)", margin: 0 }}>
+                {getErrorMessage(error, "We couldn't retrieve diagnostics for this product.")}
+              </p>
+            </div>
+            <button
+              onClick={() => refetch()}
+              disabled={isRefetching}
+              className="btn btn-secondary"
+              style={{ fontSize: "12px", padding: "6px 12px", display: "inline-flex", alignItems: "center", gap: "6px" }}
+            >
+              <RefreshCw size={13} className={isRefetching ? "spin-clockwise" : ""} />
+              {isRefetching ? "Retrying..." : "Retry"}
+            </button>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>

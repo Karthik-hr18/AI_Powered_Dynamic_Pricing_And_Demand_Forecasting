@@ -37,10 +37,13 @@ import {
 import { apiClient } from "../../../shared/apiClient";
 import { ProductDetailDrawer } from "../../products/components/ProductDetailDrawer";
 import { EnterprisePagination } from "../../../shared/components/EnterprisePagination";
+import { useToast } from "../../../shared/hooks/useToast";
+import { getErrorMessage } from "../../../shared/utils/errorHandler";
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [expandedRowId, setExpandedRowId] = useState(null);
 
@@ -231,10 +234,52 @@ export const DashboardPage = () => {
   }
 
   if (error) {
+    const errorMsg = getErrorMessage(error, "Unable to load dashboard data. Please check your connection.");
     return (
-      <div className="badge badge-danger" style={{ width: "100%", padding: "var(--space-4)", textTransform: "none" }}>
-        <AlertTriangle size={18} />
-        <span>Failed to load dashboard overview data. Please check your backend connection.</span>
+      <div
+        role="alert"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "48px 24px",
+          backgroundColor: "#FFFFFF",
+          border: "1px solid var(--gray-border)",
+          borderRadius: "var(--radius-card)",
+          textAlign: "center",
+          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+        }}
+      >
+        <div
+          style={{
+            width: "48px",
+            height: "48px",
+            borderRadius: "12px",
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "16px",
+          }}
+        >
+          <AlertTriangle size={24} style={{ color: "#EF4444" }} />
+        </div>
+        <h3 style={{ fontSize: "18px", fontWeight: 700, margin: "0 0 6px 0", color: "var(--gray-text-primary)" }}>
+          Unable to Load Dashboard
+        </h3>
+        <p style={{ fontSize: "14px", color: "var(--gray-text-muted)", maxWidth: "420px", margin: "0 0 20px 0", lineHeight: 1.5 }}>
+          {errorMsg}
+        </p>
+        <button
+          onClick={() => refetch()}
+          disabled={isRefetching}
+          className="btn btn-primary"
+          style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px" }}
+        >
+          <RefreshCw size={14} className={isRefetching ? "spin-clockwise" : ""} />
+          {isRefetching ? "Retrying..." : "Retry"}
+        </button>
       </div>
     );
   }
@@ -1251,7 +1296,7 @@ export const DashboardPage = () => {
                           <Sparkles size={14} /> View Diagnostics
                         </button>
                         <button
-                          onClick={() => alert(`Applied AI Price of ${formatCurrency(recommendedPrice)} to ${row.sku_display}`)}
+                          onClick={() => toast.success("Price Recommendation Applied", `Applied AI Price of ${formatCurrency(recommendedPrice)} to ${row.sku_display}.`)}
                           className="btn btn-secondary btn-pill"
                         >
                           <Zap size={14} style={{ color: "var(--warning)" }} /> Apply Price
