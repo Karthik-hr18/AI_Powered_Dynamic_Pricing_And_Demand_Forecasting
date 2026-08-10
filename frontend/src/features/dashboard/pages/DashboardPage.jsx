@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   TrendingUp,
   Package,
@@ -22,6 +22,8 @@ import {
   ArrowUpRight,
   Zap,
   ChevronDown,
+  Database,
+  ArrowRight,
 } from "lucide-react";
 import {
   LineChart,
@@ -434,7 +436,7 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* What's Changed Today (Clean Activity Feed) */}
+        {/* Dataset Ingestion & Pipeline Telemetry Card */}
         <div
           className="card"
           style={{
@@ -446,30 +448,96 @@ export const DashboardPage = () => {
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            gap: "10px",
           }}
         >
-          <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--gray-text-primary)", marginBottom: "var(--space-2)" }}>
-            Today's Activity Feed
-          </span>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--gray-text-primary)", fontWeight: 600 }}>
-                <ArrowUpRight size={13} style={{ color: "#10B981" }} /> Revenue increased +3.2%
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--gray-text-primary)", display: "flex", alignItems: "center", gap: "6px" }}>
+              <Database size={15} style={{ color: "var(--accent)" }} /> Dataset & Engine Status
+            </span>
+            <span className="badge badge-success" style={{ fontSize: "10px", padding: "2px 8px" }}>
+              {system_status?.pipeline_status || "Active"}
+            </span>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "10px",
+              backgroundColor: "var(--gray-bg)",
+              padding: "10px 14px",
+              borderRadius: "8px",
+              border: "1px solid var(--gray-border)",
+            }}
+          >
+            <div>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 500 }}>
+                Active Dataset
               </span>
-              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>2 mins ago</span>
+              <strong
+                style={{
+                  fontSize: "13px",
+                  color: "var(--gray-text-primary)",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "block",
+                }}
+                title={last_upload?.filename || "Sample Store Dataset"}
+              >
+                {last_upload?.filename || "Primary Sales Records"}
+              </strong>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px", borderTop: "1px solid #F1F5F9", paddingTop: "6px" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--gray-text-primary)", fontWeight: 600 }}>
-                <Sparkles size={13} style={{ color: "var(--accent)" }} /> 4 pricing recommendations generated
+
+            <div>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 500 }}>
+                Processed Records
               </span>
-              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>15 mins ago</span>
+              <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>
+                {last_upload?.total_rows ? Number(last_upload.total_rows).toLocaleString("en-IN") : "14,820"} rows
+              </strong>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px", borderTop: "1px solid #F1F5F9", paddingTop: "6px" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--gray-text-primary)", fontWeight: 600 }}>
-                <Activity size={13} style={{ color: "#D97706" }} /> Demand spike detected (Milk)
+
+            <div>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 500 }}>
+                Inference Engine
               </span>
-              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>1 hour ago</span>
+              <span style={{ fontSize: "12px", color: "#059669", fontWeight: 700, display: "flex", alignItems: "center", gap: "5px" }}>
+                <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#10B981" }} /> Synchronized
+              </span>
             </div>
+
+            <div>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 500 }}>
+                Last Analysis
+              </span>
+              <span style={{ fontSize: "12px", color: "var(--gray-text-primary)", fontWeight: 600 }}>
+                {last_upload?.created_at
+                  ? new Date(last_upload.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                  : "Latest Batch"}
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F1F5F9", paddingTop: "8px" }}>
+            <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>
+              Data ingested via secure CSV worker
+            </span>
+            <Link
+              to="/uploads"
+              style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "var(--accent)",
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              Upload New CSV <ArrowRight size={13} />
+            </Link>
           </div>
         </div>
       </div>
