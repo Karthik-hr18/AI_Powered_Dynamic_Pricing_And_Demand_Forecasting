@@ -175,24 +175,194 @@ export const LoginPage = () => {
           {loading ? "Signing in..." : "Sign In"}
         </button>
 
-        {/* Quick Demo Account Filler */}
-        <button
-          type="button"
-          onClick={() => {
-            setEmail("karthikhrvidyanidhi676@gmail.com");
-            setPassword("11111111");
-          }}
-          className="btn btn-secondary"
-          style={{
-            width: "100%",
-            fontSize: "13px",
-            borderColor: "rgba(99, 102, 241, 0.3)",
-            backgroundColor: "rgba(99, 102, 241, 0.1)",
-            color: "#A5B4FC",
-          }}
-        >
-          ✨ Fill Demo Retailer Credentials (karthikhrvidyanidhi676@gmail.com)
-        </button>
+        {/* Demo Credential Cards */}
+        <div style={{ marginTop: "var(--space-2)" }}>
+          {/* Divider */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              marginBottom: "var(--space-3)",
+            }}
+          >
+            <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(99,102,241,0.2)" }} />
+            <span
+              style={{
+                fontSize: "11px",
+                color: "rgba(165,180,252,0.55)",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Quick Demo Access
+            </span>
+            <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(99,102,241,0.2)" }} />
+          </div>
+
+          {/* Cards Row */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            {/* Retailer Card */}
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("karthikhrvidyanidhi676@gmail.com");
+                setPassword("11111111");
+              }}
+              style={{
+                background: "rgba(34, 197, 94, 0.06)",
+                border: "1px solid rgba(34, 197, 94, 0.25)",
+                borderRadius: "10px",
+                padding: "12px 14px",
+                cursor: "pointer",
+                textAlign: "left",
+                transition: "all 0.2s ease",
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(34,197,94,0.12)";
+                e.currentTarget.style.borderColor = "rgba(34,197,94,0.45)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(34,197,94,0.06)";
+                e.currentTarget.style.borderColor = "rgba(34,197,94,0.25)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+                <span style={{ fontSize: "15px" }}>🏪</span>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    color: "rgba(74, 222, 128, 0.9)",
+                  }}
+                >
+                  Retailer
+                </span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    color: "rgba(226,232,240,0.65)",
+                    fontFamily: "var(--font-mono, monospace)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    maxWidth: "100%",
+                  }}
+                >
+                  karthikhrvidyanidhi676
+                  <br />@gmail.com
+                </span>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    color: "rgba(226,232,240,0.5)",
+                    fontFamily: "var(--font-mono, monospace)",
+                  }}
+                >
+                  Pass: 11111111
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  color: "rgba(74,222,128,0.7)",
+                  fontWeight: 600,
+                  marginTop: "2px",
+                }}
+              >
+                ↗ Click to auto-fill
+              </div>
+            </button>
+
+            {/* Admin Card */}
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("karthikhr676@gmail.com");
+                setPassword("Karthik@123");
+              }}
+              style={{
+                background: "rgba(139, 92, 246, 0.06)",
+                border: "1px solid rgba(139, 92, 246, 0.25)",
+                borderRadius: "10px",
+                padding: "12px 14px",
+                cursor: "pointer",
+                textAlign: "left",
+                transition: "all 0.2s ease",
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(139,92,246,0.12)";
+                e.currentTarget.style.borderColor = "rgba(139,92,246,0.45)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(139,92,246,0.06)";
+                e.currentTarget.style.borderColor = "rgba(139,92,246,0.25)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+                <span style={{ fontSize: "15px" }}>🛡️</span>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    color: "rgba(196, 181, 253, 0.9)",
+                  }}
+                >
+                  Administrator
+                </span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    color: "rgba(226,232,240,0.65)",
+                    fontFamily: "var(--font-mono, monospace)",
+                  }}
+                >
+                  karthikhr676
+                  <br />@gmail.com
+                </span>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    color: "rgba(226,232,240,0.5)",
+                    fontFamily: "var(--font-mono, monospace)",
+                  }}
+                >
+                  Pass: Karthik@123
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  color: "rgba(196,181,253,0.7)",
+                  fontWeight: 600,
+                  marginTop: "2px",
+                }}
+              >
+                ↗ Click to auto-fill
+              </div>
+            </button>
+          </div>
+        </div>
 
         {/* Forgot Password */}
         <div style={{ textAlign: "center" }}>
