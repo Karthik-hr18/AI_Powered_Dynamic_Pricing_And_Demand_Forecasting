@@ -384,56 +384,154 @@ export const DashboardPage = () => {
             border: "1px solid var(--gray-border)",
             borderRadius: "var(--radius-card)",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+            gap: "12px",
           }}
         >
           <div>
-            <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--gray-text-primary)", display: "block", marginBottom: "var(--space-3)" }}>
-              Business Performance Overview
-            </span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-3)" }}>
+              <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
+                Business Performance Overview
+              </span>
+              <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>
+                Trailing 30-Day Window
+              </span>
+            </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: "var(--space-3)", marginBottom: "var(--space-3)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: "var(--space-3)" }}>
               <div>
                 <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 600 }}>
-                  Revenue (30 Days)
+                  Gross Revenue (30D)
                 </span>
-                <strong style={{ fontSize: "18px", color: "var(--gray-text-primary)", fontWeight: 800 }}>
-                  {formatCurrency(kpis?.total_revenue_30d || goal_progress?.current_revenue || 1985953)}
+                <strong style={{ fontSize: "17px", color: "var(--gray-text-primary)", fontWeight: 800 }}>
+                  {formatCurrency(kpis?.total_revenue_30d || goal_progress?.current_revenue || 0)}
                 </strong>
+                <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block", marginTop: "1px" }}>
+                  Gross sales collected
+                </span>
               </div>
 
               <div>
                 <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 600 }}>
                   Estimated Profit
                 </span>
-                <strong style={{ fontSize: "18px", color: "#059669", fontWeight: 800 }}>
-                  {formatCurrency(goal_progress?.projected_monthly_profit || 438950)}
+                <strong style={{ fontSize: "17px", color: "#059669", fontWeight: 800 }}>
+                  {formatCurrency(goal_progress?.projected_monthly_profit || 0)}
                 </strong>
+                <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block", marginTop: "1px" }}>
+                  Net margin earnings
+                </span>
               </div>
 
               <div>
                 <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 600 }}>
-                  Profit Growth
+                  AI Profit Growth
                 </span>
-                <strong style={{ fontSize: "18px", color: "#059669", fontWeight: 800 }}>
-                  +{goal_progress?.profit_expansion_pct ?? 22.8}%
+                <strong style={{ fontSize: "17px", color: "#059669", fontWeight: 800 }}>
+                  +{goal_progress?.profit_expansion_pct ?? 0}%
                 </strong>
+                <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block", marginTop: "1px" }}>
+                  Upside with AI pricing
+                </span>
               </div>
 
               <div>
                 <span style={{ fontSize: "11px", color: "var(--gray-text-muted)", display: "block", fontWeight: 600 }}>
                   Business Health
                 </span>
-                <span className="badge badge-success" style={{ fontSize: "11px", marginTop: "2px", fontWeight: 700, display: "inline-block" }}>
-                  {business_health?.rating ?? "Excellent"}
+                {(() => {
+                  const rating = business_health?.rating || "Good";
+                  const isNeedsAttention = rating.toLowerCase().includes("attention");
+                  const isGood = rating.toLowerCase().includes("good");
+                  const badgeClass = isNeedsAttention ? "badge-danger" : isGood ? "badge-warning" : "badge-success";
+                  const IconComponent = isNeedsAttention ? AlertTriangle : isGood ? Activity : CheckCircle2;
+
+                  return (
+                    <span
+                      className={`badge ${badgeClass}`}
+                      style={{ fontSize: "11px", marginTop: "2px", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "4px" }}
+                    >
+                      <IconComponent size={12} />
+                      {rating} ({business_health?.score || 85}/100)
+                    </span>
+                  );
+                })()}
+                <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block", marginTop: "1px" }}>
+                  Inventory & pricing score
                 </span>
               </div>
             </div>
           </div>
 
-          <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: "8px", fontSize: "12px", color: "var(--gray-text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
-            <CheckCircle2 size={14} style={{ color: "#10B981", flexShrink: 0 }} />
-            <span>Your business is performing above the expected monthly trend with strong revenue growth.</span>
-          </div>
+          {/* Actionable Health Guidance Footer */}
+          {(() => {
+            const rating = business_health?.rating || "Good";
+            const isNeedsAttention = rating.toLowerCase().includes("attention");
+            const riskCount = critical_risks?.length || 0;
+            const oppCount = top_opportunities?.length || 0;
+
+            if (isNeedsAttention || riskCount > 0) {
+              return (
+                <div
+                  style={{
+                    backgroundColor: "#FEF2F2",
+                    border: "1px solid #FECACA",
+                    borderRadius: "6px",
+                    padding: "8px 12px",
+                    fontSize: "12px",
+                    color: "#991B1B",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <AlertTriangle size={15} style={{ color: "#EF4444", flexShrink: 0 }} />
+                  <span>
+                    <strong>Action Required:</strong> Resolve <strong>{riskCount} stockout risks</strong> and review <strong>{oppCount} pricing opportunities</strong> below to restore health.
+                  </span>
+                </div>
+              );
+            }
+
+            if (oppCount > 0) {
+              return (
+                <div
+                  style={{
+                    backgroundColor: "#F0FDF4",
+                    border: "1px solid #BBF7D0",
+                    borderRadius: "6px",
+                    padding: "8px 12px",
+                    fontSize: "12px",
+                    color: "#166534",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <Sparkles size={15} style={{ color: "#10B981", flexShrink: 0 }} />
+                  <span>
+                    <strong>Growth Opportunity:</strong> Apply <strong>{oppCount} pricing recommendations</strong> below to capture up to <strong>+{formatCurrency(kpis?.potential_revenue_gain || 0)}</strong> in revenue.
+                  </span>
+                </div>
+              );
+            }
+
+            return (
+              <div
+                style={{
+                  borderTop: "1px solid #F1F5F9",
+                  paddingTop: "8px",
+                  fontSize: "12px",
+                  color: "var(--gray-text-muted)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                <CheckCircle2 size={14} style={{ color: "#10B981", flexShrink: 0 }} />
+                <span>Optimal Performance: Inventory cover and sales margins are tracking steady across categories.</span>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Dataset Ingestion & Pipeline Telemetry Card */}
