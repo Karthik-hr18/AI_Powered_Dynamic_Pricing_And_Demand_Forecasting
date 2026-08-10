@@ -81,46 +81,19 @@ export const RetailerDetailDrawer = ({
       style={{
         position: "fixed",
         top: 0,
-        left: 0,
         right: 0,
         bottom: 0,
+        width: "100%",
+        maxWidth: "560px",
         zIndex: 9990,
         display: "flex",
-        justifyContent: "flex-end",
+        flexDirection: "column",
+        backgroundColor: "var(--gray-surface, #F8FAFC)",
+        boxShadow: "-4px 0 24px rgba(0, 0, 0, 0.12), -1px 0 0 var(--gray-border, #E2E8F0)",
+        animation: "slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+        overflow: "hidden",
       }}
     >
-      {/* Backdrop */}
-      <div
-        className="slide-drawer-backdrop"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(15, 23, 42, 0.5)",
-          backdropFilter: "blur(2px)",
-        }}
-        onClick={onClose}
-      />
-
-      {/* Slide Drawer Content */}
-      <div
-        className="slide-drawer"
-        style={{
-          position: "relative",
-          width: "100%",
-          maxWidth: "560px",
-          height: "100%",
-          backgroundColor: "#FFFFFF",
-          boxShadow: "-10px 0 25px -5px rgba(0, 0, 0, 0.15)",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-          animation: "slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-          zIndex: 9991,
-        }}
-      >
         {/* Drawer Header */}
         <div
           style={{
@@ -373,7 +346,6 @@ export const RetailerDetailDrawer = ({
             </div>
           )}
         </div>
-      </div>
     </div>
   );
 };
