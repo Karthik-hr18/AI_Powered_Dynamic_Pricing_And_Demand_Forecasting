@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, LogIn, AlertCircle, ArrowLeft, Store, ShieldCheck } from "lucide-react";
+import { Mail, Lock, LogIn, AlertCircle, ArrowLeft, Store, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../../../shared/hooks/useAuth";
 
 export const LoginPage = () => {
@@ -8,6 +8,7 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = async (e) => {
@@ -34,7 +35,7 @@ export const LoginPage = () => {
 
   const fillAdmin = () => {
     setEmail("karthikhr676@gmail.com");
-    setPassword("Karthik@123");
+    setPassword("Karthik@64");
   };
 
   return (
@@ -95,6 +96,7 @@ export const LoginPage = () => {
 
       {/* Login Form */}
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+        {/* Email */}
         <div className="form-group">
           <label className="form-label" style={{ color: "#E2E8F0" }}>Email Address</label>
           <div style={{ position: "relative" }}>
@@ -114,6 +116,7 @@ export const LoginPage = () => {
           </div>
         </div>
 
+        {/* Password with show/hide toggle */}
         <div className="form-group">
           <label className="form-label" style={{ color: "#E2E8F0" }}>Password</label>
           <div style={{ position: "relative" }}>
@@ -121,15 +124,38 @@ export const LoginPage = () => {
               <Lock size={18} />
             </span>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               className="form-input"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ paddingLeft: "42px", backgroundColor: "rgba(15, 23, 42, 0.6)", borderColor: "rgba(99, 102, 241, 0.2)", color: "#FFFFFF" }}
+              style={{ paddingLeft: "42px", paddingRight: "44px", backgroundColor: "rgba(15, 23, 42, 0.6)", borderColor: "rgba(99, 102, 241, 0.2)", color: "#FFFFFF" }}
               required
               disabled={loading}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              tabIndex={-1}
+              style={{
+                position: "absolute",
+                right: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "var(--gray-text-muted)",
+                display: "flex",
+                alignItems: "center",
+                padding: "2px",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#A5B4FC")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--gray-text-muted)")}
+            >
+              {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+            </button>
           </div>
         </div>
 
@@ -145,7 +171,6 @@ export const LoginPage = () => {
 
         {/* Demo Access Chips */}
         <div>
-          {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
             <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(99,102,241,0.18)" }} />
             <span style={{ fontSize: "10px", color: "rgba(165,180,252,0.4)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", whiteSpace: "nowrap" }}>
@@ -154,7 +179,6 @@ export const LoginPage = () => {
             <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(99,102,241,0.18)" }} />
           </div>
 
-          {/* Two Chips */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
             <button
               type="button"
