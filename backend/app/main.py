@@ -127,6 +127,13 @@ async def cors_handler_middleware(request, call_next):
     return response
 
 # Register routers
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(uploads_router, prefix="/api/v1/uploads", tags=["uploads"])
+app.include_router(products_router, prefix="/api/v1/products", tags=["products"])
+app.include_router(dashboard_router, prefix="/api/v1/dashboard", tags=["dashboard"])
+app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(reports_router, prefix="/api/v1/reports", tags=["reports"])
+
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.core.errors import create_error_response, ErrorCode, generate_reference_id
@@ -176,3 +183,4 @@ def read_root():
 @app.get("/health")
 def read_health():
     return {"status": "ok"}
+
