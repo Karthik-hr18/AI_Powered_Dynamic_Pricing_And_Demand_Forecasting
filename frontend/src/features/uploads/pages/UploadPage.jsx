@@ -17,10 +17,12 @@ import { useAuth } from "../../../shared/hooks/useAuth";
 import { useToast } from "../../../shared/hooks/useToast";
 import { getErrorMessage } from "../../../shared/utils/errorHandler";
 import { ShieldAlert, MailCheck } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const UploadPage = () => {
   const { user, isEmailVerified } = useAuth();
   const toast = useToast();
+  const queryClient = useQueryClient();
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [schemaMapping, setSchemaMapping] = useState("standard");
@@ -64,6 +66,9 @@ export const UploadPage = () => {
         )
       );
       loadHistory(false);
+      // Invalidate dashboard and notifications query cache so new data & alerts are derived immediately
+      queryClient.invalidateQueries({ queryKey: ["dashboardOverview"] });
+      queryClient.invalidateQueries({ queryKey: ["productsList"] });
     });
 
   // Auto-start polling if an active processing job exists in history

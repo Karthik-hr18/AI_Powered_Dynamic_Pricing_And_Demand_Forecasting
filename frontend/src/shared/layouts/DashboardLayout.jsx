@@ -16,6 +16,7 @@ import {
   Home,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { useNotifications } from "../hooks/useNotifications";
 import { CommandPalette } from "../components/CommandPalette";
 import { NotificationCenter } from "../components/NotificationCenter";
 import { ReportCenterModal } from "../components/ReportCenterModal";
@@ -23,6 +24,7 @@ import { UserProfileMenu } from "../components/UserProfileMenu";
 
 export const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -365,9 +367,15 @@ export const DashboardLayout = ({ children }) => {
             <span style={{ fontSize: "12px", color: "var(--gray-text-primary)", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}>
               <Bell size={14} style={{ color: "var(--accent)" }} /> Notifications
             </span>
-            <span className="badge badge-danger" style={{ fontSize: "10px", padding: "2px 6px" }}>
-              4 New
-            </span>
+            {unreadCount > 0 ? (
+              <span className="badge badge-danger" style={{ fontSize: "10px", padding: "2px 6px" }}>
+                {unreadCount} New
+              </span>
+            ) : (
+              <span className="badge badge-success" style={{ fontSize: "10px", padding: "2px 6px" }}>
+                0 New
+              </span>
+            )}
           </div>
 
           {/* Back to Home */}
@@ -447,6 +455,20 @@ export const DashboardLayout = ({ children }) => {
             style={{ background: "none", border: "none", color: "var(--gray-text-primary)", cursor: "pointer", position: "relative", padding: "6px" }}
           >
             <Bell size={20} />
+            {unreadCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "4px",
+                  right: "4px",
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: "#EF4444",
+                  border: "2px solid #FFFFFF",
+                }}
+              />
+            )}
           </button>
           <button
             onClick={() => setMobileOpen(true)}

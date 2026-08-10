@@ -1,51 +1,20 @@
 import React, { useState } from "react";
-import { Bell, AlertTriangle, Info, CheckCircle, X, ExternalLink } from "lucide-react";
+import { Bell, AlertTriangle, Info, CheckCircle, X, CheckCheck, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useNotifications } from "../hooks/useNotifications";
 
 export const NotificationCenter = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, refreshNotifications, isLoading } = useNotifications();
   const [activeTab, setActiveTab] = useState("ALL");
 
   if (!isOpen) return null;
 
-  const notifications = [
-    {
-      id: "notif-1",
-      type: "CRITICAL",
-      title: "Stockout Risk: Organic Whole Milk 1L",
-      message: "Current inventory (120 units) covers only 4.2 days based on demand velocity.",
-      timestamp: "10 mins ago",
-      link: "/products?search=milk",
-    },
-    {
-      id: "notif-2",
-      type: "WARNING",
-      title: "Price Spike Anomaly Detected",
-      message: "Artisan Sourdough Bread experienced +140% sales volume spike on Sunday.",
-      timestamp: "35 mins ago",
-      link: "/dashboard",
-    },
-    {
-      id: "notif-3",
-      type: "COMPLETED",
-      title: "Data Upload Processed",
-      message: "Ingested sales_august_2026.csv (14,820 rows) and updated pricing models.",
-      timestamp: "1 hour ago",
-      link: "/uploads",
-    },
-    {
-      id: "notif-4",
-      type: "INFO",
-      title: "Monthly Revenue Target 64%",
-      message: "Store is currently on track to reach the ₹50,000 monthly target.",
-      timestamp: "2 hours ago",
-      link: "/dashboard",
-    },
-  ];
-
   const filteredNotifs =
     activeTab === "ALL"
       ? notifications
+      : activeTab === "UNREAD"
+      ? notifications.filter((n) => !n.isRead)
       : notifications.filter((n) => n.type === activeTab);
 
   const getIcon = (type) => {
@@ -61,6 +30,14 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleItemClick = (item) => {
+    markAsRead(item.id);
+    onClose();
+    if (item.link) {
+      navigate(item.link);
+    }
+  };
+
   return (
     <>
       <div className="slide-drawer-backdrop" onClick={onClose} style={{ zIndex: 100 }} />
@@ -69,99 +46,247 @@ export const NotificationCenter = ({ isOpen, onClose }) => {
           position: "fixed",
           top: "60px",
           right: "20px",
-          width: "360px",
+          width: "380px",
+          maxWidth: "calc(100vw - 40px)",
           backgroundColor: "#FFFFFF",
           border: "1px solid var(--gray-border)",
           borderRadius: "var(--radius-card)",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
           zIndex: 101,
           overflow: "hidden",
+          animation: "fadeIn 150ms ease-out",
         }}
       >
+        {/* Header */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "var(--space-3) var(--space-4)",
+            padding: "12px 16px",
             borderBottom: "1px solid var(--gray-border)",
+            backgroundColor: "#FFFFFF",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <Bell size={16} style={{ color: "var(--accent)" }} />
-            <h4 style={{ fontSize: "14px", fontWeight: 700, color: "var(--gray-text-primary)" }}>Notifications</h4>
-            <span style={{ fontSize: "10px", fontWeight: 700, backgroundColor: "#EEF2FF", color: "var(--accent)", padding: "2px 6px", borderRadius: "9999px" }}>
-              {notifications.length} New
-            </span>
+            <h4 style={{ fontSize: "14px", fontWeight: 700, color: "var(--gray-text-primary)", margin: 0 }}>
+              Live Alerts & Updates
+            </h4>
+            {unreadCount > 0 && (
+              <span
+                style={{
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  backgroundColor: "#FEF2F2",
+                  color: "#EF4444",
+                  border: "1px solid #FECACA",
+                  padding: "2px 6px",
+                  borderRadius: "9999px",
+                }}
+              >
+                {unreadCount} New
+              </span>
+            )}
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--gray-text-muted)", cursor: "pointer" }}>
-            <X size={16} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                title="Mark all as read"
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "11px",
+                  color: "var(--accent)",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  padding: "4px 6px",
+                  borderRadius: "4px",
+                }}
+              >
+                <CheckCheck size={13} />
+                Mark read
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--gray-text-muted)",
+                cursor: "pointer",
+                padding: "4px",
+                borderRadius: "4px",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Tab Filters */}
-        <div style={{ display: "flex", borderBottom: "1px solid var(--gray-border)", backgroundColor: "#F8FAFC" }}>
-          {["ALL", "CRITICAL", "WARNING", "COMPLETED"].map((tab) => (
+        <div
+          style={{
+            display: "flex",
+            borderBottom: "1px solid var(--gray-border)",
+            backgroundColor: "#F8FAFC",
+          }}
+        >
+          {[
+            { id: "ALL", label: "All" },
+            { id: "UNREAD", label: `Unread (${unreadCount})` },
+            { id: "CRITICAL", label: "Risks" },
+            { id: "WARNING", label: "Pricing" },
+          ].map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
               style={{
                 flex: 1,
                 padding: "8px 0",
-                fontSize: "10px",
-                fontWeight: 700,
-                color: activeTab === tab ? "var(--accent)" : "var(--gray-text-muted)",
-                borderBottom: activeTab === tab ? "2px solid var(--accent)" : "none",
-                background: "none",
+                fontSize: "11px",
+                fontWeight: 600,
+                color: activeTab === tab.id ? "var(--accent)" : "var(--gray-text-muted)",
+                borderBottom: activeTab === tab.id ? "2px solid var(--accent)" : "2px solid transparent",
+                backgroundColor: activeTab === tab.id ? "#FFFFFF" : "transparent",
                 borderTop: "none",
                 borderLeft: "none",
                 borderRight: "none",
                 cursor: "pointer",
+                transition: "all 120ms ease",
               }}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
 
         {/* Notification List */}
-        <div style={{ maxHeight: "320px", overflowY: "auto" }}>
-          {filteredNotifs.map((item, idx) => (
-            <div
-              key={item.id || item._id || item.upload_id || `notif-${idx}`}
-              onClick={() => {
-                onClose();
-                navigate(item.link);
-              }}
-              style={{
-                padding: "var(--space-3) var(--space-4)",
-                borderBottom: "1px solid var(--gray-border)",
-                cursor: "pointer",
-                transition: "background-color 0.15s",
-                display: "flex",
-                gap: "var(--space-3)",
-                alignItems: "flex-start",
-              }}
-              className="notif-item-hover"
-            >
-              <div style={{ marginTop: "2px" }}>{getIcon(item.type)}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <h5 style={{ fontSize: "13px", fontWeight: 700, color: "var(--gray-text-primary)" }}>{item.title}</h5>
-                  <span style={{ fontSize: "10px", color: "var(--gray-text-muted)" }}>{item.timestamp}</span>
-                </div>
-                <p style={{ fontSize: "12px", color: "var(--gray-text-muted)", margin: "3px 0 0 0" }}>{item.message}</p>
-              </div>
+        <div style={{ maxHeight: "360px", overflowY: "auto" }}>
+          {filteredNotifs.length === 0 ? (
+            <div style={{ padding: "36px 16px", textAlign: "center" }}>
+              <CheckCircle size={32} style={{ color: "#10B981", margin: "0 auto 8px auto", opacity: 0.8 }} />
+              <h5 style={{ fontSize: "13px", fontWeight: 700, margin: "0 0 4px 0", color: "var(--gray-text-primary)" }}>
+                You're All Caught Up!
+              </h5>
+              <p style={{ fontSize: "12px", color: "var(--gray-text-muted)", margin: 0 }}>
+                {activeTab === "UNREAD"
+                  ? "No unread alerts. All notifications have been reviewed."
+                  : "No active alerts or critical risks detected in your dataset."}
+              </p>
             </div>
-          ))}
+          ) : (
+            filteredNotifs.map((item, idx) => (
+              <div
+                key={item.id || `notif-${idx}`}
+                onClick={() => handleItemClick(item)}
+                style={{
+                  padding: "12px 16px",
+                  borderBottom: "1px solid var(--gray-border)",
+                  cursor: "pointer",
+                  transition: "background-color 0.15s ease",
+                  display: "flex",
+                  gap: "12px",
+                  alignItems: "flex-start",
+                  backgroundColor: item.isRead ? "#FFFFFF" : "rgba(238, 242, 255, 0.4)",
+                  position: "relative",
+                }}
+                className="notif-item-hover"
+              >
+                {!item.isRead && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: "4px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: "4px",
+                      height: "24px",
+                      borderRadius: "2px",
+                      backgroundColor: "var(--accent)",
+                    }}
+                  />
+                )}
+                <div style={{ marginTop: "2px", flexShrink: 0 }}>{getIcon(item.type)}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "6px" }}>
+                    <h5
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: item.isRead ? 600 : 700,
+                        color: "var(--gray-text-primary)",
+                        margin: 0,
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {item.title}
+                    </h5>
+                    <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", whiteSpace: "nowrap" }}>
+                      {item.timestamp}
+                    </span>
+                  </div>
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: item.isRead ? "var(--gray-text-muted)" : "#334155",
+                      margin: "4px 0 0 0",
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {item.message}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Footer info */}
+        <div
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#F8FAFC",
+            borderTop: "1px solid var(--gray-border)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>
+            Updated from latest sales upload
+          </span>
+          <button
+            onClick={() => refreshNotifications()}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              fontSize: "11px",
+              color: "var(--accent)",
+              fontWeight: 600,
+            }}
+          >
+            <RefreshCw size={11} className={isLoading ? "spin-clockwise" : ""} />
+            Sync
+          </button>
         </div>
       </div>
 
       <style>{`
         .notif-item-hover:hover {
-          background-color: #F8FAFC !important;
+          background-color: #F1F5F9 !important;
         }
       `}</style>
     </>
   );
 };
+

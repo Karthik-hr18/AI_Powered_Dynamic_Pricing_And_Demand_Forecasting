@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AuthProvider } from "./shared/hooks/useAuth";
 import { ToastProvider } from "./shared/context/ToastContext";
+import { NotificationProvider } from "./shared/context/NotificationContext";
 import { ErrorBoundary } from "./shared/components/ErrorBoundary";
 import { AppRoutes } from "./routes";
 
@@ -23,9 +24,11 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AuthProvider>
-            <ToastProvider>
-              <AppRoutes />
-            </ToastProvider>
+            <NotificationProvider>
+              <ToastProvider>
+                <AppRoutes />
+              </ToastProvider>
+            </NotificationProvider>
           </AuthProvider>
         </BrowserRouter>
       </QueryClientProvider>
