@@ -533,10 +533,15 @@ export const UploadPage = () => {
               </div>
             ) : history.length === 0 ? (
               // Empty State Container
-              <div style={{ padding: "60px var(--space-4)", textAlign: "center" }}>
-                <UploadCloud size={36} style={{ color: "var(--gray-text-muted)", marginBottom: "var(--space-2)", opacity: 0.5 }} />
-                <p style={{ fontWeight: 600, fontSize: "14px", color: "var(--gray-text-muted)" }}>
-                  No past datasets uploaded.
+              <div style={{ padding: "48px var(--space-4)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div className="empty-state-icon" style={{ width: "44px", height: "44px", marginBottom: "var(--space-3)" }}>
+                  <UploadCloud size={22} />
+                </div>
+                <h5 style={{ fontSize: "14px", fontWeight: 700, color: "var(--gray-text-primary)", marginBottom: "4px" }}>
+                  No Ingestion History
+                </h5>
+                <p style={{ fontSize: "12px", color: "var(--gray-text-muted)", maxWidth: "260px" }}>
+                  Uploaded sales CSV files and their processing logs will appear here.
                 </p>
               </div>
             ) : (

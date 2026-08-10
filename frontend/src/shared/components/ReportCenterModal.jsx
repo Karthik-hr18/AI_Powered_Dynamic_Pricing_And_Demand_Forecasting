@@ -13,7 +13,7 @@ export const ReportCenterModal = ({ isOpen, onClose }) => {
     {
       id: "pdf-executive",
       title: "Executive Business Summary (PDF)",
-      description: "Full 10-page executive PDF report with health scores, financial trends, AI pricing recommendations, and stock risk heatmaps.",
+      description: "Executive 2-page PDF summary with business health, revenue metrics, dynamic pricing recommendations, and stock risk heatmaps.",
       format: "PDF Document",
       icon: <FileText size={20} style={{ color: "#EF4444" }} />,
       bgIcon: "#FEF2F2",

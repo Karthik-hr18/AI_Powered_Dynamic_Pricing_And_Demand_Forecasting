@@ -242,9 +242,16 @@ export const AdminPage = () => {
               </tbody>
             </table>
           ) : (
-            <div style={{ padding: "60px var(--space-4)", textAlign: "center" }}>
-              <Users size={36} style={{ color: "var(--gray-text-muted)", marginBottom: "var(--space-2)", opacity: 0.5 }} />
-              <p style={{ fontWeight: 600, color: "var(--gray-text-muted)" }}>No retailer registrations found.</p>
+            <div style={{ padding: "48px var(--space-4)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div className="empty-state-icon" style={{ width: "44px", height: "44px", marginBottom: "var(--space-3)" }}>
+                <Users size={22} />
+              </div>
+              <h5 style={{ fontSize: "14px", fontWeight: 700, color: "var(--gray-text-primary)", marginBottom: "4px" }}>
+                No Retailer Accounts
+              </h5>
+              <p style={{ fontSize: "12px", color: "var(--gray-text-muted)", maxWidth: "260px" }}>
+                New store signups will appear here for administrative control.
+              </p>
             </div>
           )}
         </div>

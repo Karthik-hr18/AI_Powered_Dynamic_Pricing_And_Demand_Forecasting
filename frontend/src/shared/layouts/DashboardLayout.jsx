@@ -57,13 +57,13 @@ export const DashboardLayout = ({ children }) => {
       role: ["RETAILER"],
     },
     {
-      label: "Upload Data",
+      label: "Upload Sales CSV",
       path: "/uploads",
       icon: <UploadCloud size={20} />,
       role: ["RETAILER"],
     },
     {
-      label: "Products List",
+      label: "Products",
       path: "/products",
       icon: <ShoppingBag size={20} />,
       role: ["RETAILER"],
@@ -352,14 +352,17 @@ export const DashboardLayout = ({ children }) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "6px 12px",
-              backgroundColor: "rgba(15, 23, 42, 0.5)",
+              padding: "8px 12px",
+              backgroundColor: "var(--gray-bg)",
               borderRadius: "var(--radius-default)",
               border: "1px solid var(--gray-border)",
               cursor: "pointer",
+              transition: "background-color 150ms ease",
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#EDF2F7"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--gray-bg)"; }}
           >
-            <span style={{ fontSize: "12px", color: "var(--gray-text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
+            <span style={{ fontSize: "12px", color: "var(--gray-text-primary)", display: "flex", alignItems: "center", gap: "6px", fontWeight: 500 }}>
               <Bell size={14} style={{ color: "var(--accent)" }} /> Notifications
             </span>
             <span className="badge badge-danger" style={{ fontSize: "10px", padding: "2px 6px" }}>

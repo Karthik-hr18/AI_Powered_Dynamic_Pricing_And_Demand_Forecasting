@@ -201,12 +201,39 @@ export const ProductsListPage = () => {
           ))}
         </div>
       ) : (
-        <div style={{ padding: "80px var(--space-4)", textAlign: "center" }} className="card">
-          <Package size={48} style={{ color: "var(--gray-text-muted)", marginBottom: "var(--space-3)", opacity: 0.5 }} />
-          <h4 style={{ color: "var(--gray-text-muted)", marginBottom: "var(--space-2)" }}>No products found in catalogue.</h4>
-          <p style={{ fontSize: "13px", color: "var(--gray-text-muted)", marginBottom: "var(--space-4)" }}>
-            Upload your first sales CSV dataset to start AI demand forecasting and price optimization analysis.
+        <div className="empty-state-container">
+          <div className="empty-state-icon">
+            <Package size={26} />
+          </div>
+          <h4 className="empty-state-title">
+            {search || category !== "ALL" ? "No Matching Products Found" : "Product Catalog Empty"}
+          </h4>
+          <p className="empty-state-desc">
+            {search || category !== "ALL"
+              ? "We couldn't find any products matching your current search or category filter."
+              : "Upload your store's sales CSV dataset to begin demand forecasting and price optimization."}
           </p>
+          {search || category !== "ALL" ? (
+            <button
+              onClick={() => {
+                setSearch("");
+                setCategory("ALL");
+                setPage(1);
+              }}
+              className="btn btn-secondary"
+              style={{ fontSize: "13px", padding: "6px 14px" }}
+            >
+              Clear Filters
+            </button>
+          ) : (
+            <a
+              href="/uploads"
+              className="btn btn-primary"
+              style={{ fontSize: "13px", padding: "6px 16px", textDecoration: "none" }}
+            >
+              Upload Sales CSV
+            </a>
+          )}
         </div>
       )}
 
