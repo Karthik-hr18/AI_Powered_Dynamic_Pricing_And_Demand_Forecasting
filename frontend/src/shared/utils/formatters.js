@@ -14,6 +14,8 @@ export const formatRupee = (val) => {
   }).format(rounded);
 };
 
+export const formatCurrency = formatRupee;
+
 /**
  * Formats predicted demand as a clean whole integer with no decimals.
  * Example: 3.2 -> "3 units", 3.7 -> "4 units"
