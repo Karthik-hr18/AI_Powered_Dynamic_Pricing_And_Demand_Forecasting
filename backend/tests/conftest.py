@@ -19,6 +19,7 @@ from app.domains.forecasting.models import ForecastCurrentDocument, ForecastHist
 from app.domains.pricing.models import PricingCurrentDocument, PricingHistoryDocument
 from app.domains.inventory.models import InventoryCurrentDocument
 from app.domains.anomaly.models import AnomalyCurrentDocument
+from app.domains.admin.models import ActivityLogDocument
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -55,6 +56,7 @@ async def setup_test_database():
         PricingCurrentDocument,
         PricingHistoryDocument,
         InventoryCurrentDocument,
-        AnomalyCurrentDocument
+        AnomalyCurrentDocument,
+        ActivityLogDocument,
     ]
     await init_beanie(database=db, document_models=document_models)

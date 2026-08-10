@@ -26,6 +26,7 @@ from app.domains.pricing.models import PricingCurrentDocument, PricingHistoryDoc
 from app.domains.inventory.models import InventoryCurrentDocument
 from app.domains.anomaly.models import AnomalyCurrentDocument
 
+from app.domains.admin.models import ActivityLogDocument
 from app.domains.auth.service import seed_admin_to_mongo
 from app.domains.auth.router import router as auth_router
 from app.domains.uploads.router import router as uploads_router
@@ -53,7 +54,8 @@ async def lifespan(app: FastAPI):
         PricingCurrentDocument,
         PricingHistoryDocument,
         InventoryCurrentDocument,
-        AnomalyCurrentDocument
+        AnomalyCurrentDocument,
+        ActivityLogDocument
     ]
     await init_beanie(database=cast(Any, db), document_models=document_models)
     # 4. Generate master indexes

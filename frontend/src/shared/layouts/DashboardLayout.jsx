@@ -14,6 +14,11 @@ import {
   FileText,
   Sparkles,
   Home,
+  Users,
+  Database,
+  History,
+  Activity,
+  FileSpreadsheet,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useNotifications } from "../hooks/useNotifications";
@@ -28,12 +33,11 @@ export const DashboardLayout = ({ children }) => {
   const { unreadCount } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Modals & Drawers state
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [notificationCenterOpen, setNotificationCenterOpen] = useState(false);
   const [reportCenterOpen, setReportCenterOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [userProfileMenuOpen, setUserProfileMenuOpen] = useState(false);
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const [settingsInitialTab, setSettingsInitialTab] = useState("profile");
@@ -55,6 +59,7 @@ export const DashboardLayout = ({ children }) => {
   };
 
   const navItems = [
+    // Retailer Navigation
     {
       label: "Dashboard",
       path: "/dashboard",
@@ -81,10 +86,42 @@ export const DashboardLayout = ({ children }) => {
       icon: <FileText size={20} />,
       role: ["RETAILER"],
     },
+
+    // Admin Console Navigation
     {
-      label: "Admin Portal",
+      label: "Platform Overview",
       path: "/admin",
-      icon: <ShieldCheck size={20} />,
+      icon: <LayoutDashboard size={20} />,
+      role: ["ADMIN"],
+    },
+    {
+      label: "Retailer Management",
+      path: "/admin/retailers",
+      icon: <Users size={20} />,
+      role: ["ADMIN"],
+    },
+    {
+      label: "Data Operations",
+      path: "/admin/data-operations",
+      icon: <Database size={20} />,
+      role: ["ADMIN"],
+    },
+    {
+      label: "Activity Log",
+      path: "/admin/activity-log",
+      icon: <History size={20} />,
+      role: ["ADMIN"],
+    },
+    {
+      label: "Platform Health",
+      path: "/admin/platform-health",
+      icon: <Activity size={20} />,
+      role: ["ADMIN"],
+    },
+    {
+      label: "Platform Reports",
+      path: "/admin/reports",
+      icon: <FileSpreadsheet size={20} />,
       role: ["ADMIN"],
     },
   ];

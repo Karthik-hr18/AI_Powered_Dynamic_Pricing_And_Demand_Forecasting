@@ -30,8 +30,8 @@ async def sync_firebase_user(
 
     email_lower = email.lower()
 
-    # Determine role: admin email always gets ADMIN, everything else RETAILER
-    is_admin_email = email_lower == ADMIN_EMAIL.lower()
+    # Determine role: admin email or explicit admin sync gets ADMIN, otherwise RETAILER
+    is_admin = (email_lower == ADMIN_EMAIL.lower()) or (sync_data is not None and sync_data.role == UserRole.ADMIN)
 
     # 1. Check if user already exists in MongoDB by firebase_uid OR email
     user = await UserDocument.find_one(
@@ -46,12 +46,12 @@ async def sync_firebase_user(
         user.last_login_at = datetime.now(timezone.utc)
         user.updated_at = datetime.now(timezone.utc)
 
-        # Ensure admin email always retains ADMIN role
-        if is_admin_email:
+        # Ensure admin always retains ADMIN role
+        if is_admin:
             user.role = UserRole.ADMIN
 
         # Merge business name if updated or passed in
-        if sync_data and sync_data.business_name and not is_admin_email:
+        if sync_data and sync_data.business_name and not is_admin:
             user.business_name = sync_data.business_name
 
         # Enforce validation schemas on update
@@ -59,8 +59,8 @@ async def sync_firebase_user(
         logger.info(f"Synchronized existing user session: {email_lower}")
     else:
         # 2. Register new profile linked to Firebase UID
-        if is_admin_email:
-            # Admin account — always seeded as ADMIN, no business_name required
+        if is_admin:
+            # Admin account — seeded as ADMIN, no business_name required
             role = UserRole.ADMIN
             business_name = None
         else:

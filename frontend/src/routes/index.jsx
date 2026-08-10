@@ -6,7 +6,12 @@ import { LoginPage } from "../features/auth/pages/LoginPage";
 import { RegisterPage } from "../features/auth/pages/RegisterPage";
 import { ForgotPasswordPage } from "../features/auth/pages/ForgotPasswordPage";
 import { DashboardPage } from "../features/dashboard/pages/DashboardPage";
-import { AdminPage } from "../features/admin/pages/AdminPage";
+import { AdminOverviewPage } from "../features/admin/pages/AdminOverviewPage";
+import { AdminRetailersPage } from "../features/admin/pages/AdminRetailersPage";
+import { AdminDataOperationsPage } from "../features/admin/pages/AdminDataOperationsPage";
+import { AdminActivityLogPage } from "../features/admin/pages/AdminActivityLogPage";
+import { AdminPlatformHealthPage } from "../features/admin/pages/AdminPlatformHealthPage";
+import { AdminReportsPage } from "../features/admin/pages/AdminReportsPage";
 
 import { AuthLayout } from "../shared/layouts/AuthLayout";
 import { DashboardLayout } from "../shared/layouts/DashboardLayout";
@@ -93,7 +98,7 @@ export const AppRoutes = () => {
         }
       />
 
-      {/* Authenticated Pages */}
+      {/* Authenticated Retailer Pages */}
       <Route
         path="/dashboard"
         element={
@@ -119,12 +124,52 @@ export const AppRoutes = () => {
         }
       />
 
-      {/* Admin Pages */}
+      {/* Admin Console Pages */}
       <Route
         path="/admin"
         element={
           <AdminRoute>
-            <AdminPage />
+            <AdminOverviewPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/retailers"
+        element={
+          <AdminRoute>
+            <AdminRetailersPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/data-operations"
+        element={
+          <AdminRoute>
+            <AdminDataOperationsPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/activity-log"
+        element={
+          <AdminRoute>
+            <AdminActivityLogPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/platform-health"
+        element={
+          <AdminRoute>
+            <AdminPlatformHealthPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/reports"
+        element={
+          <AdminRoute>
+            <AdminReportsPage />
           </AdminRoute>
         }
       />
