@@ -22,6 +22,23 @@ const formatTimeAgo = (dateStr) => {
 export const NotificationProvider = ({ children }) => {
   const { user } = useAuth();
   const storageKey = user ? `profitsync_read_notifs_${user.id || user.email}` : "profitsync_read_notifs_guest";
+  const prefsStorageKey = user ? `profitsync_notif_prefs_${user.id || user.email}` : "profitsync_notif_prefs_guest";
+
+  const defaultPreferences = {
+    stockoutAlerts: true,
+    pricingAlerts: true,
+    uploadAlerts: true,
+    goalAlerts: true,
+  };
+
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      const saved = localStorage.getItem(prefsStorageKey);
+      return saved ? { ...defaultPreferences, ...JSON.parse(saved) } : defaultPreferences;
+    } catch {
+      return defaultPreferences;
+    }
+  });
 
   const [readIds, setReadIds] = useState(() => {
     try {
@@ -35,12 +52,25 @@ export const NotificationProvider = ({ children }) => {
   // Keep storage in sync when user changes
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(storageKey);
-      setReadIds(saved ? JSON.parse(saved) : []);
+      const savedRead = localStorage.getItem(storageKey);
+      setReadIds(savedRead ? JSON.parse(savedRead) : []);
+      const savedPrefs = localStorage.getItem(prefsStorageKey);
+      setPreferences(savedPrefs ? { ...defaultPreferences, ...JSON.parse(savedPrefs) } : defaultPreferences);
     } catch {
       setReadIds([]);
+      setPreferences(defaultPreferences);
     }
-  }, [storageKey]);
+  }, [storageKey, prefsStorageKey]);
+
+  const updatePreferences = (newPrefs) => {
+    const updated = { ...preferences, ...newPrefs };
+    setPreferences(updated);
+    try {
+      localStorage.setItem(prefsStorageKey, JSON.stringify(updated));
+    } catch (e) {
+      console.warn("Could not save notification preferences:", e);
+    }
+  };
 
   // Fetch real-time dashboard data for the active retailer
   const { data: dashboardData, isLoading, refetch } = useQuery({
@@ -53,13 +83,13 @@ export const NotificationProvider = ({ children }) => {
     staleTime: 30000,
   });
 
-  // Dynamically generate data-specific notifications based on latest analysis
+  // Dynamically generate data-specific notifications based on latest analysis and active preferences
   const notifications = useMemo(() => {
     if (!dashboardData) return [];
     const notifs = [];
 
-    // 1. Last Upload Ingestion Status Notification
-    if (dashboardData.last_upload && dashboardData.last_upload.filename) {
+    // 1. Last Upload Ingestion Status Notification (enforced by uploadAlerts)
+    if (preferences.uploadAlerts && dashboardData.last_upload && dashboardData.last_upload.filename) {
       const uploadId = `upload-${dashboardData.last_upload.created_at || dashboardData.last_upload.filename}`;
       const rows = dashboardData.last_upload.total_rows
         ? Number(dashboardData.last_upload.total_rows).toLocaleString("en-IN")
@@ -82,8 +112,8 @@ export const NotificationProvider = ({ children }) => {
       });
     }
 
-    // 2. Live Critical Stockout / Overstock Risks
-    if (dashboardData.critical_risks && dashboardData.critical_risks.length > 0) {
+    // 2. Live Critical Stockout / Overstock Risks (enforced by stockoutAlerts)
+    if (preferences.stockoutAlerts && dashboardData.critical_risks && dashboardData.critical_risks.length > 0) {
       dashboardData.critical_risks.forEach((risk, idx) => {
         const riskSku = risk.sku || `risk-${idx}`;
         const riskId = `stockout-${riskSku}`;
@@ -100,8 +130,8 @@ export const NotificationProvider = ({ children }) => {
       });
     }
 
-    // 3. Top Price Optimization Opportunities
-    if (dashboardData.top_opportunities && dashboardData.top_opportunities.length > 0) {
+    // 3. Top Price Optimization Opportunities (enforced by pricingAlerts)
+    if (preferences.pricingAlerts && dashboardData.top_opportunities && dashboardData.top_opportunities.length > 0) {
       dashboardData.top_opportunities.slice(0, 3).forEach((opp, idx) => {
         const oppSku = opp.sku || `opp-${idx}`;
         const oppId = `pricing-${oppSku}`;
@@ -123,8 +153,8 @@ export const NotificationProvider = ({ children }) => {
       });
     }
 
-    // 4. Monthly Goal Progress Alert
-    if (dashboardData.goal_progress && dashboardData.goal_progress.progress_pct !== undefined) {
+    // 4. Monthly Goal Progress Alert (enforced by goalAlerts)
+    if (preferences.goalAlerts && dashboardData.goal_progress && dashboardData.goal_progress.progress_pct !== undefined) {
       const pct = Math.round(dashboardData.goal_progress.progress_pct || 0);
       const rev = Math.round(dashboardData.goal_progress.current_revenue || 0).toLocaleString("en-IN");
       const target = Math.round(dashboardData.goal_progress.target_revenue || 50000).toLocaleString("en-IN");
@@ -142,7 +172,7 @@ export const NotificationProvider = ({ children }) => {
     }
 
     return notifs;
-  }, [dashboardData, readIds]);
+  }, [dashboardData, readIds, preferences]);
 
   const unreadCount = useMemo(() => {
     return notifications.filter((n) => !readIds.includes(n.id)).length;
@@ -180,6 +210,8 @@ export const NotificationProvider = ({ children }) => {
         notifications,
         unreadCount,
         isLoading,
+        preferences,
+        updatePreferences,
         markAsRead,
         markAllAsRead,
         clearAll,

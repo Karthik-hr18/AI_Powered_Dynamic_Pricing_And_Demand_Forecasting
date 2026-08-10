@@ -1,13 +1,11 @@
 import React from "react";
-import { User, Settings, Bell, Key, CreditCard, LogOut } from "lucide-react";
+import { User, Settings, Bell, FileText, LogOut, Sliders } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { useToast } from "../hooks/useToast";
 
-export const UserProfileMenu = ({ isOpen, onClose }) => {
+export const UserProfileMenu = ({ isOpen, onClose, onOpenSettings, onOpenReports }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const toast = useToast();
 
   if (!isOpen) return null;
 
@@ -22,11 +20,38 @@ export const UserProfileMenu = ({ isOpen, onClose }) => {
   };
 
   const menuItems = [
-    { label: "Profile", icon: <User size={15} />, action: () => { onClose(); toast.info("Profile", "Business profile settings will be configurable in your next store update."); } },
-    { label: "Settings", icon: <Settings size={15} />, action: () => { onClose(); toast.info("Settings", "Account settings will be configurable in your next store update."); } },
-    { label: "Notifications", icon: <Bell size={15} />, action: () => { onClose(); toast.info("Notifications", "Notification preferences will be configurable in your next store update."); } },
-    { label: "API Keys", icon: <Key size={15} />, action: () => { onClose(); toast.info("API Keys", "Developer API keys will be configurable in your next store update."); } },
-    { label: "Billing", icon: <CreditCard size={15} />, action: () => { onClose(); toast.info("Billing", "Subscription and billing management will be available in your next store update."); } },
+    {
+      label: "Store Profile",
+      icon: <User size={15} />,
+      action: () => {
+        onClose();
+        if (onOpenSettings) onOpenSettings("profile");
+      },
+    },
+    {
+      label: "Store Settings",
+      icon: <Sliders size={15} />,
+      action: () => {
+        onClose();
+        if (onOpenSettings) onOpenSettings("store");
+      },
+    },
+    {
+      label: "Notification Preferences",
+      icon: <Bell size={15} />,
+      action: () => {
+        onClose();
+        if (onOpenSettings) onOpenSettings("notifications");
+      },
+    },
+    {
+      label: "Executive Report Center",
+      icon: <FileText size={15} />,
+      action: () => {
+        onClose();
+        if (onOpenReports) onOpenReports();
+      },
+    },
   ];
 
   return (

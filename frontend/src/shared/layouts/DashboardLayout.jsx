@@ -21,6 +21,7 @@ import { CommandPalette } from "../components/CommandPalette";
 import { NotificationCenter } from "../components/NotificationCenter";
 import { ReportCenterModal } from "../components/ReportCenterModal";
 import { UserProfileMenu } from "../components/UserProfileMenu";
+import { AccountSettingsModal } from "../components/AccountSettingsModal";
 
 export const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -34,6 +35,8 @@ export const DashboardLayout = ({ children }) => {
   const [notificationCenterOpen, setNotificationCenterOpen] = useState(false);
   const [reportCenterOpen, setReportCenterOpen] = useState(false);
   const [userProfileMenuOpen, setUserProfileMenuOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
+  const [settingsInitialTab, setSettingsInitialTab] = useState("profile");
 
   // Custom listener for command palette trigger
   useEffect(() => {
@@ -116,6 +119,16 @@ export const DashboardLayout = ({ children }) => {
       <UserProfileMenu
         isOpen={userProfileMenuOpen}
         onClose={() => setUserProfileMenuOpen(false)}
+        onOpenSettings={(tab) => {
+          setSettingsInitialTab(tab || "profile");
+          setAccountSettingsOpen(true);
+        }}
+        onOpenReports={() => setReportCenterOpen(true)}
+      />
+      <AccountSettingsModal
+        isOpen={accountSettingsOpen}
+        onClose={() => setAccountSettingsOpen(false)}
+        initialTab={settingsInitialTab}
       />
 
       {/* 1. Primary Desktop Navigation Sidebar */}
