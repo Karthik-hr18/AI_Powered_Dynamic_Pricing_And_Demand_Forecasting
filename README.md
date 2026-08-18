@@ -148,5 +148,4 @@ All contributions must follow our contribution guide in `CONTRIBUTING.md`. Never
 
 ---
 
-## License
-Licensed under the [MIT License](LICENSE) (Placeholder).
+
