@@ -274,10 +274,10 @@ export const AdminOverviewPage = () => {
                 <BarChart data={retailer_growth_30d} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
                   <XAxis dataKey="date" tickFormatter={formatChartDate} stroke="#94A3B8" style={{ fontSize: "11px" }} />
-                  <YAxis allowDecimals={false} stroke="#94A3B8" style={{ fontSize: "11px" }} />
+                  <YAxis allowDecimals={false} stroke="#94A3B8" style={{ fontSize: "11px" }} tickFormatter={(val) => Math.round(val).toLocaleString()} />
                   <Tooltip
                     contentStyle={{ backgroundColor: "var(--gray-surface)", borderColor: "var(--gray-border)", borderRadius: "var(--radius-default)", fontSize: "12px" }}
-                    formatter={(value) => [`${value} new retailer(s)`, "Registrations"]}
+                    formatter={(value) => [`${Math.round(Number(value) || 0).toLocaleString()} new retailer(s)`, "Registrations"]}
                     labelFormatter={(label) => formatChartDate(label)}
                   />
                   <Bar dataKey="new_retailers" fill="var(--accent)" radius={[4, 4, 0, 0]} />

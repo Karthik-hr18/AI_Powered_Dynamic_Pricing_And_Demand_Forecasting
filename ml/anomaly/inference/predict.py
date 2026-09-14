@@ -118,7 +118,7 @@ def detect_anomalies(
 
     has_unreviewed = any(not a.acknowledged for a in flagged_list)
 
-    doc = AnomalyCurrentDocument(
+    doc = AnomalyCurrentDocument.model_construct(
         retailer_id=retailer_id,
         product_id=product_id,
         flagged_anomalies=flagged_list,

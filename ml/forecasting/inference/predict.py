@@ -153,91 +153,63 @@ def predict_demand(
         # Graceful Local Fallback Mock
         model_version = "1.0.0-mock"
 
-        if history_days < 14:
+        if history_days < 7:
+            pipeline_type = ForecastPipelineType.INSUFFICIENT_DATA
+            confidence_label = ForecastConfidenceLabel.LOW
+            eligibility_reason = f"Product has only {history_days} days of history; minimum 7 days required."
+            horizon_7d = None
+            horizon_30d = None
+            mape = 25.0
+
+        elif history_days < 30:
             import math
-            pipeline_type = ForecastPipelineType.FULL
+            pipeline_type = ForecastPipelineType.FALLBACK
             confidence_label = ForecastConfidenceLabel.LOW
             eligibility_reason = None
-            
+            mape = 18.0
+
             avg_qty = (sum(item.quantity_sold for item in history_sorted) / max(1, len(history_sorted))) if history_sorted else 5.0
             if avg_qty <= 0:
                 avg_qty = 5.0
-            
+
             preds_7d = []
-            preds_30d = []
-            for d in range(1, 31):
+            for d in range(1, 8):
                 proj_date = max_date + timedelta(days=d)
                 seasonality = 1.15 if proj_date.weekday() in (5, 6) else 0.95
                 pred_qty = max(1.0, round(avg_qty * seasonality * (1.0 + 0.05 * math.sin(d)), 2))
-                
-                item_pred = ForecastPrediction(
-                    date=proj_date,
-                    predicted_quantity=pred_qty
-                )
-                preds_30d.append(item_pred)
-                if d <= 7:
-                    preds_7d.append(item_pred)
-            
-            horizon_7d = ForecastHorizon(predictions=preds_7d, confidence="low")
-            horizon_30d = ForecastHorizon(predictions=preds_30d, confidence="low")
-            
-        elif history_days < 30:
-            pipeline_type = ForecastPipelineType.FULL
-            confidence_label = ForecastConfidenceLabel.LOW
-            eligibility_reason = None
-            
-            last_7 = history_sorted[-7:]
-            weights = [1, 2, 3, 4, 5, 6, 7]
-            weighted_sum = sum(last_7[i].quantity_sold * weights[i] for i in range(len(last_7)))
-            flat_wma = weighted_sum / sum(weights[:len(last_7)])
-            flat_prediction = max(1.0, round(flat_wma, 2))
-
-            preds_7d = []
-            preds_30d = []
-            for d in range(1, 31):
-                proj_date = max_date + timedelta(days=d)
-                seasonality = 1.15 if proj_date.weekday() in (5, 6) else 0.95
-                pred_qty = max(1.0, round(flat_prediction * seasonality, 2))
-                
-                item_pred = ForecastPrediction(
-                    date=proj_date,
-                    predicted_quantity=pred_qty
-                )
-                preds_30d.append(item_pred)
-                if d <= 7:
-                    preds_7d.append(item_pred)
+                preds_7d.append(ForecastPrediction(date=proj_date, predicted_quantity=pred_qty))
 
             horizon_7d = ForecastHorizon(predictions=preds_7d, confidence="low")
-            horizon_30d = ForecastHorizon(predictions=preds_30d, confidence="low")
-            
+            horizon_30d = None
+
         else:
+            import math
             pipeline_type = ForecastPipelineType.FULL
             confidence_label = ForecastConfidenceLabel.HIGH
             eligibility_reason = None
-            
+            mape = 8.5
+
             last_14 = history_sorted[-14:]
             mean_qty = sum(item.quantity_sold for item in last_14) / 14.0
+            if mean_qty <= 0:
+                mean_qty = 5.0
 
             preds_7d = []
             preds_30d = []
             for d in range(1, 31):
                 proj_date = max_date + timedelta(days=d)
-                seasonality = 1.3 if proj_date.weekday() in (5, 6) else 0.85
-                pred_qty = max(1.0, round(mean_qty * seasonality, 2))
-                
-                prediction_item = ForecastPrediction(
-                    date=proj_date,
-                    predicted_quantity=pred_qty
-                )
-                preds_30d.append(prediction_item)
+                seasonality = 1.20 if proj_date.weekday() in (5, 6) else 0.95
+                pred_qty = max(1.0, round(mean_qty * seasonality * (1.0 + 0.03 * math.cos(d)), 2))
+                item_pred = ForecastPrediction(date=proj_date, predicted_quantity=pred_qty)
+                preds_30d.append(item_pred)
                 if d <= 7:
-                    preds_7d.append(prediction_item)
+                    preds_7d.append(item_pred)
 
             horizon_7d = ForecastHorizon(predictions=preds_7d, confidence="high")
-            horizon_30d = ForecastHorizon(predictions=preds_30d, confidence="medium")
+            horizon_30d = ForecastHorizon(predictions=preds_30d, confidence="high")
 
     # Construct the final Beanie documents
-    current_doc = ForecastCurrentDocument(
+    current_doc = ForecastCurrentDocument.model_construct(
         retailer_id=retailer_id,
         product_id=product_id,
         pipeline_type=pipeline_type,
@@ -252,7 +224,7 @@ def predict_demand(
         run_timestamp=run_time
     )
 
-    history_doc = ForecastHistoryDocument(
+    history_doc = ForecastHistoryDocument.model_construct(
         retailer_id=retailer_id,
         product_id=product_id,
         pipeline_type=pipeline_type,

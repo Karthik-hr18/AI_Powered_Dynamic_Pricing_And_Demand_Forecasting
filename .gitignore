@@ -1,40 +1,62 @@
-# Environment configuration files (secrets)
+# ==========================================
+# Environment & Secrets
+# ==========================================
 .env
 *.env
+*.env.local
+*.env.production
+*.env.development
 backend/.env
 frontend/.env
+*.pem
+*.key
 
-# Python
+# ==========================================
+# Python & Virtual Environments
+# ==========================================
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
+*.so
+.Python
 .venv/
 venv/
 ENV/
 env/
-.ipynb_checkpoints/
-coverage/
+.pytest_cache/
 .coverage
 htmlcov/
-*.egg-info/
+coverage/
 .mypy_cache/
 .pyre/
 .ruff_cache/
 .cache/
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
 
-# JavaScript (Frontend)
+# ==========================================
+# JavaScript / Frontend
+# ==========================================
 node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
 dist/
 dist-ssr/
 build/
+.eslintcache
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Editors/IDEs
+# ==========================================
+# Editors & Operating Systems
+# ==========================================
 .vscode/
 .idea/
 *.suo
@@ -42,21 +64,47 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+*.swo
+*.swp
+*~
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Logs
+# ==========================================
+# Logs & System
+# ==========================================
 *.log
 logs/
+backend/logs/
 
-# Scratch & Local Storage Uploads
-backend/scratch/
-backend/storage/
-docs/indian_sme_retail_dataset.csv
-hf_space/
-ENTERPRISE_DESIGN_SYSTEM.md
-testing/
-
-# ML Artifacts
+# ==========================================
+# ML Models & Artifacts
+# ==========================================
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.onnx
+*.h5
 backend/artifacts/**/*.pkl
 backend/artifacts/**/*.joblib
+backend/artifacts/**/*.pt
+backend/artifacts/**/*.pth
+backend/artifacts/**/*.onnx
+
+# ==========================================
+# Local Storage, Scratch & Testing Dumps
+# ==========================================
+backend/scratch/
+backend/storage/
+backend/storage/uploads/
+testing/
+hf_space/
+ENTERPRISE_DESIGN_SYSTEM.md
+
+# ==========================================
+# Generated Datasets & Large CSVs
+# ==========================================
+docs/*.csv
+*.csv.gz

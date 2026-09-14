@@ -169,8 +169,9 @@ def _create_mock_processed_sale(
     )
 
 
-def test_predict_demand_eligibility():
+def test_predict_demand_eligibility(monkeypatch):
     """Verify three-tier demand forecasting selection logic and schemas."""
+    monkeypatch.setattr("ml.forecasting.inference.predict.settings.HF_API_URL", "")
     retailer_id = PydanticObjectId()
     product_id = PydanticObjectId()
     upload_id = PydanticObjectId()
@@ -212,8 +213,9 @@ def test_predict_demand_eligibility():
     assert len(curr.horizon_30d.predictions) == 30
 
 
-def test_recommend_price_eligibility():
+def test_recommend_price_eligibility(monkeypatch):
     """Verify pricing recommendation elastic candidate grid selection."""
+    monkeypatch.setattr("ml.pricing.inference.predict.settings.HF_API_URL", "")
     retailer_id = PydanticObjectId()
     product_id = PydanticObjectId()
     upload_id = PydanticObjectId()

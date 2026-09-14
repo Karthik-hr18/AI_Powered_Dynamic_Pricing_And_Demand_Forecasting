@@ -63,7 +63,7 @@ class CategoryPerformanceItem(BaseModel):
 
 class ProductRankItem(BaseModel):
     sku: str
-    product_name: str
+    product_name: Optional[str] = None
     units_sold: float
     revenue: float
 

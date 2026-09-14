@@ -115,10 +115,10 @@ async def list_products(
         sl = sales_map.get(str(p.id)) or sales_map.get(p.sku, {})
         r_sl = raw_sales_map.get(str(p.id)) or raw_sales_map.get(p.sku, {})
 
-        current_price = (pr.current_price if pr else None) or sl.get("avg_price") or r_sl.get("avg_price") or p.current_price or 0.0
+        current_price = (pr.current_price if pr else None) or sl.get("avg_price") or r_sl.get("avg_price") or getattr(p, "current_price", None) or 0.0
         rec_price = pr.recommended_price if pr else None
 
-        sales_30d = sl.get("sales_30d") or r_sl.get("sales_30d") or 0
+        sales_30d = int(round(sl.get("sales_30d") or r_sl.get("sales_30d") or 0))
         revenue_30d = sl.get("revenue_30d") or r_sl.get("revenue_30d") or 0.0
 
         f_7d = 0.0
@@ -143,8 +143,8 @@ async def list_products(
             recommended_price=round(rec_price, 2) if rec_price is not None else None,
             sales_30d=sales_30d,
             revenue_30d=round(revenue_30d, 2),
-            forecast_7d=float(f_7d),
-            stock_level=stock,
+            forecast_7d=float(int(round(f_7d))),
+            stock_level=int(round(stock)),
             inventory_status=inv_status,
         )
         items.append(item)
@@ -192,7 +192,7 @@ async def get_product_summary_data(
     pricing_task = PricingCurrentDocument.find_one(match_query)
     inventory_task = InventoryCurrentDocument.find_one(match_query)
     anomaly_task = AnomalyCurrentDocument.find_one(match_query)
-    sales_task = ProcessedSaleDocument.find(match_query).sort("-date").limit(30).to_list()
+    sales_task = ProcessedSaleDocument.find(match_query).sort("-date").limit(90).to_list()
 
     forecast, pricing, inventory, anomaly, sales_desc = await asyncio.gather(
         forecast_task, pricing_task, inventory_task, anomaly_task, sales_task
@@ -202,7 +202,7 @@ async def get_product_summary_data(
     sales_records = list(reversed(sales_desc))
 
     if not sales_records:
-        raw_sales_desc = await db["raw_sales"].find(match_query).sort("date", -1).limit(30).to_list()
+        raw_sales_desc = await db["raw_sales"].find(match_query).sort("date", -1).limit(90).to_list()
         sales_records_raw = list(reversed(raw_sales_desc))
         sparkline = [
             SparklinePoint(
@@ -216,7 +216,7 @@ async def get_product_summary_data(
         sparkline = [
             SparklinePoint(
                 date=record.date,
-                quantity_sold=record.quantity_sold,
+                quantity_sold=float(int(round(record.quantity_sold))),
                 selling_price=float(record.selling_price or 0.0),
             )
             for record in sales_records

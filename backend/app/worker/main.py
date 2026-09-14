@@ -5,6 +5,8 @@ import os
 import sys
 import time
 import traceback
+import pymongo
+import pymongo.errors
 from datetime import datetime, timedelta, timezone
 
 # ---------------------------------------------------------------------------
@@ -27,7 +29,7 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 from beanie import init_beanie, PydanticObjectId
 
 from app.core.config import settings
-from app.core.constants import UploadStatus, UserRole, ForecastTriggeredBy
+from app.core.constants import UploadStatus, UserRole, ForecastTriggeredBy, CollectionNames
 from app.core.db.connection import connect_to_mongo, close_mongo_connection, get_database
 from app.core.db.init_indexes import create_all_indexes
 from app.domains.auth.models import UserDocument
@@ -161,12 +163,20 @@ async def _aggregate_sales_via_mongo(upload_id: PydanticObjectId, retailer_id: P
                 "holiday_flag": {"$eq": ["$holiday_flag", 1]},
             }
         },
-        {"$sort": {"product_id": 1, "date": 1}},
     ]
 
     db = get_database()
     cursor = db["raw_sales"].aggregate(pipeline)
     results = await cursor.to_list(length=None)
+    
+    # NOTE ON SCALABILITY: 
+    # We sort in Python memory here because MongoDB Atlas M0 clusters do not allow 
+    # `allowDiskUse=True` in aggregation pipelines. A native `$sort` stage fails if 
+    # the grouped result exceeds 32MB. For 30k-100k aggregated rows, Python sorts 
+    # this in <0.1s trivially. However, for massive deployments (millions of unique 
+    # product-day combinations), this should be moved back to a native `$sort` stage 
+    # with `allowDiskUse=True` on a paid cluster (M10+).
+    results.sort(key=lambda x: (x.get("product_id"), x.get("date")))
     return results
 
 
@@ -201,28 +211,16 @@ def _build_agg_dataframe(agg_rows: List[Dict[str, Any]]):
 # Phase 2: Per-product ProcessedSale upsert (async cursor, not to_list())
 # ---------------------------------------------------------------------------
 
-async def _process_product_features(
+def _process_product_features(
     upload: UploadDocument,
     pid: PydanticObjectId,
-    df_agg,
+    df_prod,
     compute_rolling_features,
-    run_time: datetime,
-) -> None:
+    history_processed: List[ProcessedSaleDocument],
+) -> Tuple[List[ProcessedSaleDocument], List[ProcessedSaleDocument]]:
     """
-    For a single product, load its historical ProcessedSaleDocuments via async
-    cursor (not .to_list()), compute rolling features, and upsert results.
+    Compute rolling features and return updated existing docs and new docs without writing to DB.
     """
-    import pandas as pd
-
-    # Async cursor — avoids pulling all processed records into memory at once
-    history_processed: List[ProcessedSaleDocument] = []
-    async for doc in ProcessedSaleDocument.find(
-        ProcessedSaleDocument.retailer_id == upload.retailer_id,
-        ProcessedSaleDocument.product_id == pid,
-    ).sort("+date"):
-        history_processed.append(doc)
-
-    df_prod = df_agg[df_agg["product_id"] == str(pid)]
     feature_records = compute_rolling_features(df_prod, history_processed)
 
     def _date_key(d: Any) -> str:
@@ -230,7 +228,6 @@ async def _process_product_features(
             return d.strftime("%Y-%m-%d")
         return str(d)[:10]
 
-    # Build lookup of existing processed records for upsert using normalized date key
     existing_map: Dict[str, ProcessedSaleDocument] = {_date_key(p.date): p for p in history_processed}
 
     updated_ex_docs: List[ProcessedSaleDocument] = []
@@ -250,8 +247,9 @@ async def _process_product_features(
             updated_ex_docs.append(ex)
         elif d_key not in seen_new_dates:
             seen_new_dates.add(d_key)
-            new_feats.append(ProcessedSaleDocument(
+            new_feats.append(ProcessedSaleDocument.model_construct(
                 retailer_id=upload.retailer_id,
+                upload_id=upload.id,
                 product_id=pid,
                 date=feat_date,
                 quantity_sold=feat["quantity_sold"],
@@ -272,32 +270,7 @@ async def _process_product_features(
                 feature_engineering_version=feat["feature_engineering_version"],
             ))
 
-    if updated_ex_docs:
-        await asyncio.gather(*(d.save() for d in updated_ex_docs))
-
-    if new_feats:
-        try:
-            await ProcessedSaleDocument.insert_many(new_feats)
-        except Exception as ex_bulk:
-            logger.warning(f"[WORKER] Batch insert warning for product {pid}: {ex_bulk}. Falling back to atomic upserts.")
-            for doc in new_feats:
-                try:
-                    existing_doc = await ProcessedSaleDocument.find_one(
-                        ProcessedSaleDocument.retailer_id == doc.retailer_id,
-                        ProcessedSaleDocument.product_id == doc.product_id,
-                        ProcessedSaleDocument.date == doc.date,
-                    )
-                    if existing_doc:
-                        existing_doc.quantity_sold = doc.quantity_sold
-                        existing_doc.selling_price = doc.selling_price
-                        existing_doc.lag_1d_quantity = doc.lag_1d_quantity
-                        existing_doc.rolling_avg_7d = doc.rolling_avg_7d
-                        existing_doc.rolling_avg_30d = doc.rolling_avg_30d
-                        await existing_doc.save()
-                    else:
-                        await doc.insert()
-                except Exception as single_ex:
-                    logger.warning(f"[WORKER] Skipping duplicate processed sale insert for {pid} on {doc.date}: {single_ex}")
+    return updated_ex_docs, new_feats
 
 
 # ---------------------------------------------------------------------------
@@ -348,95 +321,93 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
 
     logger.info(f"[WORKER] Downstream pipeline starting for {len(product_ids)} products. run_id={run_id}")
 
-async def _process_single_product_pipeline(
-    upload: UploadDocument,
-    pid: PydanticObjectId,
-    df_agg: Any,
+def _process_single_product_pipeline_sync(
+    upload_id: str,
+    retailer_id: str,
+    pid_str: str,
+    df_prod: Any,
+    history_processed_dicts: List[Dict[str, Any]],
     compute_rolling_features: Any,
     predict_demand: Any,
     recommend_price: Any,
     detect_anomalies: Any,
     run_time: datetime,
-    run_id: PydanticObjectId,
-) -> bool:
-    try:
-        # 1. Feature Engineering
-        await _process_product_features(upload, pid, df_agg, compute_rolling_features, run_time)
+    run_id_str: str,
+    existing_a_dict: Optional[Dict[str, Any]],
+) -> Dict[str, Any]:
+    import pandas as pd
+    import traceback
+    
+    from app.domains.sales_data.models import ProcessedSaleDocument
+    from app.domains.uploads.models import UploadDocument, UploadStatus
+    from app.domains.anomaly.models import AnomalyCurrentDocument
+    from beanie import PydanticObjectId
+    from app.core.constants import ForecastTriggeredBy
 
-        # 2. History Load
-        full_history: List[ProcessedSaleDocument] = []
-        async for doc in ProcessedSaleDocument.find(
-            ProcessedSaleDocument.retailer_id == upload.retailer_id,
-            ProcessedSaleDocument.product_id == pid,
-        ).sort("+date"):
-            full_history.append(doc)
+    try:
+        pid = PydanticObjectId(pid_str)
+        retailer_oid = PydanticObjectId(retailer_id)
+        upload_oid = PydanticObjectId(upload_id)
+        run_oid = PydanticObjectId(run_id_str)
+        
+        # Reconstruct minimal dummy upload just for ID passing using model_construct to bypass DB collection checks
+        upload = UploadDocument.model_construct(
+            id=upload_oid, retailer_id=retailer_oid, original_filename="d", file_size_bytes=0, schema_mapping_used="d", status=UploadStatus.UPLOADED
+        )
+        
+        history_processed = []
+        for d in history_processed_dicts:
+            # Drop _id to prevent overwriting existing doc
+            d_copy = d.copy()
+            if "_id" in d_copy: del d_copy["_id"]
+            history_processed.append(ProcessedSaleDocument.model_construct(**d_copy))
+            
+        existing_a = None
+        if existing_a_dict:
+            d_copy = existing_a_dict.copy()
+            if "_id" in d_copy: del d_copy["_id"]
+            existing_a = AnomalyCurrentDocument.model_construct(**d_copy)
+
+        # 1. Feature Engineering
+        updated_ex_docs, new_feats = _process_product_features(
+            upload, pid, df_prod, compute_rolling_features, history_processed
+        )
+
+        full_history = history_processed + new_feats
+        full_history.sort(key=lambda x: x.date)
 
         current_price = full_history[-1].selling_price if full_history else 0.0
 
-        # 3. Forecasting
+        # 2. Forecasting
         forecast_curr, forecast_hist = predict_demand(
             retailer_id=upload.retailer_id,
             product_id=pid,
             history=full_history,
             upload_id=upload.id,
-            run_id=run_id,
+            run_id=run_oid,
             trigger_by=ForecastTriggeredBy.UPLOAD,
         )
-        existing_f = await ForecastCurrentDocument.find_one(
-            ForecastCurrentDocument.retailer_id == upload.retailer_id,
-            ForecastCurrentDocument.product_id == pid,
-        )
-        if existing_f:
-            forecast_curr.id = existing_f.id
-            await forecast_curr.replace()
-        else:
-            await forecast_curr.insert()
 
-        await ForecastHistoryDocument.find(
-            ForecastHistoryDocument.retailer_id == upload.retailer_id,
-            ForecastHistoryDocument.product_id == pid,
-            ForecastHistoryDocument.superseded_at == None,
-        ).update_many({"$set": {"superseded_at": run_time}})
-        await forecast_hist.insert()
-
-        # 4. Pricing
+        # 3. Pricing
         pricing_curr, pricing_hist = recommend_price(
             retailer_id=upload.retailer_id,
             product_id=pid,
             history=full_history,
             current_price=current_price,
             upload_id=upload.id,
-            run_id=run_id,
+            run_id=run_oid,
             trigger_by=ForecastTriggeredBy.UPLOAD,
         )
-        existing_p = await PricingCurrentDocument.find_one(
-            PricingCurrentDocument.retailer_id == upload.retailer_id,
-            PricingCurrentDocument.product_id == pid,
-        )
-        if existing_p:
-            pricing_curr.id = existing_p.id
-            await pricing_curr.replace()
-        else:
-            await pricing_curr.insert()
 
-        await PricingHistoryDocument.find(
-            PricingHistoryDocument.retailer_id == upload.retailer_id,
-            PricingHistoryDocument.product_id == pid,
-            PricingHistoryDocument.superseded_at == None,
-        ).update_many({"$set": {"superseded_at": run_time}})
-        await pricing_hist.insert()
-
-        # 5. Anomaly Detection
+        # 4. Anomaly Detection
         anomaly_curr = detect_anomalies(
             retailer_id=upload.retailer_id,
             product_id=pid,
             history=full_history,
             upload_id=upload.id,
         )
-        existing_a = await AnomalyCurrentDocument.find_one(
-            AnomalyCurrentDocument.retailer_id == upload.retailer_id,
-            AnomalyCurrentDocument.product_id == pid,
-        )
+        
+        final_anomaly = anomaly_curr
         if existing_a:
             existing_dates = {a.date for a in existing_a.flagged_anomalies}
             new_anoms = [a for a in anomaly_curr.flagged_anomalies if a.date not in existing_dates]
@@ -447,14 +418,34 @@ async def _process_single_product_pipeline(
                 if upload.id is not None:
                     existing_a.upload_id = upload.id
                 existing_a.run_timestamp = run_time
-                await existing_a.save()
-        else:
-            await anomaly_curr.insert()
+                final_anomaly = existing_a
+            else:
+                final_anomaly = existing_a
 
-        return True
+        # 3. Convert all results to pure dicts for safe pickling across Process boundary
+        def _doc_to_dict(doc):
+            if not doc: return None
+            d = doc.dict(by_alias=True)
+            if "_id" in d and d["_id"] is None: del d["_id"]
+            # Convert ObjectIds to strings to be absolutely safe for pickling
+            for k, v in d.items():
+                if isinstance(v, PydanticObjectId): d[k] = str(v)
+            return d
+
+        return {
+            "success": True,
+            "pid": pid_str,
+            "updated_processed_sales": [_doc_to_dict(d) for d in updated_ex_docs],
+            "new_processed_sales": [_doc_to_dict(d) for d in new_feats],
+            "fc_doc": _doc_to_dict(forecast_curr),
+            "fh_doc": _doc_to_dict(forecast_hist),
+            "pc_doc": _doc_to_dict(pricing_curr),
+            "ph_doc": _doc_to_dict(pricing_hist),
+            "ac_doc": _doc_to_dict(final_anomaly),
+        }
     except Exception as e:
-        logger.error(f"[WORKER] Pipeline error for product {pid}: {e}", exc_info=True)
-        return False
+        logger.error(f"[WORKER] Pipeline error for product {pid_str}: {e}\n{traceback.format_exc()}")
+        return {"success": False, "pid": pid_str}
 
 
 async def run_downstream_pipeline(upload: UploadDocument) -> None:
@@ -466,6 +457,10 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
     from ml.forecasting.inference.predict import predict_demand  # type: ignore[import]
     from ml.pricing.inference.predict import recommend_price  # type: ignore[import]
     from ml.anomaly.inference.predict import detect_anomalies  # type: ignore[import]
+    from beanie.operators import In
+    from collections import defaultdict
+    from pymongo import ReplaceOne, InsertOne
+    import concurrent.futures
 
     stage = "aggregation"
     upload.current_stage = stage
@@ -495,34 +490,231 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
 
     logger.info(f"[WORKER] Downstream pipeline starting for {len(product_ids)} products. run_id={run_id}")
 
-    # Process products in batches of 5 for optimal database pool throughput
-    batch_size = 5
-    total_products = len(product_ids)
-    processed_count = 0
-
     upload.current_stage = "downstream_pipeline"
     await upload.save()
 
-    for i in range(0, total_products, batch_size):
-        batch = product_ids[i:i + batch_size]
-        tasks = [
-            _process_single_product_pipeline(
-                upload=upload,
-                pid=pid,
-                df_agg=df_agg,
-                compute_rolling_features=compute_rolling_features,
-                predict_demand=predict_demand,
-                recommend_price=recommend_price,
-                detect_anomalies=detect_anomalies,
-                run_time=run_time,
-                run_id=run_id,
+    t_db_read_0 = time.perf_counter()
+    logger.info(f"[WORKER] Bulk loading history for {len(product_ids)} products...")
+    all_history_docs = await ProcessedSaleDocument.find(
+        ProcessedSaleDocument.retailer_id == upload.retailer_id,
+        In(ProcessedSaleDocument.product_id, product_ids),
+    ).sort("+date").to_list()
+    
+    history_by_product = defaultdict(list)
+    for doc in all_history_docs:
+        history_by_product[str(doc.product_id)].append(doc)
+        
+    all_existing_anomalies = await AnomalyCurrentDocument.find(
+        AnomalyCurrentDocument.retailer_id == upload.retailer_id,
+        In(AnomalyCurrentDocument.product_id, product_ids),
+    ).to_list()
+    anomaly_by_product = {str(a.product_id): a for a in all_existing_anomalies}
+
+    t_db_read_1 = time.perf_counter()
+    logger.info(f"[WORKER] Bulk DB Read complete: {len(all_history_docs)} records in {t_db_read_1 - t_db_read_0:.2f}s")
+
+    t_ml_0 = time.perf_counter()
+    results = []
+    
+    # Process sequentially for now before ProcessPoolExecutor, just isolating DB logic
+    loop = asyncio.get_running_loop()
+    
+    with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+        futures = []
+        for pid in product_ids:
+            pid_str = str(pid)
+            df_prod = df_agg[df_agg["product_id"] == pid_str]
+            history = history_by_product[pid_str]
+            # convert history to dicts for process pool
+            history_dicts = [d.dict(by_alias=True) for d in history]
+            
+            ex_anomaly = anomaly_by_product.get(pid_str)
+            ex_anomaly_dict = ex_anomaly.dict(by_alias=True) if ex_anomaly else None
+            
+            futures.append(
+                loop.run_in_executor(
+                    executor,
+                    _process_single_product_pipeline_sync,
+                    str(upload.id),
+                    str(upload.retailer_id),
+                    pid_str,
+                    df_prod,
+                    history_dicts,
+                    compute_rolling_features,
+                    predict_demand,
+                    recommend_price,
+                    detect_anomalies,
+                    run_time,
+                    str(run_id),
+                    ex_anomaly_dict
+                )
             )
-            for pid in batch
-        ]
-        await asyncio.gather(*tasks)
-        processed_count += len(batch)
-        if processed_count % 50 == 0 or processed_count == total_products:
-            logger.info(f"[WORKER] Downstream pipeline progress: {processed_count}/{total_products} products completed.")
+        
+        results = await asyncio.gather(*futures)
+
+    t_ml_1 = time.perf_counter()
+    logger.info(f"[WORKER] ML computation completed in {t_ml_1 - t_ml_0:.2f}s")
+
+    # Filter successful runs
+    successful_results = [r for r in results if r.get("success")]
+    successful_pids = [r["pid"] for r in successful_results]
+    
+    if not successful_pids:
+        logger.error(f"[WORKER] No products processed successfully.")
+        return
+
+    t_db_write_0 = time.perf_counter()
+    logger.info(f"[WORKER] Bulk writing results for {len(successful_pids)} products...")
+    
+    from pymongo import ReplaceOne, InsertOne
+    from bson import ObjectId
+    from app.core.db.connection import get_database
+    db = get_database()
+
+    def _doc_dict(d: dict) -> dict:
+        d_copy = d.copy()
+        if "_id" in d_copy: del d_copy["_id"]
+        # Convert IDs back to ObjectIds for Mongo
+        if d_copy.get("product_id"): d_copy["product_id"] = ObjectId(d_copy["product_id"])
+        if d_copy.get("retailer_id"): d_copy["retailer_id"] = ObjectId(d_copy["retailer_id"])
+        if d_copy.get("upload_id"): d_copy["upload_id"] = ObjectId(d_copy["upload_id"])
+        if d_copy.get("run_id"): d_copy["run_id"] = ObjectId(d_copy["run_id"])
+        return d_copy
+
+    # ProcessedSales writes via ReplaceOne(upsert=True) on (retailer_id, product_id, date)
+    processed_sales_ops = []
+    for r in successful_results:
+        for d in r.get("updated_processed_sales", []):
+            d_dict = _doc_dict(d)
+            processed_sales_ops.append(
+                ReplaceOne(
+                    {
+                        "retailer_id": d_dict["retailer_id"],
+                        "product_id": d_dict["product_id"],
+                        "date": d_dict["date"],
+                    },
+                    d_dict,
+                    upsert=True,
+                )
+            )
+        for d in r.get("new_processed_sales", []):
+            d_dict = _doc_dict(d)
+            processed_sales_ops.append(
+                ReplaceOne(
+                    {
+                        "retailer_id": d_dict["retailer_id"],
+                        "product_id": d_dict["product_id"],
+                        "date": d_dict["date"],
+                    },
+                    d_dict,
+                    upsert=True,
+                )
+            )
+
+    if processed_sales_ops:
+        await db["processed_sales"].bulk_write(processed_sales_ops, ordered=False)
+
+    operations_fc = [
+        ReplaceOne(
+            {"retailer_id": ObjectId(r["fc_doc"]["retailer_id"]), "product_id": ObjectId(r["fc_doc"]["product_id"])},
+            _doc_dict(r["fc_doc"]),
+            upsert=True,
+        ) for r in successful_results
+    ]
+    operations_pc = [
+        ReplaceOne(
+            {"retailer_id": ObjectId(r["pc_doc"]["retailer_id"]), "product_id": ObjectId(r["pc_doc"]["product_id"])},
+            _doc_dict(r["pc_doc"]),
+            upsert=True,
+        ) for r in successful_results
+    ]
+    operations_ac = [
+        ReplaceOne(
+            {"retailer_id": ObjectId(r["ac_doc"]["retailer_id"]), "product_id": ObjectId(r["ac_doc"]["product_id"])},
+            _doc_dict(r["ac_doc"]),
+            upsert=True,
+        ) for r in successful_results
+        if r.get("ac_doc") is not None
+    ]
+    operations_fh = [
+        InsertOne(_doc_dict(r["fh_doc"])) for r in successful_results
+    ]
+    operations_ph = [
+        InsertOne(_doc_dict(r["ph_doc"])) for r in successful_results
+    ]
+
+    try:
+        result = await db.command({
+            "customAction": "bulkWrite", 
+            "insert": "ignore_this" 
+        })
+    except Exception:
+        pass # ignore mock block
+        
+    from app.core.constants import CollectionNames
+    from pymongo.errors import BulkWriteError
+
+    try:
+        res = await db[CollectionNames.FORECAST_CURRENT].bulk_write(operations_fc, ordered=False)
+    except BulkWriteError as bwe:
+        logger.error(f"[WORKER] BulkWriteError for ForecastCurrent: {bwe.details}")
+        
+    try:
+        await db[CollectionNames.PRICING_CURRENT].bulk_write(operations_pc, ordered=False)
+    except BulkWriteError as bwe:
+        logger.error(f"[WORKER] BulkWriteError for PricingCurrent: {bwe.details}")
+        
+    if operations_ac:
+        try:
+            await db[CollectionNames.ANOMALY_CURRENT].bulk_write(operations_ac, ordered=False)
+        except BulkWriteError as bwe:
+            logger.error(f"[WORKER] BulkWriteError for AnomalyCurrent: {bwe.details}")
+
+    # History insertions
+    fh_success_pids = set()
+    ph_success_pids = set()
+
+    try:
+        res_fh = await db[CollectionNames.FORECAST_HISTORY].bulk_write(operations_fh, ordered=False)
+        fh_success_pids = set([PydanticObjectId(pid) for pid in successful_pids])
+    except BulkWriteError as bwe:
+        logger.error(f"[WORKER] BulkWriteError for ForecastHistory: {len(bwe.details.get('writeErrors', []))} failed")
+        failed_indices = {err["index"] for err in bwe.details.get("writeErrors", [])}
+        fh_success_pids = set([PydanticObjectId(pid) for idx, pid in enumerate(successful_pids) if idx not in failed_indices])
+
+    try:
+        res_ph = await db[CollectionNames.PRICING_HISTORY].bulk_write(operations_ph, ordered=False)
+        ph_success_pids = set([PydanticObjectId(pid) for pid in successful_pids])
+    except BulkWriteError as bwe:
+        logger.error(f"[WORKER] BulkWriteError for PricingHistory: {len(bwe.details.get('writeErrors', []))} failed")
+        failed_indices = {err["index"] for err in bwe.details.get("writeErrors", [])}
+        ph_success_pids = set([PydanticObjectId(pid) for idx, pid in enumerate(successful_pids) if idx not in failed_indices])
+
+    t_db_write_1 = time.perf_counter()
+    logger.info(f"[WORKER] Bulk operations (upserts/inserts) completed in {t_db_write_1 - t_db_write_0:.2f}s")
+    
+    # 2. Supersede history ONLY for products where the new history document was successfully inserted
+    if fh_success_pids:
+        await ForecastHistoryDocument.get_pymongo_collection().update_many(
+            {
+                "retailer_id": upload.retailer_id,
+                "product_id": {"$in": list(fh_success_pids)},
+                "superseded_at": None,
+                "run_id": {"$ne": run_id},  # don't supersede the one we just inserted!
+            },
+            {"$set": {"superseded_at": run_time}},
+        )
+        
+    if ph_success_pids:
+        await PricingHistoryDocument.get_pymongo_collection().update_many(
+            {
+                "retailer_id": upload.retailer_id,
+                "product_id": {"$in": list(ph_success_pids)},
+                "superseded_at": None,
+                "run_id": {"$ne": run_id},
+            },
+            {"$set": {"superseded_at": run_time}},
+        )
 
     logger.info(f"[WORKER] Downstream pipeline completed successfully for upload {upload.upload_id}")
 
@@ -730,34 +922,62 @@ async def process_single_upload(upload: UploadDocument) -> None:
             for p in new_products:
                 product_map[p.sku] = p
 
+        logger.info(f"[WORKER] Building {len(raw_sale_dicts)} raw docs using model_construct...")
         raw_docs = []
         for item in raw_sale_dicts:
             p_obj = product_map.get(item["sku"])
             if p_obj:
-                raw_docs.append(RawSaleDocument(
-                    retailer_id=item["retailer_id"],
-                    upload_id=item["upload_id"],
-                    product_id=p_obj.id,
-                    sku=item["sku"],
-                    date=item["date"],
-                    quantity_sold=item["quantity_sold"],
-                    selling_price=item["selling_price"],
-                    category=item["category"],
-                    unit_cost=item["unit_cost"],
-                    discount=item["discount"],
-                    store_id=item["store_id"],
-                    inventory_level=item["inventory_level"],
-                    promotion_flag=item["promotion_flag"],
-                    holiday_flag=item["holiday_flag"],
-                    row_number_in_file=item["row_number_in_file"],
-                    source_row_raw=item["source_row_raw"],
-                ))
+                raw_docs.append({
+                    "retailer_id": item["retailer_id"],
+                    "upload_id": item["upload_id"],
+                    "product_id": p_obj.id,
+                    "sku": item["sku"],
+                    "date": item["date"],
+                    "quantity_sold": item["quantity_sold"],
+                    "selling_price": item["selling_price"],
+                    "category": item["category"],
+                    "unit_cost": item["unit_cost"],
+                    "discount": item["discount"],
+                    "store_id": item["store_id"],
+                    "inventory_level": item["inventory_level"],
+                    "promotion_flag": item["promotion_flag"],
+                    "holiday_flag": item["holiday_flag"],
+                    "row_number_in_file": item["row_number_in_file"],
+                    "source_row_raw": item["source_row_raw"],
+                    "ingested_at": datetime.now(timezone.utc)
+                })
 
         if raw_docs:
             t0 = time.perf_counter()
-            await RawSaleDocument.insert_many(raw_docs)
+            # Insert in chunks of 500 natively for maximum speed while avoiding M0 throttling
+            chunk_size = 500
+            inserted_count = 0
+            import pprint
+            logger.info(f"[WORKER] Starting chunked insertion of {len(raw_docs)} raw docs natively...")
+            db = get_database()
+            col = db["raw_sales"]
+            
+            chunk_size = 500
+            inserted_count = 0
+            for i in range(0, len(raw_docs), chunk_size):
+                chunk = raw_docs[i:i + chunk_size]
+                try:
+                    await col.insert_many(chunk, ordered=False)
+                    inserted_count += len(chunk)
+                    logger.info(f"[WORKER] Inserted batch {i//chunk_size} ({inserted_count}/{len(raw_docs)})")
+                except pymongo.errors.AutoReconnect as e:
+                    logger.warning(f"[WORKER] AutoReconnect during raw ingestion (batch {i//chunk_size}). Waiting 5s...")
+                    await asyncio.sleep(5)
+                    await col.insert_many(chunk, ordered=False)
+                    inserted_count += len(chunk)
+                except pymongo.errors.BulkWriteError as bwe:
+                    logger.warning(f"[WORKER] BulkWriteError during raw ingestion (batch {i//chunk_size}): {bwe.details}")
+                    inserted_count += bwe.details.get("nInserted", 0)
+                
+                await asyncio.sleep(0.01)
+
             t1 = time.perf_counter()
-            logger.info(f"[WORKER] Bulk inserted {len(raw_docs)} RawSaleDocuments in {t1 - t0:.2f}s")
+            logger.info(f"[WORKER] Chunked bulk inserted {inserted_count} RawSaleDocuments in {t1 - t0:.2f}s")
 
         # Persist row statistics
         upload.row_count = row_idx - 1
@@ -826,11 +1046,14 @@ async def worker_loop() -> None:
                 UploadDocument.status == UploadStatus.PROCESSING
             ).to_list()
 
-            stale_uploads = [
-                u for u in proc_uploads
-                if u.processing_started_at is not None and u.processing_started_at < stale_cutoff
-            ]
-
+            stale_uploads = []
+            for u in proc_uploads:
+                if u.processing_started_at is not None:
+                    p_started = u.processing_started_at
+                    if p_started.tzinfo is None:
+                        p_started = p_started.replace(tzinfo=timezone.utc)
+                    if p_started < stale_cutoff:
+                        stale_uploads.append(u)
             for stale in stale_uploads:
                 logger.warning(f"[WORKER] Timing out stale processing job: {stale.upload_id}")
                 stale.status = UploadStatus.FAILED

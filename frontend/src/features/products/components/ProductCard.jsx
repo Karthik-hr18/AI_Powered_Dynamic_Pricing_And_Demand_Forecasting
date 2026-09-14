@@ -296,7 +296,7 @@ export const ProductCard = ({ product, onSelect }) => {
       >
         <div>
           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>SALES (30D)</span>
-          <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>{sales30d.toLocaleString()} Units</strong>
+          <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>{Math.round(Number(sales30d) || 0).toLocaleString()} Units</strong>
         </div>
         <div>
           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>REVENUE</span>
@@ -308,7 +308,7 @@ export const ProductCard = ({ product, onSelect }) => {
         </div>
         <div>
           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>STOCK</span>
-          <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>{stockLevel.toLocaleString()} Units</strong>
+          <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>{Math.round(Number(stockLevel) || 0).toLocaleString()} Units</strong>
         </div>
       </div>
 
@@ -340,7 +340,7 @@ export const ProductCard = ({ product, onSelect }) => {
         <div>
           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>7D FORECAST</span>
           <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--gray-text-primary)" }}>
-            {forecast7d > 0 ? `${forecast7d.toFixed(0)} Units` : "0 Units"}
+            {forecast7d > 0 ? `${Math.round(Number(forecast7d)).toLocaleString()} Units` : "0 Units"}
           </span>
         </div>
         {renderStatusBadge(product.inventory_status)}

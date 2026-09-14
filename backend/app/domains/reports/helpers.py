@@ -3,6 +3,7 @@ import matplotlib
 matplotlib.use("Agg")  # Non-interactive thread-safe backend
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib.ticker import MaxNLocator
 from datetime import datetime
 
 # Theme colors
@@ -50,30 +51,49 @@ def create_revenue_trend_chart(daily_sales) -> io.BytesIO:
     return buf
 
 def create_forecast_vs_actual_chart(forecast_vs_actual) -> io.BytesIO:
-    """Generates 7-Day Actual vs AI Forecast comparison chart PNG."""
+    """Generates 14-Day Actual vs AI Forecast comparison chart PNG."""
     fig, ax = plt.subplots(figsize=(6.5, 2.5), dpi=200)
     fig.patch.set_facecolor(COLOR_CARD)
     ax.set_facecolor(COLOR_CARD)
 
     if forecast_vs_actual and len(forecast_vs_actual) > 0:
-        dates = [item.get("date", f"Day {i+1}") for i, item in enumerate(forecast_vs_actual)]
-        actuals = [item.get("actual", 0) for item in forecast_vs_actual]
-        forecasts = [item.get("forecast", 0) for item in forecast_vs_actual]
+        dates = []
+        actuals = []
+        forecasts = []
+        for i, item in enumerate(forecast_vs_actual):
+            dt_raw = item.get("date")
+            if isinstance(dt_raw, datetime):
+                dates.append(dt_raw.strftime("%b %d"))
+            elif isinstance(dt_raw, str):
+                try:
+                    dt = datetime.fromisoformat(dt_raw.replace("Z", "+00:00"))
+                    dates.append(dt.strftime("%b %d"))
+                except Exception:
+                    dates.append(dt_raw[:10])
+            else:
+                dates.append(f"Day {i+1}")
+
+            act_val = item.get("actual_units") if "actual_units" in item else item.get("actual")
+            fc_val = item.get("forecasted_units") if "forecasted_units" in item else item.get("forecast")
+            actuals.append(act_val if act_val is not None else float("nan"))
+            forecasts.append(fc_val if fc_val is not None else float("nan"))
 
         ax.plot(dates, actuals, color=COLOR_ACCENT, linewidth=2.5, marker="s", label="Actual Units Sold")
-        ax.plot(dates, forecasts, color=COLOR_PURPLE, linewidth=2, linestyle="--", marker="o", label="AI Forecast")
+        ax.plot(dates, forecasts, color=COLOR_PURPLE, linewidth=2, linestyle="--", marker="o", label="AI Forecast (7-Day)")
         ax.legend(facecolor=COLOR_CARD, edgecolor=COLOR_MUTED, labelcolor=COLOR_TEXT, fontsize=7, loc="upper left")
+        plt.xticks(rotation=45, ha="right")
     else:
         ax.text(0.5, 0.5, "No forecast tracking dataset available", color=COLOR_MUTED, ha="center", va="center", transform=ax.transAxes)
 
     ax.tick_params(colors=COLOR_MUTED, labelsize=8)
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_color(COLOR_MUTED)
     ax.spines["bottom"].set_color(COLOR_MUTED)
     ax.grid(True, color="#334155", linestyle="--", linewidth=0.5, alpha=0.5)
 
-    plt.title("7-Day Actual Units Sold vs. AI Forecast", color=COLOR_TEXT, fontsize=10, fontweight="bold", pad=8)
+    plt.title("Actual Sales vs Forecasted Demand (Last 7 Days)", color=COLOR_TEXT, fontsize=10, fontweight="bold", pad=8)
     plt.tight_layout()
 
     buf = io.BytesIO()

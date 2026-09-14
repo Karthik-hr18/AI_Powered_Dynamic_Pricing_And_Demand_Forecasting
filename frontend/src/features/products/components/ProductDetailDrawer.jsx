@@ -20,8 +20,10 @@ import {
 
 import { apiClient } from "../../../shared/apiClient";
 import { getErrorMessage } from "../../../shared/utils/errorHandler";
+import { MarketingInsightsPanel } from "../../marketing-insights/components/MarketingInsightsPanel";
 
 export const ProductDetailDrawer = ({ productId, onClose }) => {
+  const [activeTab, setActiveTab] = useState("overview");
   const [forecastHorizon, setForecastHorizon] = useState("7d");
 
   // Fetch product summary details
@@ -100,40 +102,59 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
 
   const getSparklineData = () => {
     const raw = data?.sparkline || [];
-    if (raw.length >= 2) {
-      return raw.map((item, idx) => {
-        const d = new Date(item.date);
-        const isValid = !isNaN(d.getTime());
-        return {
-          ...item,
-          idx,
-          dateStr: isValid
-            ? d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-            : `Day ${idx + 1}`,
-          shortDate: isValid
-            ? d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-            : `D${idx + 1}`,
-        };
-      });
+    if (!raw || raw.length === 0) {
+      return [];
     }
-    const baseQty = raw.length === 1 ? raw[0].quantity_sold : 5;
-    const basePrice = raw.length === 1 ? raw[0].selling_price : (data?.product?.current_price || 100);
-    const startDate = (raw.length === 1 && raw[0].date) ? new Date(raw[0].date) : new Date();
-    
-    return Array.from({ length: 30 }, (_, i) => {
-      const d = new Date(startDate);
-      d.setDate(d.getDate() - (29 - i));
-      const variance = (Math.cos(i) * 0.2 + 0.9);
-      const qty = Math.max(1, Math.round(baseQty * variance));
-      return {
+
+    // Sort raw items chronologically
+    const sorted = [...raw].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Build map of YYYY-MM-DD -> { quantity_sold, selling_price }
+    const dateMap = new Map();
+    let latestDate = null;
+    sorted.forEach((item) => {
+      const d = new Date(item.date);
+      if (!isNaN(d.getTime())) {
+        const dateKey = d.toISOString().split("T")[0];
+        dateMap.set(dateKey, {
+          quantity_sold: Number(item.quantity_sold) || 0,
+          selling_price: Number(item.selling_price) || Number(data?.product?.current_price) || 0,
+        });
+        if (!latestDate || d > latestDate) {
+          latestDate = d;
+        }
+      }
+    });
+
+    if (!latestDate) {
+      latestDate = new Date();
+    }
+
+    const defaultPrice = Number(data?.product?.current_price) || Number(sorted[sorted.length - 1]?.selling_price) || 0;
+
+    // Generate full 30 consecutive calendar days ending at latest transaction date
+    const result = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(latestDate);
+      d.setDate(d.getDate() - i);
+      const dateKey = d.toISOString().split("T")[0];
+      const found = dateMap.get(dateKey);
+
+      const qty = found ? found.quantity_sold : 0;
+      const price = found ? found.selling_price : defaultPrice;
+
+      result.push({
         date: d.toISOString(),
+        dateKey,
         quantity_sold: qty,
-        selling_price: basePrice,
-        idx: i,
+        selling_price: price,
+        idx: 29 - i,
         dateStr: d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
         shortDate: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      };
-    });
+      });
+    }
+
+    return result;
   };
 
   const activeSparklineData = getSparklineData();
@@ -190,7 +211,64 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
           </button>
         </div>
 
-        {isLoading ? (
+        {/* Navigation Tabs */}
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            borderBottom: "1px solid var(--gray-border)",
+            paddingBottom: "12px",
+            marginBottom: "var(--space-4)",
+          }}
+        >
+          <button
+            onClick={() => setActiveTab("overview")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "7px 14px",
+              fontSize: "12px",
+              fontWeight: 600,
+              borderRadius: "var(--radius-default)",
+              border: activeTab === "overview" ? "1px solid var(--accent)" : "1px solid var(--gray-border)",
+              backgroundColor: activeTab === "overview" ? "rgba(79, 70, 229, 0.08)" : "var(--gray-surface)",
+              color: activeTab === "overview" ? "var(--accent)" : "var(--gray-text-muted)",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <TrendingUp size={14} /> Overview & Diagnostics
+          </button>
+
+          <button
+            onClick={() => setActiveTab("marketing")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "7px 14px",
+              fontSize: "12px",
+              fontWeight: 600,
+              borderRadius: "var(--radius-default)",
+              border: activeTab === "marketing" ? "1px solid #7E22CE" : "1px solid var(--gray-border)",
+              backgroundColor: activeTab === "marketing" ? "rgba(126, 34, 206, 0.08)" : "var(--gray-surface)",
+              color: activeTab === "marketing" ? "#7E22CE" : "var(--gray-text-muted)",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <Sparkles size={14} /> Marketing Insights (AI)
+          </button>
+        </div>
+
+        {activeTab === "marketing" ? (
+          <MarketingInsightsPanel
+            productId={productId}
+            productName={data?.product?.product_name}
+            category={data?.product?.category}
+          />
+        ) : isLoading ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div className="skeleton-card" style={{ height: "140px" }} />
             <div className="skeleton-card" style={{ height: "180px" }} />
@@ -260,7 +338,7 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                           borderRadius: "var(--radius-default)",
                           fontSize: "12px",
                         }}
-                        formatter={(val) => [`${val} Units Sold`, "Actual Sales"]}
+                        formatter={(val) => [`${Math.round(Number(val) || 0).toLocaleString()} Units Sold`, "Actual Sales"]}
                         labelFormatter={(label, payload) => payload?.[0]?.payload?.dateStr || label}
                       />
                       <Area
@@ -366,7 +444,7 @@ export const ProductDetailDrawer = ({ productId, onClose }) => {
                             borderRadius: "var(--radius-default)",
                             fontSize: "12px",
                           }}
-                          formatter={(value) => [`${Math.ceil(value)} units`, "Predicted Demand"]}
+                          formatter={(value) => [`${Math.round(Number(value) || 0).toLocaleString()} units`, "Predicted Demand"]}
                           labelFormatter={(label, payload) => payload?.[0]?.payload?.dateStr || label}
                         />
                         <Area

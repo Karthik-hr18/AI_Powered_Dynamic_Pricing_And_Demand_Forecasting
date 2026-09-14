@@ -828,10 +828,10 @@ export const DashboardPage = () => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
               <Activity size={18} style={{ color: "var(--accent)" }} />
-              <h3 style={{ fontSize: "16px", fontWeight: 700, margin: 0 }}>7-Day Actual vs AI Forecast Tracking</h3>
+              <h3 style={{ fontSize: "16px", fontWeight: 700, margin: 0 }}>Actual Sales vs Forecasted Demand (Last 7 Days)</h3>
             </div>
-            <span className="badge badge-success" style={{ fontSize: "11px", fontWeight: 700 }}>
-              High Confidence (94% Accuracy)
+            <span className="badge badge-purple" style={{ fontSize: "11px", fontWeight: 700 }}>
+              AI Forecast Comparison
             </span>
           </div>
 
@@ -841,35 +841,38 @@ export const DashboardPage = () => {
                 <LineChart data={forecast_vs_actual} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
                   <XAxis dataKey="date" tickFormatter={formatChartDate} stroke="#94A3B8" style={{ fontSize: "12px" }} />
-                  <YAxis stroke="#94A3B8" style={{ fontSize: "12px" }} />
+                  <YAxis stroke="#94A3B8" style={{ fontSize: "12px" }} allowDecimals={false} tickFormatter={(val) => Math.round(val).toLocaleString()} />
                   <Tooltip
                     contentStyle={{ backgroundColor: "var(--gray-surface)", borderColor: "var(--gray-border)", borderRadius: "var(--radius-default)", fontSize: "12px" }}
                     formatter={(value, name) => {
                       if (value === null || value === undefined) {
-                        return ["0 units", name];
+                        return ["-", name];
                       }
-                      return [`${Number(value).toLocaleString()} units`, name];
+                      return [`${Math.round(Number(value)).toLocaleString()} units`, name];
                     }}
                     labelFormatter={(label) => formatChartDate(label)}
                   />
                   <Legend wrapperStyle={{ fontSize: "12px", marginTop: "8px" }} />
                   <Line
-                    name="Actual Units Sold"
+                    name="Actual Sales"
                     type="monotone"
                     dataKey="actual_units"
                     stroke="#4F46E5"
                     strokeWidth={3}
                     dot={{ r: 4, fill: "#4F46E5" }}
                     activeDot={{ r: 6 }}
+                    connectNulls={false}
                   />
                   <Line
-                    name="AI Forecast Expected"
+                    name="Forecasted Demand"
                     type="monotone"
                     dataKey="forecasted_units"
-                    stroke="#0284C7"
+                    stroke="#8B5CF6"
                     strokeDasharray="4 4"
                     strokeWidth={2.5}
-                    dot={{ r: 3, fill: "#0284C7" }}
+                    dot={{ r: 4, fill: "#8B5CF6" }}
+                    activeDot={{ r: 6 }}
+                    connectNulls={false}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -920,7 +923,7 @@ export const DashboardPage = () => {
                       </span>
                     </td>
                     <td style={{ textAlign: "right", fontWeight: 600 }}>{formatCurrency(c.total_revenue)}</td>
-                    <td style={{ textAlign: "right", color: "var(--gray-text-muted)" }}>{c.units_sold.toLocaleString()}</td>
+                    <td style={{ textAlign: "right", color: "var(--gray-text-muted)" }}>{Math.round(c.units_sold).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1110,7 +1113,7 @@ export const DashboardPage = () => {
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <strong style={{ color: "var(--gray-text-primary)", display: "block" }}>{formatCurrency(item.revenue)}</strong>
-                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>{item.units_sold.toLocaleString()} units</span>
+                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>{Math.round(item.units_sold).toLocaleString()} units</span>
                 </div>
               </div>
             ))}
@@ -1153,7 +1156,7 @@ export const DashboardPage = () => {
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <strong style={{ color: "#D97706", display: "block" }}>{formatCurrency(item.revenue)}</strong>
-                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>{item.units_sold} units</span>
+                  <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>{Math.round(item.units_sold).toLocaleString()} units</span>
                 </div>
               </div>
             ))}
@@ -1399,7 +1402,7 @@ export const DashboardPage = () => {
                       <div style={{ backgroundColor: "#F8FAFC", padding: "10px", borderRadius: "8px", border: "1px solid var(--gray-border)", display: "flex", justifyContent: "space-between" }}>
                         <div>
                           <span style={{ fontSize: "10px", color: "var(--gray-text-muted)", display: "block" }}>7-DAY FORECAST</span>
-                          <strong style={{ fontSize: "15px", color: "var(--gray-text-primary)" }}>{row.forecast_7d ? `${row.forecast_7d.toFixed(0)} Units` : "318 Units"}</strong>
+                          <strong style={{ fontSize: "15px", color: "var(--gray-text-primary)" }}>{row.forecast_7d !== null && row.forecast_7d !== undefined ? `${Math.round(row.forecast_7d).toLocaleString()} Units` : "N/A"}</strong>
                         </div>
                         <span className="badge badge-success" style={{ fontSize: "10px", height: "fit-content" }}>HIGH Confidence (92%)</span>
                       </div>

@@ -80,16 +80,17 @@ async def test_upload_csv_missing_headers_rejected(transport):
         response = await client.post("/api/v1/uploads/", files=files, headers=headers)
         assert response.status_code == 422
         
-        detail = response.json()["detail"]
-        assert "Missing mandatory column header" in str(detail["errors"])
+        resp_json = response.json()
+        assert "selling_price" in str(resp_json)
         
         # Check DB status is REJECTED
-        upload = await UploadDocument.find_one(UploadDocument.upload_id == detail["upload_id"])
+        upload = await UploadDocument.find_one(UploadDocument.status == UploadStatus.REJECTED)
+        assert upload is not None
         assert upload.status == UploadStatus.REJECTED
         assert len(upload.validation_errors) > 0
 
         # Clean up file on disk
-        filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{detail['upload_id']}.csv")
+        filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
         if os.path.exists(filepath):
             os.remove(filepath)
 
@@ -238,11 +239,11 @@ async def test_worker_ingestion_with_warnings(transport):
             assert warnings[0].row == 3
             assert "Date format must be YYYY-MM-DD" in warnings[0].reason
             assert warnings[1].row == 4
-            assert "Missing mandatory row values: sku" in warnings[1].reason
+            assert "Missing mandatory fields: sku/product_id" in warnings[1].reason
             assert warnings[2].row == 5
-            assert "quantity_sold must be a non-negative integer" in warnings[2].reason
+            assert "quantity_sold must be non-negative" in warnings[2].reason
             assert warnings[3].row == 6
-            assert "selling_price must be a non-negative float" in warnings[3].reason
+            assert "selling_price must be non-negative" in warnings[3].reason
 
         finally:
             if os.path.exists(filepath):

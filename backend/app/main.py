@@ -34,6 +34,7 @@ from app.domains.products.router import router as products_router
 from app.domains.dashboard.router import router as dashboard_router
 from app.domains.admin.router import router as admin_router
 from app.domains.reports.router import router as reports_router
+from app.domains.marketing_insights.router import router as marketing_insights_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -135,6 +136,7 @@ app.include_router(products_router, prefix="/api/v1/products", tags=["products"]
 app.include_router(dashboard_router, prefix="/api/v1/dashboard", tags=["dashboard"])
 app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
 app.include_router(reports_router, prefix="/api/v1/reports", tags=["reports"])
+app.include_router(marketing_insights_router, prefix="/api/v1/products", tags=["marketing-insights"])
 
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException

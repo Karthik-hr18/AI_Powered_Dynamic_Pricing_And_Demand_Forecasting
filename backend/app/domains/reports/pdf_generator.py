@@ -148,19 +148,20 @@ def build_analytics_pdf(dashboard_data: dict, retailer_name: str = "Demo Retaile
 
     story = []
 
-    kpis = dashboard_data.get("kpis", {})
-    health = dashboard_data.get("business_health", {})
-    goal = dashboard_data.get("goal_progress", {})
-    highest_opp = dashboard_data.get("highest_opportunity", {})
-    data_qual = dashboard_data.get("data_quality", {})
-    sys_status = dashboard_data.get("system_status", {})
-    inv_health = dashboard_data.get("inventory_health", {})
-    cat_perf = dashboard_data.get("category_performance", [])
-    top_opps = dashboard_data.get("top_opportunities", [])
-    crit_risks = dashboard_data.get("critical_risks", [])
-    prod_table = dashboard_data.get("product_table", [])
-    forecast_vs_actual = dashboard_data.get("forecast_vs_actual", [])
-    daily_sales = dashboard_data.get("daily_sales", [])
+    kpis = dashboard_data.get("kpis") or {}
+    health = dashboard_data.get("business_health") or {}
+    goal = dashboard_data.get("goal_progress") or {}
+    highest_opp = dashboard_data.get("highest_opportunity") or {}
+    data_qual = dashboard_data.get("data_quality") or {}
+    sys_status = dashboard_data.get("system_status") or {}
+    inv_health = dashboard_data.get("inventory_health") or {}
+    cat_perf = dashboard_data.get("category_performance") or []
+    top_opps = dashboard_data.get("top_opportunities") or []
+    crit_risks = dashboard_data.get("critical_risks") or []
+    prod_table = dashboard_data.get("product_table") or []
+    forecast_vs_actual = dashboard_data.get("forecast_vs_actual") or []
+    daily_sales = dashboard_data.get("daily_sales") or []
+    last_upload = dashboard_data.get("last_upload") or {}
     report_timestamp = datetime.utcnow().strftime("%B %d, %Y - %H:%M UTC")
 
     # =========================================================================
@@ -487,8 +488,9 @@ def build_analytics_pdf(dashboard_data: dict, retailer_name: str = "Demo Retaile
     story.append(Spacer(1, 20))
 
     story.append(Paragraph("Recent CSV Ingestion Pipeline Status", h2_style))
+    filename_val = last_upload.get("filename") if isinstance(last_upload, dict) and last_upload.get("filename") else "sales_august_2026.csv"
     up_info = (
-        f"<b>Filename:</b> {dashboard_data.get('last_upload', {}).get('filename', 'sales_august_2026.csv')}<br/>"
+        f"<b>Filename:</b> {filename_val}<br/>"
         f"<b>Processing Status:</b> COMPLETED (100% Validated)<br/>"
         f"<b>Ingestion Stage:</b> Feature Aggregation & Inference Complete"
     )
