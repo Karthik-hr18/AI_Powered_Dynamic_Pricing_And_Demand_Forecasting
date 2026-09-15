@@ -62,7 +62,7 @@ class UploadDocument(Document):
     file_size_bytes: int
     row_count: Optional[int] = None
     schema_mapping_used: str
-    status: UploadStatus = UploadStatus.UPLOADED
+    status: UploadStatus = UploadStatus.VALIDATING
     current_stage: Optional[str] = None
     validation_errors: List[str] = Field(default_factory=list)
     row_warnings: List[RowWarning] = Field(default_factory=list)

@@ -6,6 +6,7 @@ from typing import List
 from beanie import PydanticObjectId
 
 from app.core.config import settings
+from app.core.constants import UploadStatus
 from app.domains.uploads.models import UploadDocument
 
 logger = logging.getLogger("app.domains.uploads.service")
@@ -24,7 +25,8 @@ async def create_upload_record(
         retailer_id=retailer_id,
         original_filename=filename,
         file_size_bytes=file_size,
-        schema_mapping_used=mapping
+        schema_mapping_used=mapping,
+        status=UploadStatus.VALIDATING
     )
     await upload.insert()
     logger.info(f"Created uploads record tracker {upload.upload_id} for retailer {retailer_id}")
