@@ -104,14 +104,6 @@ def recommend_price(
             bound_range = None
             candidate_grid = None
             elasticity_model_type = "Insufficient History"
-        elif len(historical_prices) <= 1:
-            eligibility_status = PricingEligibilityStatus.INSUFFICIENT_PRICE_VARIATION
-            eligibility_reason = "Historical pricing exhibits no variance; elasticity model requires multiple distinct price points"
-            recommended_price = None
-            expected_revenue = None
-            bound_range = None
-            candidate_grid = None
-            elasticity_model_type = "Insufficient Price Variation"
         else:
             effective_price = current_price if (current_price is not None and current_price > 0) else (
                 history_sorted[-1].selling_price if (history_sorted and history_sorted[-1].selling_price > 0) else 100.0
@@ -119,7 +111,7 @@ def recommend_price(
 
             eligibility_status = PricingEligibilityStatus.ELIGIBLE
             eligibility_reason = None
-            elasticity_model_type = "Linear Elasticity Mock"
+            elasticity_model_type = "Linear Elasticity Prior" if len(historical_prices) <= 1 else "Empirical Elasticity"
 
             min_bound = max(0.01, round(effective_price * (1 - bound_pct), 2))
             max_bound = round(effective_price * (1 + bound_pct), 2)
@@ -133,11 +125,52 @@ def recommend_price(
                 candidates.append(round(candidates[-1] + 0.50, 2))
             candidates = sorted(candidates[:n_cand])
 
+            # 1. Check empirical price variation vs category elasticity priors
+            valid_points = [
+                (float(item.selling_price), float(item.quantity_sold))
+                for item in history_sorted
+                if getattr(item, "selling_price", None) and item.selling_price > 0 and getattr(item, "quantity_sold", None) and item.quantity_sold > 0
+            ]
+            unique_prices = set(p for p, _ in valid_points)
+
+            # Category-based microeconomic elasticity priors
+            prod_cat = getattr(history_sorted[0], "category", "") or ""
+            cat_str = str(prod_cat).lower()
+
+            if any(k in cat_str for k in ["flour", "atta", "rice", "grain", "pulse", "dal", "oil", "ghee", "sugar", "salt", "spice", "dairy"]):
+                # Inelastic essential staples: low price sensitivity (Ed = 0.65) -> Margin Expansion (+3% to +8%)
+                prior_elasticity = 0.65
+            elif any(k in cat_str for k in ["snack", "noodle", "biscuit", "bakery", "beverage", "sweet", "chocolate", "spread", "sauce"]):
+                # Elastic discretionary goods: high price sensitivity (Ed = 1.40) -> Volume Discount (-5% to -10%)
+                prior_elasticity = 1.40
+            else:
+                # Near-unit elastic general goods (Ed = 1.0) -> Balanced pricing
+                prior_elasticity = 1.05
+
+            if len(unique_prices) >= 2 and len(valid_points) >= 10:
+                import math
+                ln_p = [math.log(p) for p, _ in valid_points]
+                ln_q = [math.log(q) for _, q in valid_points]
+                mean_p = sum(ln_p) / len(ln_p)
+                mean_q = sum(ln_q) / len(ln_q)
+                var_p = sum((p - mean_p) ** 2 for p in ln_p)
+                cov_pq = sum((ln_p[i] - mean_p) * (ln_q[i] - mean_q) for i in range(len(valid_points)))
+                
+                if var_p > 1e-5:
+                    empirical_slope = - (cov_pq / var_p)
+                    elasticity = max(0.4, min(2.2, (0.7 * empirical_slope) + (0.3 * prior_elasticity)))
+                    elasticity_model_type = f"Empirical Log-Log (Ed={elasticity:.2f})"
+                else:
+                    elasticity = prior_elasticity
+                    elasticity_model_type = f"Category Prior (Ed={elasticity:.2f})"
+            else:
+                elasticity = prior_elasticity
+                elasticity_model_type = f"Category Prior (Ed={elasticity:.2f})"
+
             last_7_sales = history_sorted[-7:] if len(history_sorted) >= 7 else history_sorted
             base_demand = (sum(item.quantity_sold for item in last_7_sales) / len(last_7_sales)) if last_7_sales else 5.0
             if base_demand <= 0:
                 base_demand = 5.0
-            elasticity = 1.2
 
             candidate_grid = []
             for P in candidates:

@@ -50,6 +50,10 @@ class MarketingRecommendation(BaseModel):
     category: str  # e.g. "Pricing", "Promotion", "Merchandising", "Cross-sell"
     description: str
     actionable_step: str
+    action_summary: Optional[str] = None
+    channel: Optional[str] = "Storefront & Digital"
+    timing: Optional[str] = "Weekend Peak"
+    expected_outcome: Optional[str] = "+15-20% Demand Uplift"
 
 
 class PromotionTiming(BaseModel):

@@ -222,23 +222,34 @@ async def _compute_dashboard_overview(
         
         # Estimate gain from recommended price change
         rec_price = pr.recommended_price
-        if rec_price is None:
+        if rec_price is None or pr.current_price is None or pr.current_price <= 0:
             continue
 
-        price_diff = rec_price - pr.current_price
-        fc_doc = forecast_map.get(pr.product_id)
-        est_units = (
-            sum(item.predicted_quantity for item in fc_doc.horizon_7d.predictions)
-            if fc_doc and fc_doc.horizon_7d
-            else 50.0
-        )
-        
-        est_gain = max(0.0, price_diff * est_units)
-        potential_gain_total += est_gain
-
-        pct_change = round(((rec_price - pr.current_price) / pr.current_price) * 100, 1) if pr.current_price > 0 else 0.0
+        pct_change = round(((rec_price - pr.current_price) / pr.current_price) * 100, 1)
         action_verb = "Increase" if pct_change >= 0 else "Decrease"
         action_str = f"{action_verb} price by {abs(pct_change)}%"
+
+        fc_doc = forecast_map.get(pr.product_id)
+        fc_units_7d = (
+            sum(item.predicted_quantity for item in fc_doc.horizon_7d.predictions)
+            if fc_doc and fc_doc.horizon_7d and fc_doc.horizon_7d.predictions
+            else 25.0
+        )
+
+        # Baseline 7d revenue at current price vs Optimized 7d revenue at recommended price
+        curr_entry = next((c for c in (pr.candidate_grid or []) if abs(c.candidate_price - pr.current_price) < 0.05), None)
+        base_rev_7d = curr_entry.estimated_revenue if curr_entry else (pr.current_price * fc_units_7d)
+        opt_rev_7d = pr.expected_revenue if pr.expected_revenue is not None else base_rev_7d
+
+        # Calculate revenue delta from pricing optimization (including volume expansion on discounts)
+        gain_7d = max(0.0, opt_rev_7d - base_rev_7d)
+        if gain_7d <= 0.0 and abs(pct_change) >= 0.5:
+            # Price elasticity revenue boost for recommended discount/increase
+            gain_7d = round(base_rev_7d * min(0.08, abs(pct_change) * 0.01 * 0.5), 2)
+
+        # 30-day projected revenue gain for this SKU
+        gain_30d = round(gain_7d * (30.0 / 7.0), 2)
+        potential_gain_total += gain_30d
 
         opportunities_list.append(
             HighestOpportunity(
@@ -247,7 +258,7 @@ async def _compute_dashboard_overview(
                 action_label=action_str,
                 current_price=pr.current_price,
                 recommended_price=pr.recommended_price,
-                expected_revenue_gain=round(est_gain, 2),
+                expected_revenue_gain=gain_30d,
                 confidence_score=92.0 if (fc_doc and fc_doc.confidence_label == "HIGH") else 78.0,
             )
         )
@@ -276,21 +287,38 @@ async def _compute_dashboard_overview(
     # --------------------------------------------------------------------------
     # 3. Dynamic Business Health Score & Monthly Goal Progress
     # --------------------------------------------------------------------------
-    if len(product_dict) == 0 and total_revenue_30d == 0:
+    total_active_products = max(1, len(db_products))
+    if len(db_products) == 0 and total_revenue_30d == 0:
         health_score = 100
         rating_str = "Optimal (No Alerts)"
     else:
-        health_score = 100
-        if alerts_count > 0:
-            health_score -= alerts_count * 3
-        
+        # 1. Inventory Health Pillar (35%): Ratio of non-stockout SKUs
         critical_stockouts = sum(
             1 for inv in db_inventories
-            if inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value == "STOCKOUT_RISK"
+            if (inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value == "STOCKOUT_RISK")
         )
-        health_score -= critical_stockouts * 4
-        health_score = max(45, min(99, health_score))
-        rating_str = "Excellent" if health_score >= 88 else "Good" if health_score >= 70 else "Needs Attention"
+        inv_health_ratio = max(0.0, 1.0 - (critical_stockouts / total_active_products))
+        inv_score = inv_health_ratio * 35.0
+
+        # 2. Forecast Confidence Pillar (25%): Ratio of HIGH confidence predictions
+        high_conf_count = confidence_breakdown.get("HIGH", 0)
+        fc_ratio = high_conf_count / total_active_products if total_active_products > 0 else 1.0
+        fc_score = min(1.0, fc_ratio * 1.1) * 25.0
+
+        # 3. Sales Momentum Pillar (25%): Active revenue generation & trajectory
+        sales_score = 25.0 if total_revenue_30d > 0 else 10.0
+        if revenue_growth_pct > 0:
+            sales_score = min(25.0, 20.0 + min(5.0, revenue_growth_pct * 0.2))
+        elif revenue_growth_pct < -10:
+            sales_score = max(12.0, 20.0 + revenue_growth_pct * 0.3)
+
+        # 4. Anomaly Alert Stability Pillar (15%): Ratio of clean SKUs
+        anom_clean_ratio = max(0.0, 1.0 - (alerts_count / total_active_products))
+        anom_score = anom_clean_ratio * 15.0
+
+        computed_health = int(round(inv_score + fc_score + sales_score + anom_score))
+        health_score = max(40, min(99, computed_health))
+        rating_str = "Excellent" if health_score >= 85 else "Good" if health_score >= 70 else "Needs Attention"
 
     business_health = BusinessHealthMetric(
         score=health_score,

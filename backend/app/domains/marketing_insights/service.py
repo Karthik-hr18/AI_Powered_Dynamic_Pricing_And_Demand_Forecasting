@@ -69,10 +69,16 @@ async def get_product_marketing_insights(
     now = datetime.now(timezone.utc)
     
     # Check latest sale date in DB to anchor default window
-    latest_sale = await ProcessedSaleDocument.find(
-        ProcessedSaleDocument.retailer_id == retailer_id,
-        ProcessedSaleDocument.product_id == product_id,
+    latest_sale = await RawSaleDocument.find(
+        RawSaleDocument.retailer_id == retailer_id,
+        RawSaleDocument.product_id == product_id,
     ).sort("-date").first_or_none()
+    
+    if not latest_sale:
+        latest_sale = await ProcessedSaleDocument.find(
+            ProcessedSaleDocument.retailer_id == retailer_id,
+            ProcessedSaleDocument.product_id == product_id,
+        ).sort("-date").first_or_none()
 
     anchor_dt = latest_sale.date if latest_sale else now
     
@@ -98,9 +104,9 @@ async def get_product_marketing_insights(
     else:
         start_dt = end_dt - timedelta(days=29)
 
-    # Normalize to start-of-day and end-of-day UTC
-    start_datetime = datetime(start_dt.year, start_dt.month, start_dt.day, 0, 0, 0, tzinfo=timezone.utc)
-    end_datetime = datetime(end_dt.year, end_dt.month, end_dt.day, 23, 59, 59, 999999, tzinfo=timezone.utc)
+    # Normalize to start-of-day and end-of-day (both naive and timezone-aware friendly)
+    start_datetime = datetime(start_dt.year, start_dt.month, start_dt.day, 0, 0, 0)
+    end_datetime = datetime(end_dt.year, end_dt.month, end_dt.day, 23, 59, 59, 999999)
 
     start_date_str = start_datetime.strftime("%Y-%m-%d")
     end_date_str = end_datetime.strftime("%Y-%m-%d")
@@ -114,24 +120,23 @@ async def get_product_marketing_insights(
             cached_resp.is_cached = True
             return cached_resp
 
-    # 4. Fetch Real Processed Sales for Date Range
-    sales_records = await ProcessedSaleDocument.find(
-        ProcessedSaleDocument.retailer_id == retailer_id,
-        ProcessedSaleDocument.product_id == product_id,
-        ProcessedSaleDocument.date >= start_datetime,
-        ProcessedSaleDocument.date <= end_datetime,
+    # 4. Fetch Real Transactional Sales for Date Range (prioritize RawSaleDocument)
+    raw_records = await RawSaleDocument.find(
+        RawSaleDocument.retailer_id == retailer_id,
+        RawSaleDocument.product_id == product_id,
+        RawSaleDocument.date >= start_datetime,
+        RawSaleDocument.date <= end_datetime,
     ).sort("date").to_list()
 
-    # Fallback to RawSaleDocument if ProcessedSaleDocument has no records in date range
-    if not sales_records:
-        raw_records = await RawSaleDocument.find(
-            RawSaleDocument.retailer_id == retailer_id,
-            RawSaleDocument.product_id == product_id,
-            RawSaleDocument.date >= start_datetime,
-            RawSaleDocument.date <= end_datetime,
+    if not raw_records or sum(r.quantity_sold for r in raw_records) == 0:
+        sales_records = await ProcessedSaleDocument.find(
+            ProcessedSaleDocument.retailer_id == retailer_id,
+            ProcessedSaleDocument.product_id == product_id,
+            ProcessedSaleDocument.date >= start_datetime,
+            ProcessedSaleDocument.date <= end_datetime,
         ).sort("date").to_list()
     else:
-        raw_records = []
+        sales_records = []
 
     # 5. Fetch Pricing Current state for Elasticity & Recommended Price
     pricing_current = await PricingCurrentDocument.find_one(
@@ -145,27 +150,18 @@ async def get_product_marketing_insights(
     
     # 6.1 Daily Sales Trend (30-day timeline)
     daily_map: Dict[str, Dict[str, Any]] = {}
+    active_records = raw_records if (raw_records and sum(r.quantity_sold for r in raw_records) > 0) else sales_records
     
-    if sales_records:
-        for s in sales_records:
-            d_str = s.date.strftime("%Y-%m-%d")
-            price = s.selling_price if s.selling_price is not None else 0.0
-            if d_str not in daily_map:
-                daily_map[d_str] = {"units": 0, "revenue": 0.0, "prices": []}
-            daily_map[d_str]["units"] += int(s.quantity_sold)
-            daily_map[d_str]["revenue"] += float(s.quantity_sold * price)
-            if price > 0:
-                daily_map[d_str]["prices"].append(price)
-    elif raw_records:
-        for r in raw_records:
-            d_str = r.date.strftime("%Y-%m-%d")
-            price = r.selling_price if r.selling_price is not None else 0.0
-            if d_str not in daily_map:
-                daily_map[d_str] = {"units": 0, "revenue": 0.0, "prices": []}
-            daily_map[d_str]["units"] += int(r.quantity_sold)
-            daily_map[d_str]["revenue"] += float(r.quantity_sold * price)
-            if price > 0:
-                daily_map[d_str]["prices"].append(price)
+    for r in active_records:
+        d_str = r.date.strftime("%Y-%m-%d")
+        price = float(r.selling_price) if r.selling_price is not None else 0.0
+        qty = int(r.quantity_sold) if r.quantity_sold is not None else 0
+        if d_str not in daily_map:
+            daily_map[d_str] = {"units": 0, "revenue": 0.0, "prices": []}
+        daily_map[d_str]["units"] += qty
+        daily_map[d_str]["revenue"] += float(qty * price)
+        if price > 0:
+            daily_map[d_str]["prices"].append(price)
 
     sales_trend_30d: List[DailySalesTrendPoint] = []
     num_days = max(1, (end_datetime.date() - start_datetime.date()).days + 1)
@@ -218,16 +214,11 @@ async def get_product_marketing_insights(
         )
 
     # 6.3 Sales by Price Range Buckets
-    # Gather all transaction price points
+    # Gather all transaction price points from active records
     price_points: List[Tuple[float, int]] = []
-    if sales_records:
-        for s in sales_records:
-            if s.selling_price and s.selling_price > 0:
-                price_points.append((float(s.selling_price), int(s.quantity_sold)))
-    elif raw_records:
-        for r in raw_records:
-            if r.selling_price and r.selling_price > 0:
-                price_points.append((float(r.selling_price), int(r.quantity_sold)))
+    for r in active_records:
+        if r.selling_price and r.selling_price > 0 and r.quantity_sold and r.quantity_sold > 0:
+            price_points.append((float(r.selling_price), int(r.quantity_sold)))
 
     current_price = (
         (pricing_current.current_price if pricing_current and pricing_current.current_price else None)
@@ -437,7 +428,11 @@ async def get_product_marketing_insights(
                     impact="HIGH",
                     category="Promotion",
                     description=f"Weekend sales velocity ({avg_weekend_daily:.1f} units/day) outpaces weekdays by {round(((avg_weekend_daily-avg_weekday_daily)/max(1,avg_weekday_daily))*100)}%.",
-                    actionable_step=f"Schedule app push notifications and prime storefront placement on Friday evenings.",
+                    actionable_step="Schedule app push notifications and prime storefront placement on Friday evenings.",
+                    action_summary=f"Weekend sales ({avg_weekend_daily:.1f} units/day) surge above weekdays. Maximize customer footfall with prominent display placement.",
+                    channel="Storefront & App Push",
+                    timing="Friday Eve - Sunday",
+                    expected_outcome="+18-25% Weekend Volume",
                 )
             )
         elif avg_weekday_daily >= (avg_weekend_daily * 1.20):
@@ -449,6 +444,10 @@ async def get_product_marketing_insights(
                     category="Promotion",
                     description=f"Weekday purchasing ({avg_weekday_daily:.1f} units/day) dominates this SKU's demand curve.",
                     actionable_step="Introduce Tuesday-Thursday combo discounts to capture planned pantry restocking.",
+                    action_summary=f"Weekday purchasing ({avg_weekday_daily:.1f} units/day) dominates demand. Drive mid-week ticket size with pantry restocking bundles.",
+                    channel="WhatsApp & In-Store Aisle",
+                    timing="Tuesday - Thursday",
+                    expected_outcome="+12-18% Basket Size",
                 )
             )
         else:
@@ -460,6 +459,10 @@ async def get_product_marketing_insights(
                     category="Promotion",
                     description="Demand is evenly distributed across all 7 days of the week.",
                     actionable_step="Maintain always-on baseline visibility without concentrating ad spend on single days.",
+                    action_summary="Demand is steady across all 7 days. Maintain continuous visibility and prominent shelf space.",
+                    channel="Digital Shelf & POS Display",
+                    timing="All Week (Mon-Sun)",
+                    expected_outcome="+10-15% Steady Velocity",
                 )
             )
 
@@ -473,6 +476,10 @@ async def get_product_marketing_insights(
                     category="Pricing",
                     description=f"Low price elasticity indicates room to adjust price from ₹{current_price:.2f} to ₹{recommended_price:.2f} (+{diff_pct}%).",
                     actionable_step="Increase price in gradual 2-3% weekly steps while monitoring weekly unit velocity.",
+                    action_summary=f"Low consumer price sensitivity permits adjusting price to ₹{recommended_price:.2f} to expand gross margins.",
+                    channel="Catalog Price Update",
+                    timing="Next Weekly Cycle",
+                    expected_outcome=f"+{diff_pct}% Gross Margin",
                 )
             )
         elif recommended_price and recommended_price < current_price:
@@ -483,8 +490,12 @@ async def get_product_marketing_insights(
                     title="Volume Acceleration Discount",
                     impact="HIGH",
                     category="Pricing",
-                    description=f"Model elasticity shows unit volume will expand by 25%+ at the target price point of ₹{recommended_price:.2f}.",
-                    actionable_step="Launch a 14-day promotional flash sale at recommended price to clear stock.",
+                    description=f"Model elasticity shows unit volume will expand significantly at the target price point of ₹{recommended_price:.2f}.",
+                    actionable_step="Launch a 14-day promotional flash sale at recommended price to accelerate inventory turns.",
+                    action_summary=f"Reposition price to optimal ₹{recommended_price:.2f} (-{diff_pct}%) to unlock elastic demand expansion.",
+                    channel="Flash Discount & Shelf Tag",
+                    timing="Next 14 Days",
+                    expected_outcome="+22-30% Volume Uptake",
                 )
             )
         else:
@@ -496,6 +507,10 @@ async def get_product_marketing_insights(
                     category="Merchandising",
                     description=f"Bundle this {category} item with complementary fast-moving products.",
                     actionable_step="Display 'Frequently Bought Together' bundles at checkout with a 5% bundle discount.",
+                    action_summary=f"Bundle this item with high-frequency staples to increase multi-item order rates.",
+                    channel="Checkout & Digital Cart",
+                    timing="Continuous",
+                    expected_outcome="+14% Cross-Sell Conversion",
                 )
             )
 
@@ -507,6 +522,10 @@ async def get_product_marketing_insights(
                 category="Retention",
                 description="Reward high-frequency buyers with exclusive member pricing or bonus reward points.",
                 actionable_step="Activate 2x loyalty points for repeat purchasers of this product SKU.",
+                action_summary="Reward frequent buyers with exclusive points multiplier to build brand lock-in.",
+                channel="SMS & Loyalty Program",
+                timing="Month-End (25th - 5th)",
+                expected_outcome="+20% Repeat Purchase Rate",
             )
         )
 

@@ -237,7 +237,8 @@ def test_recommend_price_eligibility(monkeypatch):
         for i in range(10)
     ]
     curr, hist = recommend_price(retailer_id, product_id, history_flat_price, 5.0, upload_id, run_id, trigger)
-    assert curr.eligibility_status == PricingEligibilityStatus.INSUFFICIENT_PRICE_VARIATION
+    assert curr.eligibility_status == PricingEligibilityStatus.ELIGIBLE
+    assert len(curr.candidate_grid) == 5
 
     # 3. Test Eligible (varying prices)
     history_eligible = [

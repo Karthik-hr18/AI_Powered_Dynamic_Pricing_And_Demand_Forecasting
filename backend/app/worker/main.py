@@ -409,12 +409,21 @@ def _process_single_product_pipeline_sync(
         
         final_anomaly = anomaly_curr
         if existing_a:
-            existing_dates = {a.date for a in existing_a.flagged_anomalies}
-            new_anoms = [a for a in anomaly_curr.flagged_anomalies if a.date not in existing_dates]
+            existing_dates = {
+                (a.get("date") if isinstance(a, dict) else getattr(a, "date", None))
+                for a in getattr(existing_a, "flagged_anomalies", [])
+            }
+            new_anoms = [
+                a for a in getattr(anomaly_curr, "flagged_anomalies", [])
+                if (a.get("date") if isinstance(a, dict) else getattr(a, "date", None)) not in existing_dates
+            ]
             if new_anoms:
                 existing_a.flagged_anomalies.extend(new_anoms)
                 existing_a.total_flagged_count = len(existing_a.flagged_anomalies)
-                existing_a.has_unreviewed_alerts = any(not a.acknowledged for a in existing_a.flagged_anomalies)
+                existing_a.has_unreviewed_alerts = any(
+                    not (a.get("acknowledged") if isinstance(a, dict) else getattr(a, "acknowledged", False))
+                    for a in existing_a.flagged_anomalies
+                )
                 if upload.id is not None:
                     existing_a.upload_id = upload.id
                 existing_a.run_timestamp = run_time
@@ -736,20 +745,21 @@ async def process_single_upload(upload: UploadDocument) -> None:
     filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
     abs_path = os.path.abspath(filepath)
     
-    # Check file existence with graceful sync wait for Windows file locks
-    if not os.path.exists(filepath):
+    # Check file existence with retry loop to ensure OS file system sync
+    file_ready = False
+    for _ in range(6):
+        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+            file_ready = True
+            break
         await asyncio.sleep(0.5)
 
-    dir_contents = os.listdir(settings.UPLOAD_STORAGE_DIR) if os.path.exists(settings.UPLOAD_STORAGE_DIR) else []
-
-    logger.info(f"[PROD_LOG] WORKER CLAIMED JOB | upload_id={upload.upload_id} | cwd={os.getcwd()} | absolute_path={abs_path} | csv_exists={os.path.exists(filepath)} | dir_contents={dir_contents}")
-
-    if not os.path.exists(filepath):
-        logger.error(f"[PROD_LOG] AFTER OPENING CSV: FAILURE | upload_id={upload.upload_id} | cwd={os.getcwd()} | absolute_path={abs_path} | dir_contents={dir_contents}")
+    if not file_ready:
+        dir_contents = os.listdir(settings.UPLOAD_STORAGE_DIR) if os.path.exists(settings.UPLOAD_STORAGE_DIR) else []
+        logger.error(f"[WORKER] CSV file missing or empty | upload_id={upload.upload_id} | path={abs_path} | exists={os.path.exists(filepath)} | dir_contents={dir_contents}")
         await _fail_upload(upload, "file_check", "CSV file missing from storage. Please re-upload the CSV dataset file.")
         return
 
-    logger.info(f"[PROD_LOG] AFTER OPENING CSV: SUCCESS | upload_id={upload.upload_id} | absolute_path={abs_path}")
+    logger.info(f"[WORKER] CSV ready for parsing | upload_id={upload.upload_id} | path={abs_path} | size={os.path.getsize(filepath)} bytes")
 
     # Transition to PROCESSING
     upload.status = UploadStatus.PROCESSING
@@ -784,7 +794,7 @@ async def process_single_upload(upload: UploadDocument) -> None:
             h_sku   = _find_header(["sku", "product_id", "item_id"])
             h_name  = _find_header(["product_name", "product_title", "title", "name", "item_name"])
             h_qty   = _find_header(["quantity_sold", "quantity", "qty", "units_sold", "units"])
-            h_price = _find_header(["selling_price", "unit_price_inr", "unit_price", "price", "total_sales_inr", "sales"])
+            h_price = _find_header(["selling_price_inr", "selling_price", "sellingprice", "unit_price_inr", "unit_price", "unitprice", "price", "rate", "total_sales_inr", "sales"])
 
             if not h_sku:
                 h_sku = _find_header(["sku", "product_id", "item_id", "product_name", "item_name", "product"])
