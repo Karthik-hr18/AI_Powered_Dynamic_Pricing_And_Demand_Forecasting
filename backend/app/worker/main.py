@@ -735,6 +735,11 @@ async def process_single_upload(upload: UploadDocument) -> None:
     os.makedirs(settings.UPLOAD_STORAGE_DIR, exist_ok=True)
     filepath = os.path.join(settings.UPLOAD_STORAGE_DIR, f"{upload.upload_id}.csv")
     abs_path = os.path.abspath(filepath)
+    
+    # Check file existence with graceful sync wait for Windows file locks
+    if not os.path.exists(filepath):
+        await asyncio.sleep(0.5)
+
     dir_contents = os.listdir(settings.UPLOAD_STORAGE_DIR) if os.path.exists(settings.UPLOAD_STORAGE_DIR) else []
 
     logger.info(f"[PROD_LOG] WORKER CLAIMED JOB | upload_id={upload.upload_id} | cwd={os.getcwd()} | absolute_path={abs_path} | csv_exists={os.path.exists(filepath)} | dir_contents={dir_contents}")
@@ -1062,7 +1067,7 @@ async def worker_loop() -> None:
 
             # 2. Fetch oldest pending upload job (FIFO order)
             upload = await UploadDocument.find(
-                {"status": {"$in": [UploadStatus.UPLOADED.value, "PENDING"]}}
+                {"status": UploadStatus.UPLOADED.value}
             ).sort("+created_at").first_or_none()
 
             if upload:
