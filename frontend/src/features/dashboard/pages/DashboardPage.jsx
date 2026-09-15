@@ -545,9 +545,9 @@ export const DashboardPage = () => {
                   textOverflow: "ellipsis",
                   display: "block",
                 }}
-                title={last_upload?.filename || "Sample Store Dataset"}
+                title={last_upload?.filename || "No Dataset Uploaded"}
               >
-                {last_upload?.filename || "Primary Sales Records"}
+                {last_upload?.filename || "No Dataset Uploaded"}
               </strong>
             </div>
 
@@ -556,7 +556,7 @@ export const DashboardPage = () => {
                 Processed Records
               </span>
               <strong style={{ fontSize: "13px", color: "var(--gray-text-primary)" }}>
-                {last_upload?.total_rows ? Number(last_upload.total_rows).toLocaleString("en-IN") : "14,820"} rows
+                {last_upload?.total_rows ? Number(last_upload.total_rows).toLocaleString("en-IN") : "0"} rows
               </strong>
             </div>
 
@@ -576,7 +576,7 @@ export const DashboardPage = () => {
               <span style={{ fontSize: "12px", color: "var(--gray-text-primary)", fontWeight: 600 }}>
                 {last_upload?.created_at
                   ? new Date(last_upload.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })
-                  : "Latest Batch"}
+                  : "No Batches"}
               </span>
             </div>
           </div>
@@ -705,7 +705,7 @@ export const DashboardPage = () => {
             {formatCurrency(kpis?.total_revenue_30d)}
           </span>
           <span className="badge badge-success" style={{ width: "fit-content", fontSize: "11px" }}>
-            <ArrowUpRight size={12} /> +{kpis?.revenue_growth_pct ?? 12.4}% vs prev 30d
+            <ArrowUpRight size={12} /> +{kpis?.revenue_growth_pct ?? 0}% vs prev 30d
           </span>
         </div>
 
@@ -722,7 +722,9 @@ export const DashboardPage = () => {
           <span style={{ fontSize: "26px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
             {(kpis?.total_units_30d || 0).toLocaleString()}
           </span>
-          <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>Across 75 indexed SKUs</span>
+          <span style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
+            Across {product_table?.length || 0} indexed SKUs
+          </span>
         </div>
 
         {/* Weighted Avg Price */}
@@ -755,7 +757,7 @@ export const DashboardPage = () => {
             +{formatCurrency(kpis?.potential_revenue_gain)}
           </span>
           <span className="badge badge-success" style={{ width: "fit-content", fontSize: "11px" }}>
-            +{kpis?.potential_revenue_gain_pct ?? 5.6}% total opportunity
+            +{kpis?.potential_revenue_gain_pct ?? 0}% total opportunity
           </span>
         </div>
 
@@ -770,10 +772,10 @@ export const DashboardPage = () => {
             </div>
           </div>
           <span style={{ fontSize: "26px", fontWeight: 800, color: "var(--gray-text-primary)" }}>
-            {data_quality?.quality_score_pct ?? 98.4}%
+            {data_quality?.quality_score_pct ?? 100}%
           </span>
           <span style={{ fontSize: "11px", color: "var(--gray-text-muted)" }}>
-            {(data_quality?.total_rows || 14820).toLocaleString()} rows ({data_quality?.duplicates_count ?? 12} dupes)
+            {(data_quality?.total_rows || 0).toLocaleString()} rows ({data_quality?.duplicates_count || 0} dupes)
           </span>
         </div>
       </div>

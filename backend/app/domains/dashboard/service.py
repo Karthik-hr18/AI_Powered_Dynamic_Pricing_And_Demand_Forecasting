@@ -276,34 +276,32 @@ async def _compute_dashboard_overview(
     # --------------------------------------------------------------------------
     # 3. Dynamic Business Health Score & Monthly Goal Progress
     # --------------------------------------------------------------------------
-    health_score = 100
-    if alerts_count > 0:
-        health_score -= alerts_count * 3
-    
-    critical_stockouts = sum(
-        1 for inv in db_inventories
-        if inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value == "STOCKOUT_RISK"
-    )
-    health_score -= critical_stockouts * 4
-
-    # If no inventories or alerts exist, default to 94 (Excellent)
-    if len(db_inventories) == 0 and alerts_count == 0:
-        health_score = 94
+    if len(product_dict) == 0 and total_revenue_30d == 0:
+        health_score = 100
+        rating_str = "Optimal (No Alerts)"
     else:
+        health_score = 100
+        if alerts_count > 0:
+            health_score -= alerts_count * 3
+        
+        critical_stockouts = sum(
+            1 for inv in db_inventories
+            if inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value == "STOCKOUT_RISK"
+        )
+        health_score -= critical_stockouts * 4
         health_score = max(45, min(99, health_score))
-
-    rating_str = "Excellent" if health_score >= 88 else "Good" if health_score >= 70 else "Needs Attention"
+        rating_str = "Excellent" if health_score >= 88 else "Good" if health_score >= 70 else "Needs Attention"
 
     business_health = BusinessHealthMetric(
         score=health_score,
         rating=rating_str,
-        trend_delta=6,
+        trend_delta=0 if total_revenue_30d == 0 else 6,
     )
 
     target_rev = 50000.0
-    baseline_profit = round(total_revenue_30d * 0.18, 2) if total_revenue_30d > 0 else 12500.0
-    projected_profit = round((total_revenue_30d + potential_gain_total) * 0.22, 2) if total_revenue_30d > 0 else 16800.0
-    expansion_pct = round(((projected_profit - baseline_profit) / baseline_profit) * 100, 1) if baseline_profit > 0 else 34.4
+    baseline_profit = round(total_revenue_30d * 0.18, 2) if total_revenue_30d > 0 else 0.0
+    projected_profit = round((total_revenue_30d + potential_gain_total) * 0.22, 2) if (total_revenue_30d > 0 or potential_gain_total > 0) else 0.0
+    expansion_pct = round(((projected_profit - baseline_profit) / baseline_profit) * 100, 1) if baseline_profit > 0 else 0.0
 
     goal_progress = GoalProgressMetric(
         target_revenue=target_rev,
@@ -324,7 +322,10 @@ async def _compute_dashboard_overview(
             if (inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value in ["HEALTHY", "STABLE"])
             or (inv.mode == "ADVISORY" and inv.advisory and inv.advisory.demand_trend.value in ["STABLE", "RISING"])
         )
-        critical_cnt = critical_stockouts
+        critical_cnt = sum(
+            1 for inv in db_inventories
+            if inv.mode == "TRUE_RISK" and inv.true_risk and inv.true_risk.classification.value == "STOCKOUT_RISK"
+        )
         risk_cnt = max(0, total_inv_docs - healthy_cnt - critical_cnt)
 
         inventory_health = InventoryHealthDistribution(
@@ -334,9 +335,9 @@ async def _compute_dashboard_overview(
         )
     else:
         inventory_health = InventoryHealthDistribution(
-            healthy_pct=85.0,
-            risk_pct=10.0,
-            critical_pct=5.0,
+            healthy_pct=100.0,
+            risk_pct=0.0,
+            critical_pct=0.0,
         )
 
     # --------------------------------------------------------------------------
@@ -478,7 +479,7 @@ async def _compute_dashboard_overview(
     # --------------------------------------------------------------------------
     # 7. Data Quality Audit & System Status
     # --------------------------------------------------------------------------
-    active_upload_rows = latest_upload.rows_ingested if (latest_upload and latest_upload.rows_ingested) else 9910
+    active_upload_rows = latest_upload.rows_ingested if (latest_upload and latest_upload.rows_ingested) else (latest_upload.row_count if latest_upload else 0)
     active_upload_rejected = latest_upload.rows_rejected if latest_upload else 0
 
     data_quality = DataQualityAudit(
