@@ -223,3 +223,14 @@ async def get_product_summary_data(
         ]
 
     return product, forecast, pricing, inventory, anomaly, sparkline
+
+
+async def list_categories(retailer_id: PydanticObjectId) -> List[str]:
+    """
+    Returns a sorted list of unique active categories belonging to the retailer's catalog.
+    """
+    db = get_database()
+    categories = await db["products"].distinct("category", {"retailer_id": retailer_id, "is_active": True})
+    valid_cats = sorted([str(c).strip() for c in categories if c and str(c).strip()])
+    return valid_cats
+

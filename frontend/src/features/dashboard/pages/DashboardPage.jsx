@@ -189,6 +189,22 @@ export const DashboardPage = () => {
     a.click();
   };
 
+  // Dynamically derive active categories present in the shop/dataset
+  const availableCategories = useMemo(() => {
+    const set = new Set();
+    if (data?.product_table) {
+      data.product_table.forEach((p) => {
+        if (p.category && p.category.trim()) set.add(p.category.trim());
+      });
+    }
+    if (data?.category_performance) {
+      data.category_performance.forEach((c) => {
+        if (c.category && c.category.trim() && c.category !== "General") set.add(c.category.trim());
+      });
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [data?.product_table, data?.category_performance]);
+
   // Filtered Product Table memo
   const filteredProducts = useMemo(() => {
     if (!data || !data.product_table) return [];
@@ -1225,13 +1241,12 @@ export const DashboardPage = () => {
                 padding: "0 10px",
               }}
             >
-              <option value="ALL">All Categories</option>
-              <option value="Dairy">Dairy</option>
-              <option value="Bakery">Bakery</option>
-              <option value="Beverages">Beverages</option>
-              <option value="Snacks">Snacks</option>
-              <option value="Household">Household</option>
-              <option value="Personal Care">Personal Care</option>
+              <option value="ALL">All Categories ({availableCategories.length})</option>
+              {availableCategories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
             </select>
 
             {/* Status Filter */}

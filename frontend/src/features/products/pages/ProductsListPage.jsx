@@ -24,6 +24,16 @@ export const ProductsListPage = () => {
   const [page, setPage] = useState(1);
   const limit = 15;
 
+  // Fetch dynamic categories present for this retailer's shop/dataset
+  const { data: categoriesData } = useQuery({
+    queryKey: ["productCategories"],
+    queryFn: async () => {
+      const res = await apiClient.get("products/categories");
+      return res.data;
+    },
+    staleTime: 60000,
+  });
+
   // Fetch paginated products from API
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["productsList", page, search, category],
@@ -172,13 +182,12 @@ export const ProductsListPage = () => {
               boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
             }}
           >
-            <option value="ALL">All Categories</option>
-            <option value="Dairy">Dairy</option>
-            <option value="Bakery">Bakery</option>
-            <option value="Beverages">Beverages</option>
-            <option value="Snacks">Snacks</option>
-            <option value="Household">Household</option>
-            <option value="Personal Care">Personal Care</option>
+            <option value="ALL">All Categories ({categoriesData?.length || 0})</option>
+            {(categoriesData || []).map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
           </select>
         </div>
       </div>

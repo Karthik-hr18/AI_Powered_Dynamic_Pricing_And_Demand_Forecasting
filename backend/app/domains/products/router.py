@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
 from beanie import PydanticObjectId
 
@@ -51,6 +51,22 @@ async def get_products(
         limit=limit,
         pages_count=pages_count,
     )
+
+
+@router.get(
+    "/categories",
+    response_model=List[str],
+    status_code=status.HTTP_200_OK,
+    summary="Get all unique categories for the retailer",
+)
+async def get_categories(
+    user: UserDocument = Depends(get_current_user),
+):
+    """
+    Returns the distinct list of product categories actively present in the retailer's catalog.
+    """
+    from app.domains.products.service import list_categories
+    return await list_categories(retailer_id=user.id)
 
 
 @router.get(
