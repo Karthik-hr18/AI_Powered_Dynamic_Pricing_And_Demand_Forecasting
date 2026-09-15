@@ -479,8 +479,8 @@ async def _compute_dashboard_overview(
     # --------------------------------------------------------------------------
     # 7. Data Quality Audit & System Status
     # --------------------------------------------------------------------------
-    active_upload_rows = latest_upload.rows_ingested if (latest_upload and latest_upload.rows_ingested) else (latest_upload.row_count if latest_upload else 0)
-    active_upload_rejected = latest_upload.rows_rejected if latest_upload else 0
+    active_upload_rows = int(latest_upload.rows_ingested or latest_upload.row_count or 0) if latest_upload else 0
+    active_upload_rejected = int(latest_upload.rows_rejected or 0) if latest_upload else 0
 
     data_quality = DataQualityAudit(
         total_rows=active_upload_rows,
