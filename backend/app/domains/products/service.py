@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime, timezone, timedelta
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from beanie import PydanticObjectId
 from fastapi import HTTPException, status
@@ -27,9 +27,6 @@ async def list_products(
     Enriches products with current pricing, forecast, inventory, and 30-day sales metrics.
     """
     # Enforce positive integers
-    page = max(1, page)
-    limit = max(1, limit)
-
     page = max(1, page)
     limit = max(1, limit)
 
@@ -118,7 +115,7 @@ async def list_products(
         current_price = (pr.current_price if pr else None) or sl.get("avg_price") or r_sl.get("avg_price") or getattr(p, "current_price", None) or 0.0
         rec_price = pr.recommended_price if pr else None
 
-        sales_30d = int(round(sl.get("sales_30d") or r_sl.get("sales_30d") or 0))
+        sales_30d = round(sl.get("sales_30d") or r_sl.get("sales_30d") or 0)
         revenue_30d = sl.get("revenue_30d") or r_sl.get("revenue_30d") or 0.0
 
         f_7d = 0.0
@@ -143,8 +140,8 @@ async def list_products(
             recommended_price=round(rec_price, 2) if rec_price is not None else None,
             sales_30d=sales_30d,
             revenue_30d=round(revenue_30d, 2),
-            forecast_7d=float(int(round(f_7d))),
-            stock_level=int(round(stock)),
+            forecast_7d=round(f_7d, 2),
+            stock_level=round(stock),
             inventory_status=inv_status,
         )
         items.append(item)
@@ -216,7 +213,7 @@ async def get_product_summary_data(
         sparkline = [
             SparklinePoint(
                 date=record.date,
-                quantity_sold=float(int(round(record.quantity_sold))),
+                quantity_sold=round(float(record.quantity_sold), 2),
                 selling_price=float(record.selling_price or 0.0),
             )
             for record in sales_records
