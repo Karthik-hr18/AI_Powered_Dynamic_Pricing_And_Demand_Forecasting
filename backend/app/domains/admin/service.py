@@ -37,6 +37,15 @@ from app.domains.uploads.models import UploadDocument
 logger = logging.getLogger("app.domains.admin.service")
 
 
+def _ensure_utc(dt: Optional[datetime]) -> Optional[datetime]:
+    """Ensures a datetime object is timezone-aware in UTC."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
 # --------------------------------------------------------------------------
 # Helper: Standardized Activity Logging
 # --------------------------------------------------------------------------
@@ -68,6 +77,99 @@ async def log_activity_event(
     return event
 
 
+async def backfill_activity_logs_if_empty() -> None:
+    """Populates historical activity log entries from existing users and upload datasets if the audit trail is empty."""
+    count = await ActivityLogDocument.count()
+    if count > 0:
+        return
+
+    events_to_insert: List[ActivityLogDocument] = []
+
+    # 1. Retailer User Registrations & Logins
+    users = await UserDocument.find().to_list()
+    retailer_map = {u.id: u for u in users}
+    for u in users:
+        ts = _ensure_utc(u.created_at) or datetime.now(timezone.utc)
+        events_to_insert.append(
+            ActivityLogDocument(
+                timestamp=ts,
+                actor_id=u.id,
+                actor_email=u.email,
+                actor_role=u.role.value if hasattr(u.role, "value") else str(u.role),
+                action="USER_REGISTER",
+                target_id=str(u.id),
+                target_name=u.business_name or "Retail Store",
+                status="SUCCESS",
+                description=f"User account '{u.email}' registered with role {u.role.value if hasattr(u.role, 'value') else u.role}.",
+            )
+        )
+        if u.last_login_at:
+            lts = _ensure_utc(u.last_login_at) or datetime.now(timezone.utc)
+            events_to_insert.append(
+                ActivityLogDocument(
+                    timestamp=lts,
+                    actor_id=u.id,
+                    actor_email=u.email,
+                    actor_role=u.role.value if hasattr(u.role, "value") else str(u.role),
+                    action="USER_LOGIN",
+                    target_id=str(u.id),
+                    target_name=u.email,
+                    status="SUCCESS",
+                    description=f"User '{u.email}' authenticated successfully into dashboard session.",
+                )
+            )
+
+    # 2. Dataset Ingestion Operations
+    uploads = await UploadDocument.find().to_list()
+    for up in uploads:
+        r = retailer_map.get(up.retailer_id)
+        email = r.email if r else "retailer@platform"
+        ts = _ensure_utc(up.created_at) or datetime.now(timezone.utc)
+        rows = up.rows_ingested or up.row_count or 0
+        events_to_insert.append(
+            ActivityLogDocument(
+                timestamp=ts,
+                actor_id=up.retailer_id,
+                actor_email=email,
+                actor_role="RETAILER",
+                action="CSV_UPLOAD",
+                target_id=up.upload_id,
+                target_name=up.original_filename,
+                status="SUCCESS",
+                description=f"Uploaded sales dataset '{up.original_filename}' ({rows} rows, {round((up.file_size_bytes or 0) / 1024, 1)} KB).",
+                metadata={"upload_id": up.upload_id, "file_size_bytes": up.file_size_bytes},
+            )
+        )
+        if up.processing_completed_at:
+            comp_ts = _ensure_utc(up.processing_completed_at) or datetime.now(timezone.utc)
+            is_success = up.status in (UploadStatus.COMPLETED, UploadStatus.COMPLETED_WITH_WARNINGS)
+            status_str = "SUCCESS" if is_success else "FAILED"
+            action_str = "CSV_PROCESS_COMPLETED" if is_success else "CSV_PROCESS_FAILED"
+            desc = (
+                f"ML processing and sales ingestion completed successfully for '{up.original_filename}' ({up.rows_ingested or 0} records indexed)."
+                if is_success
+                else f"Dataset processing failed for '{up.original_filename}': {up.error_reason or 'Validation rejected'}"
+            )
+            events_to_insert.append(
+                ActivityLogDocument(
+                    timestamp=comp_ts,
+                    actor_id=up.retailer_id,
+                    actor_email="system.worker@profitsync.ai",
+                    actor_role="WORKER",
+                    action=action_str,
+                    target_id=up.upload_id,
+                    target_name=up.original_filename,
+                    status=status_str,
+                    description=desc,
+                    metadata={"upload_id": up.upload_id, "rows_ingested": up.rows_ingested},
+                )
+            )
+
+    if events_to_insert:
+        await ActivityLogDocument.insert_many(events_to_insert)
+        logger.info(f"Backfilled {len(events_to_insert)} activity log events.")
+
+
 # --------------------------------------------------------------------------
 # 1. Admin Platform Overview
 # --------------------------------------------------------------------------
@@ -76,6 +178,7 @@ async def get_admin_overview() -> AdminOverviewResponse:
     Aggregates platform-wide operational KPIs, 30-day retailer registration
     growth curve, upload breakdown, and recent activity feed.
     """
+    await backfill_activity_logs_if_empty()
     now = datetime.now(timezone.utc)
     thirty_days_ago = now - timedelta(days=30)
 
@@ -444,10 +547,15 @@ async def get_data_operations(
     for u in uploads:
         r = retailer_map.get(u.retailer_id)
         duration = None
-        if u.processing_completed_at and u.created_at:
-            duration = round((u.processing_completed_at - u.created_at).total_seconds(), 1)
-        elif u.processing_started_at and u.created_at:
-            duration = round((datetime.now(timezone.utc) - u.processing_started_at).total_seconds(), 1)
+        if u.processing_completed_at and (u.processing_started_at or u.created_at):
+            t_comp = _ensure_utc(u.processing_completed_at)
+            t_start = _ensure_utc(u.processing_started_at or u.created_at)
+            if t_comp and t_start:
+                duration = max(0.0, round((t_comp - t_start).total_seconds(), 1))
+        elif u.processing_started_at:
+            t_start = _ensure_utc(u.processing_started_at)
+            if t_start:
+                duration = max(0.0, round((datetime.now(timezone.utc) - t_start).total_seconds(), 1))
 
         safe_error = sanitize_error_reason(u.error_reason, u.validation_errors)
 
@@ -517,6 +625,7 @@ async def get_activity_logs(
     """
     Returns server-paginated platform activity log entries with filtering.
     """
+    await backfill_activity_logs_if_empty()
     query: Dict[str, Any] = {}
     if action_filter and action_filter.upper() != "ALL":
         query["action"] = action_filter.upper()

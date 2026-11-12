@@ -13,8 +13,10 @@ class GenerationMode(str, Enum):
 class PricePsychology(BaseModel):
     original_price: float
     current_price: float
+    recommended_price: Optional[float] = None
     discount_pct: float
     positioning_note: str
+    optimal_action: Optional[str] = None
     charm_pricing_flag: bool = False
     price_elasticity_score: Optional[float] = None
 

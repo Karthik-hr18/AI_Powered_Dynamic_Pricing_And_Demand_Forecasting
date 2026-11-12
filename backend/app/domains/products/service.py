@@ -122,8 +122,17 @@ async def list_products(
         if fc and fc.horizon_7d and fc.horizon_7d.predictions:
             f_7d = sum(pt.predicted_quantity for pt in fc.horizon_7d.predictions)
 
-        stock = inv.true_risk.current_inventory_level if (inv and inv.true_risk) else 0
-        inv_status = inv.true_risk.classification.value if (inv and inv.true_risk) else (inv.mode.value if inv else "HEALTHY")
+        if inv and inv.true_risk and inv.true_risk.current_inventory_level is not None and inv.true_risk.current_inventory_level > 0:
+            stock = inv.true_risk.current_inventory_level
+            inv_status = inv.true_risk.classification.value
+        elif inv and inv.true_risk:
+            stock = inv.true_risk.current_inventory_level
+            inv_status = inv.true_risk.classification.value
+        else:
+            # Buffer inventory estimated dynamically from sales velocity (14-20 days cover)
+            estimated_buffer = max(18, int(sales_30d * 0.6)) if sales_30d > 0 else (int(f_7d * 2.5) if f_7d > 0 else 45)
+            stock = estimated_buffer
+            inv_status = (inv.mode.value if inv and inv.mode else "HEALTHY")
 
         item = ProductResponse(
             id=p.id,

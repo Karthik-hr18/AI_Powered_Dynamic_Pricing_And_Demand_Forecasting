@@ -4,7 +4,7 @@ import { Mail, Lock, UserPlus, AlertCircle, Building, ArrowLeft, Eye, EyeOff } f
 import { useAuth } from "../../../shared/hooks/useAuth";
 
 export const RegisterPage = () => {
-  const { register, loading } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,6 +12,7 @@ export const RegisterPage = () => {
   const [role, setRole] = useState("RETAILER");
   const [businessName, setBusinessName] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,11 +28,14 @@ export const RegisterPage = () => {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       await register(email, password, role, businessName.trim());
       navigate("/dashboard");
     } catch (err) {
       setErrorMsg(err.message || "Failed to register. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -108,7 +112,7 @@ export const RegisterPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               style={{ paddingLeft: "42px", backgroundColor: "rgba(15, 23, 42, 0.6)", borderColor: "rgba(99, 102, 241, 0.2)", color: "#FFFFFF" }}
               required
-              disabled={loading}
+              disabled={isSubmitting}
             />
           </div>
         </div>
@@ -128,7 +132,7 @@ export const RegisterPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               style={{ paddingLeft: "42px", paddingRight: "44px", backgroundColor: "rgba(15, 23, 42, 0.6)", borderColor: "rgba(99, 102, 241, 0.2)", color: "#FFFFFF" }}
               required
-              disabled={loading}
+              disabled={isSubmitting}
             />
             <button
               type="button"
@@ -174,7 +178,7 @@ export const RegisterPage = () => {
                 onChange={(e) => setBusinessName(e.target.value)}
                 style={{ paddingLeft: "42px", backgroundColor: "rgba(15, 23, 42, 0.6)", borderColor: "rgba(99, 102, 241, 0.2)", color: "#FFFFFF" }}
                 required
-                disabled={loading}
+                disabled={isSubmitting}
               />
             </div>
           </div>
@@ -184,10 +188,10 @@ export const RegisterPage = () => {
           type="submit"
           className="btn btn-primary btn-lg"
           style={{ width: "100%", marginTop: "var(--space-2)" }}
-          disabled={loading}
+          disabled={isSubmitting}
         >
           <UserPlus size={18} />
-          {loading ? "Creating account..." : "Sign Up"}
+          {isSubmitting ? "Creating account..." : "Sign Up"}
         </button>
       </form>
 

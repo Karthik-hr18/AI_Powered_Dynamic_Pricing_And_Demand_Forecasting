@@ -60,7 +60,7 @@ The platform uses the following stack:
 │   ├── src/
 │   │   ├── features/         # Feature-specific components and logic
 │   │   ├── shared/           # Common components, layouts, hooks, API client
-│   │   ├── routes/           # Routing layout and components
+│   │   ├── s/           # Routing layout and components
 │   │   ├── App.jsx           # Main React component
 │   │   ├── main.jsx          # React app mount script
 │   │   └── index.css         # Custom CSS (Obsidian Glassmorphic theme)

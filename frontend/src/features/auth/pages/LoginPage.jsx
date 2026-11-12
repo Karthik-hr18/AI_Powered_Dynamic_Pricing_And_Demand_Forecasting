@@ -4,36 +4,46 @@ import { Mail, Lock, LogIn, AlertCircle, ArrowLeft, Store, ShieldCheck, Eye, Eye
 import { useAuth } from "../../../shared/hooks/useAuth";
 
 export const LoginPage = () => {
-  const { login, loading } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
 
-    if (!email || !password) {
+    if (!email.trim() || !password) {
       setErrorMsg("Please enter both email and password.");
       return;
     }
 
+    setIsSubmitting(true);
     try {
-      await login(email, password);
-      navigate("/dashboard");
+      await login(email.trim(), password);
+      if (email.trim().toLowerCase() === "karthikhr676@gmail.com") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     } catch (err) {
       setErrorMsg(err.message || "Failed to log in. Please check credentials.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const fillRetailer = () => {
+    setErrorMsg("");
     setEmail("karthikhrvidyanidhi676@gmail.com");
     setPassword("11111111");
   };
 
   const fillAdmin = () => {
+    setErrorMsg("");
     setEmail("karthikhr676@gmail.com");
     setPassword("Karthik@64");
   };
@@ -111,7 +121,7 @@ export const LoginPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               style={{ paddingLeft: "42px", backgroundColor: "rgba(15, 23, 42, 0.6)", borderColor: "rgba(99, 102, 241, 0.2)", color: "#FFFFFF" }}
               required
-              disabled={loading}
+              disabled={isSubmitting}
             />
           </div>
         </div>
@@ -131,7 +141,7 @@ export const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               style={{ paddingLeft: "42px", paddingRight: "44px", backgroundColor: "rgba(15, 23, 42, 0.6)", borderColor: "rgba(99, 102, 241, 0.2)", color: "#FFFFFF" }}
               required
-              disabled={loading}
+              disabled={isSubmitting}
             />
             <button
               type="button"
@@ -163,10 +173,10 @@ export const LoginPage = () => {
           type="submit"
           className="btn btn-primary btn-lg"
           style={{ width: "100%", marginTop: "var(--space-2)" }}
-          disabled={loading}
+          disabled={isSubmitting}
         >
           <LogIn size={18} />
-          {loading ? "Signing in..." : "Sign In"}
+          {isSubmitting ? "Signing in..." : "Sign In"}
         </button>
 
         {/* Demo Access Chips */}

@@ -8,7 +8,7 @@ from app.domains.auth.schemas import UserSyncRequest
 
 logger = logging.getLogger("app.domains.auth.service")
 
-# The one and only admin account. No one else may register with this email.
+# The one and only admin account. No other accounts have administrative privileges.
 ADMIN_EMAIL = "karthikhr676@gmail.com"
 
 
@@ -30,8 +30,8 @@ async def sync_firebase_user(
 
     email_lower = email.lower()
 
-    # Determine role: admin email or explicit admin sync gets ADMIN, otherwise RETAILER
-    is_admin = (email_lower == ADMIN_EMAIL.lower()) or (sync_data is not None and sync_data.role == UserRole.ADMIN)
+    # Determine role: only designated admin email gets ADMIN, all others are RETAILER
+    is_admin = (email_lower == ADMIN_EMAIL.lower())
 
     # 1. Check if user already exists in MongoDB by firebase_uid OR email
     user = await UserDocument.find_one(

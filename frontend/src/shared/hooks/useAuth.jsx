@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
   const executeMockLogin = async (email) => {
     const uid = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "_");
     const mockFbUser = { uid, email, displayName: uid.toUpperCase(), emailVerified: true };
-    const mockToken = `mock-token-${uid}`;
+    const mockToken = `mock-token-${email}`;
     localStorage.setItem("mock_auth_user", JSON.stringify(mockFbUser));
     localStorage.setItem("mock_auth_token", mockToken);
     setFirebaseUser(mockFbUser);
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
   const executeMockRegister = async (email, role, businessName) => {
     const uid = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "_");
     const mockFbUser = { uid, email, displayName: uid.toUpperCase(), emailVerified: true };
-    const mockToken = `mock-token-${uid}`;
+    const mockToken = `mock-token-${email}`;
     localStorage.setItem("mock_auth_user", JSON.stringify(mockFbUser));
     localStorage.setItem("mock_auth_token", mockToken);
     setFirebaseUser(mockFbUser);

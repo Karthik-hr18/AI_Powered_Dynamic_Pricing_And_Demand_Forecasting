@@ -302,7 +302,7 @@ export const MarketingInsightsPanel = ({ productId, productName, category }) => 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
               gap: "12px",
               marginBottom: "14px",
             }}
@@ -334,6 +334,25 @@ export const MarketingInsightsPanel = ({ productId, productName, category }) => 
                 {formatCurrency(data.price_psychology.original_price)}
               </span>
             </div>
+
+            {data.price_psychology.recommended_price && (
+              <div
+                style={{
+                  padding: "10px 12px",
+                  background: "rgba(99, 102, 241, 0.08)",
+                  borderRadius: "var(--radius-default)",
+                  border: "1px solid rgba(99, 102, 241, 0.25)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Sparkles size={11} style={{ color: "var(--accent)" }} />
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent)" }}>AI Recommended</span>
+                </div>
+                <span style={{ fontSize: "18px", fontWeight: 800, color: "var(--accent)" }}>
+                  {formatCurrency(data.price_psychology.recommended_price)}
+                </span>
+              </div>
+            )}
 
             <div
               style={{

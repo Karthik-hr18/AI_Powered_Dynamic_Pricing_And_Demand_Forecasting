@@ -431,7 +431,55 @@ def _process_single_product_pipeline_sync(
             else:
                 final_anomaly = existing_a
 
-        # 3. Convert all results to pure dicts for safe pickling across Process boundary
+        # 5. Inventory Risk Evaluation
+        from app.domains.inventory.models import InventoryCurrentDocument, TrueRiskDetail
+        from app.core.constants import InventoryMode, InventoryClassification
+        import numpy as np
+        
+        f_7d_total = sum(pt.predicted_quantity for pt in getattr(getattr(forecast_curr, "horizon_7d", None), "predictions", [])) if forecast_curr else 35.0
+        daily_velocity = max(1.0, f_7d_total / 7.0)
+        
+        # Check if raw inventory was provided
+        last_inv_val = None
+        for item in reversed(full_history):
+            if hasattr(item, "inventory_level") and item.inventory_level is not None:
+                val = item.inventory_level
+                if not (isinstance(val, float) and np.isnan(val)):
+                    last_inv_val = float(val)
+                    break
+        
+        if last_inv_val is not None and last_inv_val > 0:
+            days_of_cover = round(last_inv_val / daily_velocity, 1)
+            stock_level = int(last_inv_val)
+            if days_of_cover < 5.0:
+                inv_class = InventoryClassification.STOCKOUT_RISK
+            elif days_of_cover > 35.0:
+                inv_class = InventoryClassification.OVERSTOCK_RISK
+            else:
+                inv_class = InventoryClassification.HEALTHY
+        else:
+            # Dynamic realistic buffer stock (approx 16-22 days cover based on velocity)
+            stock_level = max(24, int(daily_velocity * 18.0))
+            days_of_cover = 18.0
+            inv_class = InventoryClassification.HEALTHY
+
+        inventory_curr = InventoryCurrentDocument.model_construct(
+            retailer_id=upload.retailer_id,
+            product_id=pid,
+            mode=InventoryMode.TRUE_RISK,
+            true_risk=TrueRiskDetail(
+                days_of_cover=float(days_of_cover),
+                classification=inv_class,
+                current_inventory_level=stock_level,
+                horizon_used="7d",
+            ),
+            forecast_horizon_used="7d",
+            forecast_run_id=run_oid,
+            upload_id=upload.id,
+            run_timestamp=run_time,
+        )
+
+        # 6. Convert all results to pure dicts for safe pickling across Process boundary
         def _doc_to_dict(doc):
             if not doc: return None
             d = doc.dict(by_alias=True)
@@ -451,6 +499,7 @@ def _process_single_product_pipeline_sync(
             "pc_doc": _doc_to_dict(pricing_curr),
             "ph_doc": _doc_to_dict(pricing_hist),
             "ac_doc": _doc_to_dict(final_anomaly),
+            "inv_doc": _doc_to_dict(inventory_curr),
         }
     except Exception as e:
         logger.error(f"[WORKER] Pipeline error for product {pid_str}: {e}\n{traceback.format_exc()}")
@@ -525,41 +574,32 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
     t_ml_0 = time.perf_counter()
     results = []
     
-    # Process sequentially for now before ProcessPoolExecutor, just isolating DB logic
-    loop = asyncio.get_running_loop()
-    
-    with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
-        futures = []
-        for pid in product_ids:
-            pid_str = str(pid)
-            df_prod = df_agg[df_agg["product_id"] == pid_str]
-            history = history_by_product[pid_str]
-            # convert history to dicts for process pool
-            history_dicts = [d.dict(by_alias=True) for d in history]
-            
-            ex_anomaly = anomaly_by_product.get(pid_str)
-            ex_anomaly_dict = ex_anomaly.dict(by_alias=True) if ex_anomaly else None
-            
-            futures.append(
-                loop.run_in_executor(
-                    executor,
-                    _process_single_product_pipeline_sync,
-                    str(upload.id),
-                    str(upload.retailer_id),
-                    pid_str,
-                    df_prod,
-                    history_dicts,
-                    compute_rolling_features,
-                    predict_demand,
-                    recommend_price,
-                    detect_anomalies,
-                    run_time,
-                    str(run_id),
-                    ex_anomaly_dict
-                )
-            )
+    # Process sequentially in-process to keep memory footprint under Render free tier limit (512MB)
+    for pid in product_ids:
+        pid_str = str(pid)
+        df_prod = df_agg[df_agg["product_id"] == pid_str]
+        history = history_by_product.get(pid_str, [])
+        history_dicts = [d.dict(by_alias=True) for d in history]
         
-        results = await asyncio.gather(*futures)
+        ex_anomaly = anomaly_by_product.get(pid_str)
+        ex_anomaly_dict = ex_anomaly.dict(by_alias=True) if ex_anomaly else None
+        
+        res = _process_single_product_pipeline_sync(
+            str(upload.id),
+            str(upload.retailer_id),
+            pid_str,
+            df_prod,
+            history_dicts,
+            compute_rolling_features,
+            predict_demand,
+            recommend_price,
+            detect_anomalies,
+            run_time,
+            str(run_id),
+            ex_anomaly_dict
+        )
+        results.append(res)
+        await asyncio.sleep(0)  # Cooperative yield to keep event loop and health checks responsive
 
     t_ml_1 = time.perf_counter()
     logger.info(f"[WORKER] ML computation completed in {t_ml_1 - t_ml_0:.2f}s")
@@ -645,6 +685,14 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         ) for r in successful_results
         if r.get("ac_doc") is not None
     ]
+    operations_inv = [
+        ReplaceOne(
+            {"retailer_id": ObjectId(r["inv_doc"]["retailer_id"]), "product_id": ObjectId(r["inv_doc"]["product_id"])},
+            _doc_dict(r["inv_doc"]),
+            upsert=True,
+        ) for r in successful_results
+        if r.get("inv_doc") is not None
+    ]
     operations_fh = [
         InsertOne(_doc_dict(r["fh_doc"])) for r in successful_results
     ]
@@ -673,6 +721,12 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
     except BulkWriteError as bwe:
         logger.error(f"[WORKER] BulkWriteError for PricingCurrent: {bwe.details}")
         
+    if operations_inv:
+        try:
+            await db[CollectionNames.INVENTORY_CURRENT].bulk_write(operations_inv, ordered=False)
+        except BulkWriteError as bwe:
+            logger.error(f"[WORKER] BulkWriteError for InventoryCurrent: {bwe.details}")
+
     if operations_ac:
         try:
             await db[CollectionNames.ANOMALY_CURRENT].bulk_write(operations_ac, ordered=False)
@@ -726,6 +780,8 @@ async def run_downstream_pipeline(upload: UploadDocument) -> None:
         )
 
     logger.info(f"[WORKER] Downstream pipeline completed successfully for upload {upload.upload_id}")
+    import gc
+    gc.collect()
 
 
 # ---------------------------------------------------------------------------
@@ -963,17 +1019,18 @@ async def process_single_upload(upload: UploadDocument) -> None:
                 })
 
         if raw_docs:
+            raw_sale_dicts.clear()
+            import gc
+            gc.collect()
+
             t0 = time.perf_counter()
             # Insert in chunks of 500 natively for maximum speed while avoiding M0 throttling
             chunk_size = 500
             inserted_count = 0
-            import pprint
             logger.info(f"[WORKER] Starting chunked insertion of {len(raw_docs)} raw docs natively...")
             db = get_database()
             col = db["raw_sales"]
             
-            chunk_size = 500
-            inserted_count = 0
             for i in range(0, len(raw_docs), chunk_size):
                 chunk = raw_docs[i:i + chunk_size]
                 try:
@@ -993,6 +1050,8 @@ async def process_single_upload(upload: UploadDocument) -> None:
 
             t1 = time.perf_counter()
             logger.info(f"[WORKER] Chunked bulk inserted {inserted_count} RawSaleDocuments in {t1 - t0:.2f}s")
+            raw_docs.clear()
+            gc.collect()
 
         # Persist row statistics
         upload.row_count = row_idx - 1
@@ -1072,7 +1131,9 @@ async def worker_loop() -> None:
             for stale in stale_uploads:
                 logger.warning(f"[WORKER] Timing out stale processing job: {stale.upload_id}")
                 stale.status = UploadStatus.FAILED
-                stale.stage_errors = ["Upload processing timed out due to server restart."]
+                stale.error_reason = "Upload processing timed out due to server restart."
+                stale.validation_errors = ["Upload processing timed out due to server restart."]
+                stale.failed_stage = stale.current_stage or "processing"
                 await stale.save()
 
             # 2. Fetch oldest pending upload job (FIFO order)

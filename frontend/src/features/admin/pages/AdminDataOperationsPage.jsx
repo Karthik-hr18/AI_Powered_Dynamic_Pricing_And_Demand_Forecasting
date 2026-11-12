@@ -246,7 +246,7 @@ export const AdminDataOperationsPage = () => {
                       {u.current_stage || "COMPLETED"}
                     </td>
                     <td style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
-                      {u.duration_seconds !== null ? `${u.duration_seconds}s` : "—"}
+                      {u.duration_seconds != null ? `${u.duration_seconds}s` : "—"}
                     </td>
                     <td style={{ fontSize: "12px", color: "var(--gray-text-muted)" }}>
                       {formatDate(u.created_at)}
